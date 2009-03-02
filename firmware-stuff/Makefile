@@ -1,15 +1,21 @@
 
 SYSTEMS=bootloader corelib
 
+CC = avr-gcc
+CXX = avr-g++
+CXXFLAGS = -D__STDC_LIMIT_MACROS -Icorelib
+LDFLAGS = 
+
 
 .PHONY: all clean $(SYSTEMS) cleanall firmware
 
 all: bootloader firmware
 
-firmware: corelib 
+corelib.a:
+	$(MAKE) -C corelib
 
-bootloader: corelib
-
+firmware: corelib.a
+# REAL STUFF HERE
 
 $(SYSTEMS):
 	$(MAKE) -C $@

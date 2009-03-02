@@ -1,10 +1,19 @@
 #ifndef _PIPE_H
 #define _PIPE_H
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "rankfile.H"
+
+
 // represents a real pipe of a real rank of a real division, loaded into program memory
 class Pipe {
 public:
-  Pipe(int fundamental, FILE* file, int offset, int attackLen, int sustainLen, int releaseLen);
+
+  // used to create a Pipe and load in data from an already open rank file, at a given offset into that file, for a given fundamental.  The number of samples to take for each section is specified in the pipe header at the given offset.
+  Pipe(int fundamental, FILE* file, int offset);
   ~Pipe();
 
 protected:

@@ -1,16 +1,23 @@
-.PHONY: all clean cleanall
+.PHONY: all clean cleanall liborgan
 
-all: playpipe pipegen
+CC = gcc
+CXX = g++
+CXXFLAGS = -D__STDC_LIMIT_MACROS
+LDFLAGS =
 
-playpipe:
 
+all: ../liborgan.a
 
-pipegen:
+liborgan: ../liborgan.a
+
+../liborgan.a: 
+# REAL STUFF HERE
 
 
 
 clean:
 	rm -f *.o
+	rm -f ../liborgan.a
 
 cleanall: clean
 

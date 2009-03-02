@@ -4,11 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <alsa/asoundlib.h>
+#include "AlsaHelp.H"
 
-struct frame_t {
-  int16_t left;
-  int16_t right;
-};
 
 struct pipe_data_t {
   time_t stop_time;

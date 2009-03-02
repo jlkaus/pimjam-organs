@@ -1,13 +1,26 @@
 
 
-.PHONY: all clean cleanall
+.PHONY: all clean cleanall libmidi
 
-all: midi-test
+CC = gcc
+CXX = g++
+CXXFLAGS = -D__STDC_LIMIT_MACROS
+LDFLAGS = -L..
 
-midi-test:
+all: libmidi midi-test
+
+libmidi: ../libmidi.a
+
+../libmidi.a:
+# REAL STUFF HERE
+
+midi-test: libmidi
+# REAL STUFF HERE
 
 clean:
 	rm -f *.o
+	rm -f ../libmidi.a
+	rm -f midi-test
 
 cleanall: clean
 
