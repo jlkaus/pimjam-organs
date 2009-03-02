@@ -6,7 +6,7 @@ rank-data: pipe-data
 # REAL STUFF HERE
 
 pipe-data:
-	$(MAKE) -C ../pipe-stuff
+	$(MAKE) -C ../pipe-stuff pipegen rankgen
 # REAL STUFF HERE
 
 

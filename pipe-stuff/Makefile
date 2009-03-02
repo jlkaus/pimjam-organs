@@ -6,7 +6,7 @@ CXXFLAGS = -D__STDC_LIMIT_MACROS -I../general-stuff
 LDFLAGS = -L..
 
 
-all: playpipe pipegen
+all: playpipe pipegen rankgen
 
 ../liborgan.a:
 	$(MAKE) -C ../general-stuff liborgan
@@ -17,10 +17,12 @@ playpipe: ../liborgan.a
 pipegen: ../liborgan.a
 # REAL STUFF HERE
 
+rankgen: ../liborgan.a
+# REAL STUFF HERE
 
 clean:
 	rm -f *.o
-	rm -f playpipe pipegen
+	rm -f playpipe pipegen rankgen
 
 cleanall: clean
 
