@@ -13,31 +13,39 @@ class Pipe {
 public:
 
   // used to create a Pipe and load in data from an already open rank file, at a given offset into that file, for a given fundamental.  The number of samples to take for each section is specified in the pipe header at the given offset.
-  Pipe(int fundamental, FILE* file, int offset);
+  Pipe(FILE* file, int offset);
+  // used to create a Pipe and load in data from a pipe file, not yet open
+  Pipe(const char* pipeFile);
+  
   ~Pipe();
 
 protected:
+  // in cents
+  int mFundamental;
+  
   // in samples:
-  int mPeriodSamples;
+  int mSustainSamples;  // might be zero for no sustain (bells, chimes, etc)
   int mAttackSamples;
   int mReleaseSamples;
 
-  // in cents
-  int mFundamental;
-
   // in seconds:
-  float mPeriodDuration;
+  float mSustainDuration;
   float mAttackDuration;
   float mReleaseDuration;
-
+  float mRsvd1;
+  
   // this is volume relative to the entire organ
   float mPipeVolume;
-
+  // volume decrease (relative to mPipeVolume) per sustain repeat (zero for organs)
+  float mDecayRate;
+  float mRsvd2;
+  float mRsvd3;
+  
   // array of samples for attack, normalized to a peak pipe volume of 1.
-  float* mAttackData;
   float* mSustainData;
+  float* mAttackData;
   float* mReleaseData;
-  void* mReserved;
+  void* mRsvd4;
 
 };
 
