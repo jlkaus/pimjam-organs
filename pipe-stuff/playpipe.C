@@ -7,7 +7,7 @@
 #include "AlsaHelp.H"
 
 
-struct pipe_data_t {
+struct playing_data_t {
   time_t stop_time;
   int cur_index;
   snd_pcm_uframes_t buffer_size;
@@ -16,15 +16,15 @@ struct pipe_data_t {
   frame_t waveform[0];
 };
 
-pipe_data_t* prepPipe(const char* pipeFile, int buffer_size, int period_size) {
-  pipe_data_t* pipeData = NULL;
+playing_data_t* prepData(const char* pipeFile, int buffer_size, int period_size) {
+  playing_data_t* pipeData = NULL;
 
   FILE* pipe_file = fopen(pipeFile);
   if(pipe_file) {
     snd_pcm_uframes_t samples;
     // compute file size in number of frames
 
-    pipeData = malloc(sizeof(pipe_data_t) + samples*sizeof(frame_t) + period_size);
+    pipeData = malloc(sizeof(playing_data_t) + samples*sizeof(frame_t) + period_size);
     if(pipeData) {
       pipeData->stop_time = 0;
       pipeData->cur_index = 0;
@@ -47,7 +47,7 @@ pipe_data_t* prepPipe(const char* pipeFile, int buffer_size, int period_size) {
 }
 
 void runningLow(snd_async_handler_t *pcm_callback) {
-  pipe_data_t* pipeData = snd_async_handler_get_callback_private(pcm_callback);
+  playing_data_t* pipeData = snd_async_handler_get_callback_private(pcm_callback);
   snd_pcm_t* handle = snd_async_handler_get_pcm(pcm_callback);
   snd_pcm_sframes_t avail = snd_pcm_avail_update(handle);
   int err;
@@ -74,7 +74,7 @@ int main (int argc, char *argv[])
 {
   // interpret arguments and open the pipe file to load it into memory, then close it.
   if(argc ==3) {
-    pipe_date_t* pipeData = prepPipe(argv[1], 1024*sizeof(frame_t), 16*sizeof(frame_t));
+    playing_date_t* pipeData = prepData(argv[1], 1024*sizeof(frame_t), 16*sizeof(frame_t));
     if(pipeData) {
       printf(": Pipe data loaded.\n");
       pipeData->stop_time = time() + atoi(argv[2]);
@@ -104,7 +104,7 @@ int main (int argc, char *argv[])
 
 	printf(": Cleaned up and exiting.\n");
       }
-      delete pipe_data_t;
+      delete pipeData;
     }
   } else {
     fprintf(stderr,"not enough arguments.  syntax: playpipe <path to pipe file> <play duration in seconds>\n");
