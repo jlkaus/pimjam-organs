@@ -9,6 +9,7 @@ LDFLAGS = -L..
 
 all: libmidi midi-test
 
+
 libmidi: ../libmidi.a
 
 ../libmidi.a:
