@@ -1,10 +1,10 @@
 
-SYSTEMS=organ-stuff pipe-stuff midi-stuff firmware-stuff data general-stuff
+SYSTEMS=organ-stuff pipe-stuff midi-stuff firmware-stuff data general-stuff xml-stuff
 
 
-.PHONY: all clean $(SYSTEMS) cleanall liborgan libmidi firmware organ
+.PHONY: all clean $(SYSTEMS) cleanall liborgan libmidi firmware organ libxml
 
-all: firmware-stuff organ-stuff data pipe-stuff midi-stuff
+all: firmware-stuff organ-stuff data pipe-stuff midi-stuff xml-stuff
 
 firmware:
 	$(MAKE) -C firmware-stuff firmware
@@ -14,6 +14,9 @@ liborgan:
 
 libmidi:
 	$(MAKE) -C midi-stuff libmidi
+
+libxml:
+	$(MAKE) -C xml-stuff libxml
 
 organ:
 	$(MAKE) -C organ-stuff organ-emu
