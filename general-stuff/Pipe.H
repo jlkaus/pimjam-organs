@@ -15,7 +15,7 @@ public:
   // used to create a Pipe and load in data from an already open rank file, at a given offset into that file, for a given fundamental.  The number of samples to take for each section is specified in the pipe header at the given offset.
   Pipe(FILE* file, int offset);
   // used to create a Pipe and load in data from a pipe file, not yet open
-  Pipe(const char* pipeFile);
+  Pipe(std::String pipeFile);
   
   ~Pipe();
 
