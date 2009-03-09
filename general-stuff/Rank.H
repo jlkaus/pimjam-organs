@@ -12,7 +12,7 @@
 
 class Rank {
 public:
-  Rank(std::String rankFile);
+  Rank(std::string rankFile);
   ~Rank();
 
   inline const PipeSet& getPipeSet(int mNote) const {return mSets[mNote];}

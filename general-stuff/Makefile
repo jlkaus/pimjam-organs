@@ -10,12 +10,22 @@ all: ../liborgan.a
 
 liborgan: ../liborgan.a
 
-../liborgan.a: AlsaHelp.o Rank.o Pipe.o
-# REAL STUFF HERE
+../liborgan.a: AlsaHelp.o Rank.o Pipe.o Organ.o Division.o PipeSet.o
+	ar cr $@ $^
 
 AlsaHelp.o: AlsaHelp.C AlsaHelp.H
-Rank.o: Rank.C Rank.H Pipe.H rankfile.H
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+Rank.o: Rank.C Rank.H Pipe.H rankfile.H PipeSet.H
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 Pipe.o: Pipe.C Pipe.H Rank.H rankfile.H
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+Organ.o: Organ.C Organ.H Division.H 
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+Division.o: Division.C Division.H Rank.H
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+PipeSet.o: PipeSet.C PipeSet.H rankfile.H
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
 
 
 clean:

@@ -4,11 +4,11 @@
 
 class Organ {
 public:
-  Organ(std::String organFile);
+  Organ(std::string organFile);
   ~Organ();
 
 protected:
-  std::map<std::String, Division*> mDivisions;
+  std::map<std::string, Division*> mDivisions;
 
 
 };

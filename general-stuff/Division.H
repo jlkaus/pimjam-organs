@@ -13,8 +13,8 @@ public:
 
 protected:
 
-  std::map<std::String, Rank*> mRanks;
-  std::map<std::String, Division*> mCoupledDivisions;
+  std::map<std::string, Rank*> mRanks;
+  std::map<std::string, Division*> mCoupledDivisions;
 
 };
 

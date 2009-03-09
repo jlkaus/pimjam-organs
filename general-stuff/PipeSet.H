@@ -10,7 +10,7 @@
 class PipeSet {
 public:
   PipeSet(FILE* rankFile, long int offset, int numPipes);
-  PipeSet(std::String files[], int numPipes);
+  PipeSet(std::string files[], int numPipes);
   ~PipeSet();
   
 
