@@ -10,9 +10,11 @@ all: ../liborgan.a
 
 liborgan: ../liborgan.a
 
-../liborgan.a: AlsaHelp.o Rank.o Pipe.o Organ.o Division.o PipeSet.o
+../liborgan.a: AlsaHelp.o Rank.o Pipe.o Organ.o Division.o PipeSet.o AlsaPlayControlBlock.o
 	ar cr $@ $^
 
+AlsaPlayControlBlock.o: AlsaPlayControlBlock.C AlsaPlayControlBlock.H
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 AlsaHelp.o: AlsaHelp.C AlsaHelp.H
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 Rank.o: Rank.C Rank.H Pipe.H rankfile.H PipeSet.H
