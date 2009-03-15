@@ -1,6 +1,10 @@
 #ifndef _COUPLER_H
 #define _COUPLER_H
 
+#include <string>
+#include "Division.H"
+
+
 class Coupler {
 public:
   Coupler(std::string name, Division* target, int offset):mName(name), mTarget(target), mOffsetLength(offsset) {}

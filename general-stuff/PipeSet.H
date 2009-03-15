@@ -2,6 +2,7 @@
 #define _PIPESET_H
 
 #include <vector>
+#include <string>
 #include <stdint.h>
 #include <stdio.h>
 #include "Pipe.H"

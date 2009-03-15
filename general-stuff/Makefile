@@ -2,8 +2,8 @@
 
 CC = gcc
 CXX = g++
-CXXFLAGS = -D__STDC_LIMIT_MACROS
-LDFLAGS =
+CXXFLAGS = -D__STDC_LIMIT_MACROS -I../xml-stuff
+LDFLAGS = -L..
 
 
 all: ../liborgan.a

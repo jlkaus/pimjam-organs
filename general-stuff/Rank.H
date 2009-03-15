@@ -9,6 +9,7 @@
 #include "Pipe.H"
 #include "PipeSet.H"
 #include <map>
+#include <string>
 
 class Rank {
 public:

@@ -2,7 +2,7 @@
 
 CC = gcc
 CXX = g++
-CXXFLAGS = -D__STDC_LIMIT_MACROS -I../general-stuff -I../midi-stuff
+CXXFLAGS = -D__STDC_LIMIT_MACROS -I../general-stuff -I../midi-stuff -I../xml-stuff
 LDFLAGS = -L..
 
 

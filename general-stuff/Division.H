@@ -1,6 +1,18 @@
 #ifndef _DIVISION_H
 #define _DIVISION_H
 
+#include <string>
+#include <map>
+#include <set>
+
+#include "ticpp.h"
+#include "Stop.H"
+#include "Input.H"
+#include "Keyboard.H"
+#include "Coupler.H"
+#include "Effect.H"
+#include "Rank.H"
+
 class Division {
 public:
   Division(ticpp::Element* divisionDescription);

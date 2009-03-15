@@ -6,6 +6,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "rankfile.H"
+#include <string>
 
 
 // represents a real pipe of a real rank of a real division, loaded into program memory

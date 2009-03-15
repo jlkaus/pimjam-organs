@@ -1,6 +1,7 @@
 #ifndef _INPUT_H
 #define _INPUT_H
 
+
 class Input {
 public:
   Input(int channel): mType(ChannelInput), mChannel(channel), mLine(-1), mRangeLow(-1), mRangeHigh(-1) {}
