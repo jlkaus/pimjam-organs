@@ -14,7 +14,8 @@ public:
   ~Organ();
 
   int sendInput(const Input& in, AlsaPlayControlBlock& apcb);
-
+ inline	Division* getDivision(std::string name) const { return mDivisions[name]; } 
+  
 protected:
   std::map<std::string, Division*> mDivisions;
 

@@ -7,9 +7,11 @@
 
 class Coupler {
 public:
-  Coupler(std::string name, Division* target, int offset):mName(name), mTarget(target), mOffsetLength(offsset) {}
+  Coupler(std::string name, std::string target, int offset):mName(name), mTarget(target), mOffsetLength(offsset) {}
   ~Coupler() {}
 
+  inline std::string getTarget() const {return mTarget;}
+  inline int getOffset() const {return mOffsetLength;}
   inline const Coupler& operator=(const Coupler& rhs) {mName = rhs.mName; mTarget = rhs.mTarget; mOffsetLength = rhs.mOffsetLength; }
   bool matches(const Coupler& rhs);
   bool operator<(const Coupler& rhs);
@@ -17,7 +19,7 @@ public:
 
 protected:
   std::string mName;
-  Division* mTarget;
+  std::string mTarget;
   int mOffsetLength;
 };
 
