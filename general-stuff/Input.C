@@ -1,6 +1,6 @@
 #include "Input.H"
 
-bool Input::matches(const Input& rhs) {
+bool Input::matches(const Input& rhs) const{
   // channel has to match regardless of what type we are
   if(mChannel == rhs.mChannel) {
     if(mType == ChannelInput) {
@@ -23,7 +23,7 @@ bool Input::matches(const Input& rhs) {
   return false;
 }
 
-bool Input::operator<(const Input& rhs) {
+bool Input::operator<(const Input& rhs) const{
   if(mType == SpecificInput) {
     if(rhs.mType == SpecificInput) {
       if(mChannel == rhs.mChannel) {
@@ -55,7 +55,7 @@ bool Input::operator<(const Input& rhs) {
   }
 }
 
-bool Input::operator==(const Input& rhs) {
+bool Input::operator==(const Input& rhs) const{
   return matches(rhs);
 }
 

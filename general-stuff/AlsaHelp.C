@@ -26,11 +26,11 @@ snd_pcm_t* prepAlsa(const char* device, snd_pcm_uframes_t &bsize, snd_pcm_uframe
 		fprintf(stderr,"*** sample rate set to %d instead of %d\n",rate,44100);
 	      }
 	      if ((err = snd_pcm_hw_params_set_channels (handle, hw_params, 2))== 0) {
-		if((err = snd_pcm_hw_params_set_buffer_size_near(handle, hw_params, &bsize,NULL))==0) {
+		if((err = snd_pcm_hw_params_set_buffer_size_near(handle, hw_params, &bsize))==0) {
 		  if(bsize != bsize_des) {
 		    fprintf(stderr,"*** buffer size set to %d instead of %d\n",bsize, bsize_des);
 		  }
-		  if((err = snd_pcm_hw_params_set_period_size_near(handle, hw_params, &psize,NULL))==0) {
+		  if((err = snd_pcm_hw_params_set_period_size_near(handle, hw_params, &psize,0))==0) {
 		    if(psize != psize_des) {
 		      fprintf(stderr,"*** period size set to %d instead of %d\n",psize, psize_des);
 		    }

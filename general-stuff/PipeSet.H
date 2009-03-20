@@ -5,6 +5,7 @@
 #include <string>
 #include <stdint.h>
 #include <stdio.h>
+
 #include "Pipe.H"
 #include "rankfile.H"
 
@@ -18,7 +19,7 @@ public:
 
 protected:
   int mWrittenNote;
-  std::vector<Pipe> mPipes;
+  std::vector<Pipe*> mPipes;
 
 
 };

@@ -6,6 +6,7 @@
 
 class Keyboard {
 public:
+  Keyboard():mName(),mOffsetLength(0) {}
   Keyboard(std::string name, int offset): mName(name), mOffsetLength(offset) {}
   ~Keyboard() {}
 

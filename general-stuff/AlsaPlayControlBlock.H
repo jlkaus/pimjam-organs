@@ -1,10 +1,12 @@
 #ifndef _ALSAPLAYCONTROLBLOCK_H
 #define _ALSAPLAYCONTROLBLOCK_H
 
+#include "Pipe.H"
+
 class AlsaPlayControlBlock {
 public:
   AlsaPlayControlBlock();
-  ~AlsaPlaycontrolBlock();
+  ~AlsaPlayControlBlock();
 
   // adds the pipe to the list of pipes that are currently sounding, in attack mode, with sustain mode scheduled to begin after the attack is finished.
   int attackPipe(Pipe* pipe);

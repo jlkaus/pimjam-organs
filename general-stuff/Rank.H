@@ -1,26 +1,27 @@
 #ifndef _RANK_H
 #define _RANK_H
 
+#include <map>
+#include <string>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+
 #include "rankfile.H"
 #include "Pipe.H"
 #include "PipeSet.H"
-#include <map>
-#include <string>
 
 class Rank {
 public:
   Rank(std::string rankFile);
   ~Rank();
 
-  inline const PipeSet& getPipeSet(int mNote) const {return mSets[mNote];}
+  inline PipeSet* getPipeSet(int mNote, int mOffset) {return mSets[mNote];}
 
 
 protected:
-  wchar_t mName[256];
+  std::string mName;
   float mPitchLength;
   int mBaseWrittenNote;
   std::map<int,PipeSet*> mSets;

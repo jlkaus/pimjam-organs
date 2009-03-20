@@ -5,13 +5,14 @@
 
 class Stop {
 public:
+  Stop():mName(), mClassLength(0) {}
   Stop(std::string name, int classLength): mName(name), mClassLength(classLength) {}
   ~Stop() {}
 
   inline const Stop& operator=(const Stop& rhs) { mName = rhs.mName; mClassLength = rhs.mClassLength; }
-  bool matches(const Stop& rhs);
-  bool operator<(const Stop& rhs);
-  bool operator==(const Stop& rhs);
+  bool matches(const Stop& rhs) const;
+  bool operator<(const Stop& rhs) const;
+  bool operator==(const Stop& rhs) const;
 
 
 protected:

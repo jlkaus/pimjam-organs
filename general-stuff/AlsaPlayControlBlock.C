@@ -4,7 +4,7 @@ AlsaPlayControlBlock::AlsaPlayControlBlock() {
 
 }
 
-AlsaPlayControlBlock::~AlsaPlaycontrolBlock() {
+AlsaPlayControlBlock::~AlsaPlayControlBlock() {
 }
 
 int AlsaPlayControlBlock::attackPipe(Pipe* pipe) {

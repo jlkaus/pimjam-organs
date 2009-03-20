@@ -43,5 +43,5 @@
     <stop name="Dulciana 16'"		length="16"	channel="6"	input="1"	rank="dulciana_16.rank" />
     <stop name="Flute 8'"		length="8"	channel="6"	input="2"	rank="flute_8.rank" />
   
-  </divison>
+  </division>
 </organ>
