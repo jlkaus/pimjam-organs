@@ -2,11 +2,11 @@
 
 CC = gcc
 CXX = g++
-CXXFLAGS = -D__STDC_LIMIT_MACROS -I../general-stuff -I../midi-stuff -I../xml-stuff
+CXXFLAGS = -D__STDC_LIMIT_MACROS -DTIXML_USE_TICPP -I../general-stuff -I../midi-stuff -I../xml-stuff
 LDFLAGS = -L..
 
 
-all: organ-emu organ-midi
+all: organ-emu organ-midi organ-create
 
 ../libmidi.a:
 	$(MAKE) -C ../midi-stuff libmidi
@@ -14,15 +14,29 @@ all: organ-emu organ-midi
 ../liborgan.a:
 	$(MAKE) -C ../general-stuff liborgan
 
-organ-emu: ../liborgan.a ../libmidi.a
-# REAL STUFF HERE
+../libxml.a:
+	$(MAKE) -C ../xml-stuff libxml
 
-organ-midi: ../liborgan.a ../libmidi.a
-# REAL STUFF HERE
+organ-emu: organ-emu.o ../liborgan.a ../libmidi.a ../libxml.a
+	$(CXX) $(LDFLAGS) -c $@ $< -lorgan -lmidi -lxml
+	
+organ-emu.o: organ-emu.C ../liborgan.a ../libmidi.a ../libxml.a
+	$(CXX) $(CXXFLAGS) -o $@ $<
+
+organ-midi: organ-midi.o ../liborgan.a ../libmidi.a ../libxml.a
+	$(CXX) $(LDFLAGS) -c $@ $< -lorgan -lmidi -lxml
+organ-midi.o: organ-midi.C ../liborgan.a ../libmidi.a ../libxml.a
+	$(CXX) $(CXXFLAGS) -o $@ $<
+
+organ-create: organ-create.o ../liborgan.a ../libxml.a
+	$(CXX) $(LDFLAGS) -o $@ $< -lorgan -lxml
+
+organ-create.o: organ-create.C ../liborgan.a ../libxml.a
+	$(CXX) $(CXXFLAGS) -o $@ $<
 
 clean:
 	rm -f *.o
-	rm -f organ-emu organ-midi
+	rm -f organ-emu organ-midi organ-create
 
 cleanall: clean
 
