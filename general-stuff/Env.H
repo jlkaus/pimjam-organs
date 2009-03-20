@@ -14,9 +14,11 @@ class Env {
 	Env(int cl, int ol): mDisplayCurrently(true),mCreationLoudness(cl), mOperationLoudness(ol) {}
 	~Env() {}
 
-	static Env& msg(MsgClass mc, int ml) {
-		if((mc == CreationMsg && ml < gEnv.mCreationLoudness) ||
-		(mc == OperationMsg && ml < gEnv.mOperationLoudness)) {
+	static void setLoudness(int cl, int ol) { mCreationLoudness = cl; mOperationLoudness = ol; }
+	
+	static Env& msg(MsgClass mc, int ml = 0) {
+		if((mc == CreationMsg && ml <= gEnv.mCreationLoudness) ||
+		(mc == OperationMsg && ml <= gEnv.mOperationLoudness)) {
 			gEnv.mDisplayCurrently = true;
 			if(mc == CreationMsg) {
 				std::cout << "CRT: ";
@@ -31,6 +33,11 @@ class Env {
 		return gEnv;
 	}
 
+	static Env& msg() {
+		gEnv.mDisplayCurrently = true;
+		std::cout << "MSG: ";
+		return gEnv;
+	}
 	static Env& err() {
 		gEnv.mDisplayCurrently = true;
 		std::cout << "!!!: ";
