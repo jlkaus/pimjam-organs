@@ -14,7 +14,10 @@ class Env {
 	Env(int cl, int ol): mDisplayCurrently(true),mCreationLoudness(cl), mOperationLoudness(ol) {}
 	~Env() {}
 
-	static void setLoudness(int cl, int ol) { mCreationLoudness = cl; mOperationLoudness = ol; }
+	static void setLoudness(int cl, int ol) {
+	       gEnv.mCreationLoudness = cl;
+	       gEnv.mOperationLoudness = ol;
+	}
 	
 	static Env& msg(MsgClass mc, int ml = 0) {
 		if((mc == CreationMsg && ml <= gEnv.mCreationLoudness) ||
@@ -57,7 +60,13 @@ class Env {
 		return *this;
 	}
 
-
+	Env& operator<<(std::ostream& (*fn)(std::ostream&)) {
+		if(mDisplayCurrently) {
+		    fn(std::cout);
+		}
+		return *this;
+       	}
+	
 	protected:
 	static Env gEnv;
 	bool mDisplayCurrently;	

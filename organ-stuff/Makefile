@@ -21,18 +21,18 @@ organ-emu: organ-emu.o ../liborgan.a ../libmidi.a ../libxml.a
 	$(CXX) $(LDFLAGS) -c $@ $< -lorgan -lmidi -lxml
 	
 organ-emu.o: organ-emu.C ../liborgan.a ../libmidi.a ../libxml.a
-	$(CXX) $(CXXFLAGS) -o $@ $<
+	$(CXX) $(CXXFLAGS) -c-o $@ $<
 
 organ-midi: organ-midi.o ../liborgan.a ../libmidi.a ../libxml.a
 	$(CXX) $(LDFLAGS) -c $@ $< -lorgan -lmidi -lxml
 organ-midi.o: organ-midi.C ../liborgan.a ../libmidi.a ../libxml.a
-	$(CXX) $(CXXFLAGS) -o $@ $<
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 organ-create: organ-create.o ../liborgan.a ../libxml.a
 	$(CXX) $(LDFLAGS) -o $@ $< -lorgan -lxml
 
 organ-create.o: organ-create.C ../liborgan.a ../libxml.a
-	$(CXX) $(CXXFLAGS) -o $@ $<
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 clean:
 	rm -f *.o
