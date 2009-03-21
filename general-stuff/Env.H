@@ -19,10 +19,13 @@ class Env {
 	       gEnv.mOperationLoudness = ol;
 	}
 	
-	static Env& msg(MsgClass mc, int ml = 0) {
+  static Env& msg(MsgClass mc, int ml = 0, int indent=0) {
 		if((mc == CreationMsg && ml <= gEnv.mCreationLoudness) ||
 		(mc == OperationMsg && ml <= gEnv.mOperationLoudness)) {
 			gEnv.mDisplayCurrently = true;
+			for(int i=0;i<indent;++i) {
+			  std::cout << " ";
+			}
 			if(mc == CreationMsg) {
 				std::cout << "CRT: ";
 			} else if(mc == OperationMsg) {

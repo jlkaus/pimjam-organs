@@ -2,15 +2,18 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "Pipe.H"
+#include "Env.H"
 
 Pipe::Pipe(FILE* file, int offset) {
-  std::cout << "\t\t\t\t\tReading in Pipe data from an already open file" << std::endl;
+  Env::msg(Env::CreationMsg,10,10)<<"Creating pipe from already open file" << std::endl;
+
+  Env::msg(Env::OperationMsg,1,10)<<"Loading pipe:"<<std::endl;
 }
 
 Pipe::Pipe(std::string pipeFile) {
-  std::cout << "\t\t\t\t\tCreating a Pipe from data in file "<< pipeFile << std::endl;
+  Env::msg(Env::CreationMsg,10,10)<<"Creating pipe from a file " <<pipeFile<< std::endl;
 }
   
 Pipe::~Pipe() {
-
+  Env::msg(Env::CreationMsg,10,10)<<"Destroying pipe"<<std::endl;
 }

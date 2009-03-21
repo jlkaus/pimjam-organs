@@ -2,13 +2,13 @@
 #define _COUPLER_H
 
 #include <string>
-
+#include "Env.H"
 
 class Coupler {
 public:
   Coupler():mName(),mTarget(), mOffsetLength(0) {}
-  Coupler(std::string name, std::string target, int offset):mName(name), mTarget(target), mOffsetLength(offset) {}
-  ~Coupler() {}
+  Coupler(std::string name, std::string target, int offset):mName(name), mTarget(target), mOffsetLength(offset) {Env::msg(Env::CreationMsg,11,4) << "Creating a Coupler of name " << mName << " targeting " << mTarget << " with offset "<<mOffsetLength << std::endl;}
+  ~Coupler() {Env::msg(Env::CreationMsg,11,4)<<"Destroying coupler named "<<mName<<std::endl;}
 
   inline std::string getTarget() const {return mTarget;}
   inline int getOffset() const {return mOffsetLength;}

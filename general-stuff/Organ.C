@@ -5,6 +5,7 @@
 #include "ticpp.h"
 #include "Input.H"
 #include "AlsaPlayControlBlock.H"
+#include "Env.H"
 
 
 Organ::Organ(std::string organFile) {
@@ -14,17 +15,20 @@ Organ::Organ(std::string organFile) {
 
     ticpp::Element* organElement = doc.FirstChildElement();
 
-    std::string organName = organElement->GetAttribute("name");
+    mName = organElement->GetAttribute("name");
 
-    std::cout << "Reading Organ from "<<organFile<<" by name of "<< organName <<std::endl;
+    Env::msg(Env::CreationMsg,11,0) << "Creating organ named " << mName << std::endl;
+
+    Env::msg(Env::OperationMsg,1,0) << "Loading organ: " <<mName<<std::endl;
+
     ticpp::Iterator<ticpp::Element> child("division");
     for(child = child.begin(organElement); child!=child.end(); ++child) {
       std::string divName = child->GetAttribute("name");
-      std::cout << "\tGoing to create a new division with a name of "<<divName<<std::endl;
+
       mDivisions[divName] = new Division(&(*child));
     }
   } catch(ticpp::Exception& ex) {
-    std::cout << "*** Something bad happened.  Here is the exception: "<<ex.what() << std::endl;
+    Env::err() << "Got a ticpp exception in Organ ctor " << ex.what() <<std::endl;
   }
 }
 
@@ -34,6 +38,7 @@ Organ::~Organ() {
     delete (*curDiv).second;
     mDivisions.erase(curDiv++);
   }
+  Env::msg(Env::CreationMsg,11,0) << "Destroying organ "<<mName<<std::endl;
 }
 
 int Organ::sendInput(const Input& in, AlsaPlayControlBlock& apcb) {

@@ -7,16 +7,19 @@
 #include "PipeSet.H"
 #include "Pipe.H"
 #include "rankfile.H"
+#include "Env.H"
 
 PipeSet::PipeSet(FILE* rankFile, long int offset, int numPipes) {
-  std::cout << "\t\t\t\tCreating a PipeSet, I guess, from an already open file." << std::endl;
+  Env::msg(Env::CreationMsg,10,8) << "Creating PipeSet from already open file"<<std::endl;
+
+  Env::msg(Env::OperationMsg,1,8) << "Loading PipeSet: "<<std::endl;
 }
 
 PipeSet::PipeSet(std::string files[], int numPipes) {
-  std::cout << "\t\t\t\tCreating a PipeSet from an array of " << numPipes << " files." << std::endl;
+  Env::msg(Env::CreationMsg,10,8) << "Creating PipeSet from "<<numPipes<<" pipe files."<<std::endl;
 }
 
 PipeSet::~PipeSet() {
-
+  Env::msg(Env::CreationMsg,10,8)<<"Destroying PipeSet"<<std::endl;
 }
 

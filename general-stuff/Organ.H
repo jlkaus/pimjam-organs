@@ -17,6 +17,7 @@ public:
  inline	Division* getDivision(std::string name) { return mDivisions[name]; } 
   
 protected:
+  std::string mName;
   std::map<std::string, Division*> mDivisions;
 
 
