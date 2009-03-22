@@ -2,12 +2,19 @@
 
 all: rank-data
 
-rank-data: pipe-data
-# REAL STUFF HERE
+../pipe-stuff/rankgen: FORCE
+	$(MAKE) -C ../pipe-stuff rankgen
+../pipe-stuff/pipegen: FORCE
+	$(MAKE) -C ../pipe-stuff pipegen
 
-pipe-data:
-	$(MAKE) -C ../pipe-stuff pipegen rankgen
-# REAL STUFF HERE
+FORCE:
+
+rank-data: pipe-data ../pipe-stuff/rankgen
+
+
+pipe-data: ../pipe-stuff/pipegen
+	../pipe-stuff/pipegen dulciana_440.dft
+
 
 
 clean:

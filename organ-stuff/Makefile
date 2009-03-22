@@ -8,14 +8,16 @@ LDFLAGS = -L..
 
 all: organ-emu organ-midi organ-create
 
-../libmidi.a:
+../libmidi.a: FORCE
 	$(MAKE) -C ../midi-stuff libmidi
 
-../liborgan.a:
+../liborgan.a: FORCE
 	$(MAKE) -C ../general-stuff liborgan
 
-../libxml.a:
+../libxml.a: FORCE
 	$(MAKE) -C ../xml-stuff libxml
+
+FORCE:
 
 organ-emu: organ-emu.o ../liborgan.a ../libmidi.a ../libxml.a
 	$(CXX) $(LDFLAGS) -o $@ $< -lorgan -lmidi -lxml

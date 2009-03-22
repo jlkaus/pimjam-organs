@@ -2,20 +2,25 @@
 
 CC = gcc
 CXX = g++
-CXXFLAGS = -D__STDC_LIMIT_MACROS -I../general-stuff ../xml-stuff
+CXXFLAGS = -D__STDC_LIMIT_MACROS -I../general-stuff -I../xml-stuff
 LDFLAGS = -L..
 
 
 all: playpipe pipegen playset wavdft rankgen playrank playbar
 
-../liborgan.a:
+../liborgan.a: FORCE
 	$(MAKE) -C ../general-stuff liborgan
+
+FORCE:
 
 wavdft: ../liborgan.a
 # REAL STUFF HERE
 
-pipegen: ../liborgan.a
-# REAL STUFF HERE
+pipegen: pipegen.o ../liborgan.a
+	$(CXX) $(LDFLAGS) -o $@ $<
+
+pipegen.o: pipegen.C
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 rankgen: ../liborgan.a
 # REAL STUFF HERE
