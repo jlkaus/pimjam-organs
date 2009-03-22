@@ -1,0 +1,6 @@
+# Initially, you're going to need to load the firmware using the parallel port, including setting up some of the fuse bits and lock bits and whatnot
+avrdude -P /dev/parport0 -cbsd -pm644 -D -Uflash:w:file.hex
+
+# After that, you can use the USB port to load new firmware updates
+avrdude -P /dev/ttyUSB0 -cstk500v1 -pm644 -b38400 -D -Uflash:w:file.hex
+
