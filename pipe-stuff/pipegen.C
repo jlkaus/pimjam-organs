@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "rankfile.H"
 
@@ -30,14 +31,46 @@ int main(int argc, char* argv[]) {
   printf("Pipe file: %s\n",pipe_fn);
   printf("Fundamental: %d\n",fundamental);
 
-
   // create the pipe header structure
+  pipe_hdr_t pipeHeader;
+
+  int sample_rate = 44100;  // samples per second
+
+  pipeHeader.mFundamental = fundamental;   // cycles per second
+  pipeHeader.mSustainSamples = (int)((float)sample_rate * 2.0/(float)fundamental);  // samples per two cycles
+  pipeHeader.mAttackSamples = 0;
+  pipeHeader.mReleaseSamples = 0;
+  pipeHeader.mSustainDuration = 2.0/(float)fundamental;  // seconds per two cycles
+  pipeHeader.mAttackDuration = 0.0;
+  pipeHeader.mReleaseDuration = 0.0;
+  pipeHeader.mRsvd1 = 0.0;
+  pipeHeader.mRelativeVolume = 1.0;
+  pipeHeader.mDecayRate = 0.0;
+  pipeHeader.mRsvd2 = 0.0;
+  pipeHeader.mRsvd3 = 0.0;
+
+  int temp = -1;
+  memcpy(&pipeHeader.mRsvd1,&temp,sizeof(int));
+  memcpy(&pipeHeader.mRsvd2,&temp,sizeof(int));
+  memcpy(&pipeHeader.mRsvd3,&temp,sizeof(int));
+
+
+  printf("Sustain Samples: %d\n",pipeHeader.mSustainSamples);
+  printf("Sustain Duration: %f\n",pipeHeader.mSustainDuration);
 
   // open the spectrum file
+  //  FILE* spectrum_f = fopen(spectrum_fn,"rb");
+
   // open and create the pipe file
+  FILE* pipe_f = fopen(pipe_fn,"wb");
+  fwrite(&pipeHeader, sizeof(pipe_hdr_t), 1, pipe_f);
 
   // perform a DFT on the spectrum data and write the data out to the pipe file following the header
 
-  // close both files
 
+
+
+  // close both files
+  fclose(pipe_f);
+  //  fclose(spectrum_f);
 }
