@@ -1,0 +1,8 @@
+Organ.C: flesh out sendInput
+Division.C: flesh out sendInput and code to select stops, couplers, etc
+Rank.C: loading code
+PipeSet.C: loading code, code to attack and release
+Pipe.C: loading code
+AlsaHelp.C: add more setup stuff, generalize callbacks
+AlsaPlayControlBlock.C: add stuff to keep track of pipes currently open and playing, and what their state is.  possibly add schedule stuff to autorelease and decay.  add stuff to allow expression changes per division?  current pipe states should indicate when started, when it should stop, and which division is belongs to, so we can lookup division volume status.
+

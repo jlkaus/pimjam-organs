@@ -1,0 +1,3 @@
+Work on getting the corelib to work on the m164p, and possibly pruning it so its not too huge
+Work on getting the bootloader small enough and still useful enough that we might be able to auto-load firmware.
+Work on the actual firmware program, and test programs for initial playing around.  Might want to bring in the playground from other projects.

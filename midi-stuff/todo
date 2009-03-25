@@ -1,0 +1,3 @@
+Add code to setup and talk over the serial line, based on scom.c
+Add code to interpret midi events over the serial line and convert to input events, and add to a buffer of unhandled events perhaps?  or a list that can be concerted into a midi file or something.
+Add some code in here as well for talking to the device when debugging. Extra in-band messages, two way comms, etc.

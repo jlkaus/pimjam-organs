@@ -1,0 +1,12 @@
+Pipe Work:
+
+Work on some simple spectrums so we can generate a pipe
+Work on pipe loading
+Work on playback of the pipe
+
+AVR Work:
+
+Work on test firmwares
+Work on serial communications on hostside
+Work on displaying midi events and converting to Inputs
+

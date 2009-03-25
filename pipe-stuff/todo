@@ -1,0 +1,4 @@
+Work on adding simple tones to pipes for testing purposes.
+Work on combining pipes into rankfiles.
+Work on a somewhat general dft->pipe and wave->dft program or two.
+Make simple pipe playback work, including adding stuff to AlsaPlayControlBlock.C as we go.

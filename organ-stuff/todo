@@ -1,0 +1,1 @@
+These should all be fairly simple.  Most of the work is in other classes, from the midi-stuff and general-stuff directories.  Essentially, load up an organ file, load up a midi connection, and connect the two to an alsa play control block.  Done. :)
