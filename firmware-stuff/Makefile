@@ -11,13 +11,15 @@ LDFLAGS =
 
 all: bootloader firmware
 
-corelib.a:
+corelib.a: FORCE
 	$(MAKE) -C corelib
+
+FORCE:
 
 firmware: corelib.a
 # REAL STUFF HERE
 
-$(SYSTEMS):
+$(SYSTEMS): FORCE
 	$(MAKE) -C $@
 
 clean:
