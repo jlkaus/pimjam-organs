@@ -32,7 +32,8 @@ Pipe::Pipe(std::string pipeFile) {
 void Pipe::readPipeData(FILE* fh, long int offs) {
   pipe_hdr_t pipeHeader;
   fseek(fh, offs, SEEK_SET);
-  if(fread(&pipeHeader, sizeof(pipeHeader),1,fh) != sizeof(pipeHeader)) {
+
+  if(fread(&pipeHeader, sizeof(pipe_hdr_t),1,fh) != 1) {
     Env::err() << "Not enough data for pipe header" << std::endl;
     throw 7;
   }
@@ -77,17 +78,17 @@ void Pipe::readPipeData(FILE* fh, long int offs) {
   }
 
   if(mSustainSamples) {
-    if(fread(mSustainData,sizeof(float),mSustainSamples,fh) != sizeof(float)*mSustainSamples) {
+    if(fread(mSustainData,sizeof(float),mSustainSamples,fh) != mSustainSamples) {
       noGood = true;
     }
   }
   if(mAttackSamples) {
-    if(fread(mAttackData,sizeof(float),mAttackSamples,fh) != sizeof(float)*mAttackSamples) {
+    if(fread(mAttackData,sizeof(float),mAttackSamples,fh) != mAttackSamples) {
       noGood = true;
     }
   }
   if(mReleaseSamples) {
-    if(fread(mReleaseData, sizeof(float),mReleaseSamples,fh) != sizeof(float)*mReleaseSamples) {
+    if(fread(mReleaseData, sizeof(float),mReleaseSamples,fh) != mReleaseSamples) {
       noGood = true;
     }
   }

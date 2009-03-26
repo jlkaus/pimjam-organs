@@ -104,7 +104,7 @@ char getch(void);
 void nothing_response(void);
 //char gethex(void);
 //void puthex(char);
-void flash_led(void);
+//void flash_led(void);
 
 /* some variables */
 union address_union
@@ -135,7 +135,7 @@ void (*app_start)(void) = 0x0000;
 /* main program starts here */
 int main(void)
 {
-    uint8_t ch,ch2;
+  uint8_t ch;//,ch2;
     uint16_t w;
 	uint16_t i;
 	
@@ -155,8 +155,8 @@ int main(void)
 
     /* set LED pin as output */
     LED_DDR |= _BV(LED);
-    flash_led();
-
+    //    flash_led();
+LED_PORT |= _BV(LED);
     /* forever loop */
     for (;;)
 	{
@@ -411,8 +411,8 @@ int main(void)
 		    }
 			else
 			{
-				if (++error_count == MAX_ERROR_COUNT)
-				    app_start();
+			  if (++error_count == MAX_ERROR_COUNT)
+			    break;
 		    }		
 		}
     
@@ -484,10 +484,14 @@ int main(void)
 /* 			byte_response(0x00); */
 
 		else if (++error_count == MAX_ERROR_COUNT)
-		    app_start();
+		  break;
 
 	}
     /* end of forever loop */
+
+    LED_PORT &= ~_BV(LED);
+    app_start();
+
 }
 
 
@@ -549,8 +553,10 @@ char getch(void)
     	/* 20060803 DojoCorp:: Addon coming from the previous Bootloader*/               
     	/* HACKME:: here is a good place to count times*/
     	count++;
-    	if (count > MAX_TIME_COUNT)
+    	if (count > MAX_TIME_COUNT){
+LED_PORT &= ~_BV(LED);
     		app_start();
+	}
      }
     return UDR0;
 }
@@ -592,32 +598,34 @@ void nothing_response(void)
     }
 	else
 	{
-		if (++error_count == MAX_ERROR_COUNT)
+	  if (++error_count == MAX_ERROR_COUNT){
+LED_PORT &= ~_BV(LED);
 		    app_start();
+	  }
     }
 }
 
-void flash_led(void)
-{
-    /* flash onboard LED three times to signal entering of bootloader */
-	/* l needs to be volatile or the delay loops below might get
-	optimized away if compiling with optimizations (DAM). */
-    volatile uint32_t l;
+/* void flash_led(void) */
+/* { */
+/*     /\* flash onboard LED three times to signal entering of bootloader *\/ */
+/* 	/\* l needs to be volatile or the delay loops below might get */
+/* 	optimized away if compiling with optimizations (DAM). *\/ */
+/*       volatile uint32_t l; */
 
-/*     if (count == 0) */
-/* 	{ */
-/*       count = 3; */
-/*     } */
+/* /\*     if (count == 0) *\/ */
+/* /\* 	{ *\/ */
+/* /\*       count = 3; *\/ */
+/* /\*     } *\/ */
 
-	int8_t i;
-    for (i = 0; i < NUM_LED_FLASHES; ++i)
-	{
-		LED_PORT |= _BV(LED);
-		for(l = 0; l < (F_CPU / 1000); ++l);
-		LED_PORT &= ~_BV(LED);
-		for(l = 0; l < (F_CPU / 1000); ++l);
-    }
-}
+/*   int8_t i; */
+/*    for (i = 0; i < NUM_LED_FLASHES; ++i) */
+/*  	{ */
+/* 		LED_PORT |= _BV(LED); */
+/* 			for(l = 0; l < (F_CPU / 1000); ++l); */
+/* 	LED_PORT &= ~_BV(LED); */
+/* 	for(l = 0; l < (F_CPU / 1000); ++l); */
+/* 	} */
+/* } */
 
 
 /* end of file ATmegaBOOT.c */

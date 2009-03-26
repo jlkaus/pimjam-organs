@@ -17,7 +17,7 @@ wavdft: ../liborgan.a
 # REAL STUFF HERE
 
 pipegen: pipegen.o ../liborgan.a
-	$(CXX) $(LDFLAGS) -o $@ $<
+	$(CXX) $< $(LDFLAGS) -o $@
 
 pipegen.o: pipegen.C
 	$(CXX) $(CXXFLAGS) -o $@ $<
@@ -29,7 +29,7 @@ playpipe: ../liborgan.a
 # REAL STUFF HERE
 
 playset: playset.o ../liborgan.a
-	$(CXX) $(LDFLAGS) -lorgan -o $@ $<
+	$(CXX) $< $(LDFLAGS) -lorgan -o $@
 
 playset.o: playset.C
 	$(CXX) $(CXXFLAGS) -o $@ $<
