@@ -12,14 +12,14 @@
 #include "Coupler.H"
 #include "Effect.H"
 #include "Rank.H"
-#include "AlsaPlayControlBlock.H"
+#include "PlayControlBlock.H"
 
 class Division {
 public:
   Division(ticpp::Element* divisionDescription);
   ~Division();
 
-  int sendEvent(const Input& in, AlsaPlayControlBlock& apcb);
+  int sendEvent(const Input& in, PlayControlBlock& pcb, int newValue);
 
 protected:
   std::string mName;

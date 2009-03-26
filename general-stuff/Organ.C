@@ -4,7 +4,7 @@
 #include "Organ.H"
 #include "ticpp.h"
 #include "Input.H"
-#include "AlsaPlayControlBlock.H"
+#include "PlayControlBlock.H"
 #include "Env.H"
 
 
@@ -41,7 +41,7 @@ Organ::~Organ() {
   Env::msg(Env::CreationMsg,11,0) << "Destroying organ "<<mName<<std::endl;
 }
 
-int Organ::sendInput(const Input& in, AlsaPlayControlBlock& apcb) {
+int Organ::sendInput(const Input& in, PlayControlBlock& pcb, int newValue) {
   // go through all the Divisions until one of them handles the Input
 }
 

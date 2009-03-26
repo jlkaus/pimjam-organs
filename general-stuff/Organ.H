@@ -5,7 +5,7 @@
 #include <map>
 #include "Division.H"
 #include "Input.H"
-#include "AlsaPlayControlBlock.H"
+#include "PlayControlBlock.H"
 
 
 class Organ {
@@ -13,7 +13,7 @@ public:
   Organ(std::string organFile);
   ~Organ();
 
-  int sendInput(const Input& in, AlsaPlayControlBlock& apcb);
+  int sendInput(const Input& in, PlayControlBlock& pcb, int newValue);
  inline	Division* getDivision(std::string name) { return mDivisions[name]; } 
   
 protected:

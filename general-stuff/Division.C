@@ -6,7 +6,7 @@
 #include "Division.H"
 #include "Rank.H"
 #include "Input.H"
-#include "AlsaPlayControlBlock.H"
+#include "PlayControlBlock.H"
 #include "Env.H"
 
 Division::Division(ticpp::Element* divisionDescription) {
@@ -90,6 +90,6 @@ Division::~Division() {
 }
 
 
-int Division::sendEvent(const Input& in, AlsaPlayControlBlock& apcb) {
+int Division::sendEvent(const Input& in, PlayControlBlock& pcb, int newValue) {
 
 }

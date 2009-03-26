@@ -1,15 +1,15 @@
-#include "AlsaPlayControlBlock.H"
+#include "PlayControlBlock.H"
 
-AlsaPlayControlBlock::AlsaPlayControlBlock() {
+PlayControlBlock::PlayControlBlock() {
 
 }
 
-AlsaPlayControlBlock::~AlsaPlayControlBlock() {
+PlayControlBlock::~PlayControlBlock() {
 }
 
-int AlsaPlayControlBlock::attackPipe(Pipe* pipe) {
+int PlayControlBlock::attackPipe(Pipe* pipe) {
 }
 
-int AlsaPlayControlBlock::releasePipe(Pipe* pipe) {
+int PlayControlBlock::releasePipe(Pipe* pipe) {
 }
 
