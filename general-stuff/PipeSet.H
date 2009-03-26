@@ -15,7 +15,8 @@ public:
   PipeSet(std::string files[], int numPipes);
   ~PipeSet();
   
-
+protected:
+  void readPipeSetData(FILE* fh, long int offset, int numPipes);
 
 protected:
   int mWrittenNote;

@@ -2,7 +2,7 @@
 
 CC = gcc
 CXX = g++
-CXXFLAGS = -D__STDC_LIMIT_MACROS -I../general-stuff -I../xml-stuff
+CXXFLAGS = -c -D__STDC_LIMIT_MACROS -I../general-stuff -I../xml-stuff
 LDFLAGS = -L..
 
 
@@ -20,7 +20,7 @@ pipegen: pipegen.o ../liborgan.a
 	$(CXX) $(LDFLAGS) -o $@ $<
 
 pipegen.o: pipegen.C
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) -o $@ $<
 
 rankgen: ../liborgan.a
 # REAL STUFF HERE
@@ -28,8 +28,11 @@ rankgen: ../liborgan.a
 playpipe: ../liborgan.a
 # REAL STUFF HERE
 
-playset: ../liborgan.a
-# REAL STUFF HERE
+playset: playset.o ../liborgan.a
+	$(CXX) $(LDFLAGS) -lorgan -o $@ $<
+
+playset.o: playset.C
+	$(CXX) $(CXXFLAGS) -o $@ $<
 
 playrank: ../liborgan.a
 # REAL STUFF HERE

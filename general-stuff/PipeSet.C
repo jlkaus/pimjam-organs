@@ -19,6 +19,10 @@ PipeSet::PipeSet(std::string files[], int numPipes) {
   Env::msg(Env::CreationMsg,10,8) << "Creating PipeSet from "<<numPipes<<" pipe files."<<std::endl;
 }
 
+void PipeSet::readPipeSetData(FILE* fh, long int offset, int numPipes) {
+
+}
+
 PipeSet::~PipeSet() {
   Env::msg(Env::CreationMsg,10,8)<<"Destroying PipeSet"<<std::endl;
 }
