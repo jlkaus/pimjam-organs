@@ -4,8 +4,9 @@
 
 CC = gcc
 CXX = g++
-CXXFLAGS = -D__STDC_LIMIT_MACROS -DTIXML_USE_TICPP
+CXXFLAGS = -c -D__STDC_LIMIT_MACROS -DTIXML_USE_TICPP
 LDFLAGS = -L..
+LIBS =
 
 all: libxml
 
@@ -16,16 +17,16 @@ libxml: ../libxml.a
 	ar cr $@ $^
 
 ticpp.o: ticpp.cpp ticpp.h tinyxml.h ticpprc.h
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) -o $@ $<
 
 tinystr.o: tinystr.cpp tinystr.h
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) -o $@ $<
 tinyxml.o: tinyxml.cpp tinyxml.h ticpprc.h
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) -o $@ $<
 tinyxmlerror.o: tinyxmlerror.cpp tinyxml.h ticpprc.h
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) -o $@ $<
 tinyxmlparser.o: tinyxmlparser.cpp tinyxml.h ticpprc.h
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) -o $@ $<
 
 
 clean:

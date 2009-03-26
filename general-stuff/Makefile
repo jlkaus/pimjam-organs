@@ -4,7 +4,7 @@ CC = gcc
 CXX = g++
 CXXFLAGS = -c -D__STDC_LIMIT_MACROS -DTIXML_USE_TICPP -I../xml-stuff
 LDFLAGS = -L..
-
+LIBS = -lxml
 
 all: ../liborgan.a 
 

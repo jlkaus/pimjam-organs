@@ -4,7 +4,7 @@ CC = gcc
 CXX = g++
 CXXFLAGS = -c -D__STDC_LIMIT_MACROS -I../general-stuff -I../xml-stuff
 LDFLAGS = -L..
-
+LIBS = -lorgan -lxml
 
 all: playpipe pipegen playset wavdft rankgen playrank playbar
 
@@ -17,7 +17,7 @@ wavdft: ../liborgan.a
 # REAL STUFF HERE
 
 pipegen: pipegen.o ../liborgan.a
-	$(CXX) $< $(LDFLAGS) -o $@
+	$(CXX) $(LDFLAGS) -o $@ $< $(LIBS)
 
 pipegen.o: pipegen.C
 	$(CXX) $(CXXFLAGS) -o $@ $<
@@ -29,7 +29,7 @@ playpipe: ../liborgan.a
 # REAL STUFF HERE
 
 playset: playset.o ../liborgan.a
-	$(CXX) $< $(LDFLAGS) -lorgan -o $@
+	$(CXX) $(LDFLAGS) -o $@ $< $(LIBS)
 
 playset.o: playset.C
 	$(CXX) $(CXXFLAGS) -o $@ $<
