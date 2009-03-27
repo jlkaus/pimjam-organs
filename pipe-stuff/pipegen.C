@@ -80,6 +80,9 @@ int main(int argc, char* argv[]) {
 
   }
 
+  //TODO: buzzing! gah!
+
+
   // perform a DFT on the spectrum data and write the data out to the pipe file following the header
   for(int i=0;i<pipeHeader.mSustainSamples; ++i) {
     // y(t) = Ao sin(2pi f t)

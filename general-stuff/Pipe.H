@@ -20,6 +20,9 @@ public:
   
   ~Pipe();
 
+  int getNumSamples() { return mSustainSamples; }
+  float* getSamples() {return mSustainData; }
+
 protected:
   void readPipeData(FILE* fh, long int offset);
 
