@@ -17,20 +17,20 @@ struct pipe_hdr_t {
   int mAttackSamples;
   int mReleaseSamples;
 
-  float mSustainDuration;
-  float mAttackDuration;
-  float mReleaseDuration;
-  float mRsvd1;
+  double mSustainDuration;
+  double mAttackDuration;
+  double mReleaseDuration;
+  double mRsvd1;
   
-  float mRelativeVolume;
-  float mDecayRate;   // volume decrease per sustain repeat
-  float mRsvd2;
-  float mRsvd3;
+  double mRelativeVolume;
+  double mDecayRate;   // volume decrease per sustain repeat
+  double mRsvd2;
+  double mRsvd3;
 
-  // Then: the actual array of floats for the sustain, then for the attack, then for the release
-  // float mSustainData[];
-  // float mAttackData[];
-  // float mReleaseData[];
+  // Then: the actual array of doubles for the sustain, then for the attack, then for the release
+  // double mSustainData[];
+  // double mAttackData[];
+  // double mReleaseData[];
 };
 
 struct pipe_desc_t {
@@ -41,10 +41,10 @@ struct pipe_desc_t {
 
 struct rank_hdr_t {
   wchar_t mRankName[256];   // zero padded unicode string that is the name of this rank of pipes.  Would not include the pitch length number.  Needn't be unique amongst all ranks.  This, combined with the mPitchLength field is the true name of this rank, and what should set it apart from other ranks.
-  float mPitchLength;    // pitch class length for this rank
-  float mRsvd1;
-  float mRsvd2;
-  float mRsvd3;
+  double mPitchLength;    // pitch class length for this rank
+  double mRsvd1;
+  double mRsvd2;
+  double mRsvd3;
   
   int mBaseFrequency; // lowest pipe note for this rank, in cents.  
   int mNumPipeSets; // number of pipe sets in this rank

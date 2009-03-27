@@ -25,6 +25,9 @@ int main(int argc, char* argv[]) {
   char *tus = tex;
   while(*(--tus) != '_'); 
   fundamental = atoi(tus+1);
+  int harmonics = atoi(argv[2]);
+  int evens = atoi(argv[3]);
+
   strcpy(tex,".pipe");
 
   printf("Spectrum file: %s\n",spectrum_fn);
@@ -65,10 +68,42 @@ int main(int argc, char* argv[]) {
   FILE* pipe_f = fopen(pipe_fn,"wb");
   fwrite(&pipeHeader, sizeof(pipe_hdr_t), 1, pipe_f);
 
+  float* pipeSustainData = new float[pipeHeader.mSustainSamples];
+
+  float norm = 0.0;
+
+  if(evens) {
+    norm = 1.0/sqrt((float)harmonics);
+
+  } else {
+    norm = 1.0/sqrt((float)((harmonics+1)/2));
+
+  }
+
   // perform a DFT on the spectrum data and write the data out to the pipe file following the header
+  for(int i=0;i<pipeHeader.mSustainSamples; ++i) {
+    // y(t) = Ao sin(2pi f t)
+    pipeSustainData[i]=norm*sin(2.0*M_PI*(float)pipeHeader.mFundamental*((float)i/(float)sample_rate));
+    if(harmonics >1 && evens) {
+      // number 2
+      pipeSustainData[i]+=norm*sin(2.0*M_PI*(float)pipeHeader.mFundamental*2.0*((float)i/(float)sample_rate));
+    }
+    if(harmonics >2) {
+      // number 3
+      pipeSustainData[i]+=norm*sin(2.0*M_PI*(float)pipeHeader.mFundamental*3.0*((float)i/(float)sample_rate));
+    }
+    if(harmonics >3 && evens) {
+      // number 4
+      pipeSustainData[i]+=norm*sin(2.0*M_PI*(float)pipeHeader.mFundamental*4.0*((float)i/(float)sample_rate));
+    }
+    if(harmonics >4) {
+      // number 5
+      pipeSustainData[i]+=norm*sin(2.0*M_PI*(float)pipeHeader.mFundamental*5.0*((float)i/(float)sample_rate));
+    }
 
+  }
 
-
+  fwrite(pipeSustainData, sizeof(float), pipeHeader.mSustainSamples, pipe_f);
 
   // close both files
   fclose(pipe_f);

@@ -13,7 +13,13 @@ rank-data: pipe-data ../pipe-stuff/rankgen
 
 
 pipe-data: ../pipe-stuff/pipegen
-	../pipe-stuff/pipegen dulciana_440.dft
+	../pipe-stuff/pipegen pure_440.dft 1 1
+	../pipe-stuff/pipegen double_440.dft 2 1
+	../pipe-stuff/pipegen third_440.dft 3 1
+	../pipe-stuff/pipegen fourth_440.dft 4 1
+	../pipe-stuff/pipegen fifth_440.dft 5 1
+	../pipe-stuff/pipegen stopped_third_440.dft 3 0
+	../pipe-stuff/pipegen stopped_fifth_440.dft 5 0
 
 
 
