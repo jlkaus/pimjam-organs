@@ -2,15 +2,24 @@
 
 .PHONY: all clean cleanall libmidi
 
+LIBDEPS = ../liborgan.a ../libxml.a ../libmidi.a
+
 CC = gcc
 CXX = g++
-CXXFLAGS = -c -D__STDC_LIMIT_MACROS -I../organ-stuff
+CXXFLAGS = -c -D__STDC_LIMIT_MACROS -I../organ-stuff -I../general-stuff -I../midi-stuff
 CFLAGS = -c
 LDFLAGS = -L..
-LIBS = -lmidi
+LIBS = -lorgan -lxml -lmidi
 
 all: libmidi midi-test scom
 
+../libxml.a: FORCE
+	$(MAKE) -C ../xml-stuff libxml
+
+../liborgan.a: FORCE
+	$(MAKE) -C ../general-stuff liborgan
+
+FORCE:
 
 libmidi: ../libmidi.a
 
@@ -22,7 +31,7 @@ Scomm.o: Scomm.C Scomm.H
 Midi.o: Midi.C Midi.H
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
-midi-test: midi-test.o ../libmidi.a
+midi-test: midi-test.o $(LIBDEPS)
 	$(CXX) $(LDFLAGS) -o $@ $< $(LIBS)
 
 midi-test.o: midi-test.C Scomm.H Midi.H

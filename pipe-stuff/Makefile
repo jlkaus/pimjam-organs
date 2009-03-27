@@ -1,43 +1,52 @@
 .PHONY: all clean cleanall
 
+LIBDEPS = ../liborgan.a ../libxml.a ../libmidi.a
+
 CC = gcc
 CXX = g++
-CXXFLAGS = -c -D__STDC_LIMIT_MACROS -I../general-stuff -I../xml-stuff
+CXXFLAGS = -c -D__STDC_LIMIT_MACROS -I../general-stuff -I../xml-stuff -I../midi-stuff
+CFLAGS = -c
 LDFLAGS = -L..
-LIBS = -lorgan -lxml
+LIBS = -lorgan -lxml -lmidi
 
 all: playpipe pipegen playset wavdft rankgen playrank playbar
 
 ../liborgan.a: FORCE
 	$(MAKE) -C ../general-stuff liborgan
 
+../libxml.a: FORCE
+	$(MAKE) -C ../xml-stuff libxml
+
+../libmidi.a: FORCE
+	$(MAKE) -C ../midi-stuff libmidi
+
 FORCE:
 
-wavdft: ../liborgan.a
+wavdft: $(LIBDEPS)
 # REAL STUFF HERE
 
-pipegen: pipegen.o ../liborgan.a
+pipegen: pipegen.o $(LIBDEPS)
 	$(CXX) $(LDFLAGS) -o $@ $< $(LIBS)
 
 pipegen.o: pipegen.C
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
-rankgen: ../liborgan.a
+rankgen: $(LIBDEPS)
 # REAL STUFF HERE
 
-playpipe: ../liborgan.a
+playpipe: $(LIBDEPS)
 # REAL STUFF HERE
 
-playset: playset.o ../liborgan.a
+playset: playset.o $(LIBDEPS)
 	$(CXX) $(LDFLAGS) -o $@ $< $(LIBS)
 
 playset.o: playset.C
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
-playrank: ../liborgan.a
+playrank: $(LIBDEPS)
 # REAL STUFF HERE
 
-playbar: ../liborgan.a
+playbar: $(LIBDEPS)
 # REAL STUFF HERE
 
 clean:

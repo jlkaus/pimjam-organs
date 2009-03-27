@@ -1,12 +1,21 @@
 .PHONY: all clean cleanall liborgan
 
+LIBDEPS = ../liborgan.a ../libxml.a ../libmidi.a
+
 CC = gcc
 CXX = g++
-CXXFLAGS = -c -D__STDC_LIMIT_MACROS -DTIXML_USE_TICPP -I../xml-stuff
+CXXFLAGS = -c -D__STDC_LIMIT_MACROS -DTIXML_USE_TICPP -I../xml-stuff -I../midi-stuff -I../general-stuff
 LDFLAGS = -L..
-LIBS = -lxml
+LIBS = -lorgan -lxml -lmidi
 
 all: ../liborgan.a 
+
+../libxml.a: FORCE
+	$(MAKE) -C ../xml-stuff libxml
+../libmidi.a: FORCE
+	$(MAKE) -C ../midi-stuff libmidi
+
+FORCE:
 
 liborgan: ../liborgan.a
 

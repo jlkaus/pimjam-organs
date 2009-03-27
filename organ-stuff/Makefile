@@ -1,5 +1,7 @@
 .PHONY: all clean cleanall
 
+LIBDEPS = ../liborgan.a ../libxml.a ../libmidi.a
+
 CC = gcc
 CXX = g++
 CXXFLAGS = -c -D__STDC_LIMIT_MACROS -DTIXML_USE_TICPP -I../general-stuff -I../midi-stuff -I../xml-stuff
@@ -19,21 +21,21 @@ all: organ-emu organ-midi organ-create
 
 FORCE:
 
-organ-emu: organ-emu.o ../liborgan.a ../libmidi.a ../libxml.a
+organ-emu: organ-emu.o $(LIBDEPS)
 	$(CXX) $(LDFLAGS) -o $@ $< $(LIBS)
 
-organ-emu.o: organ-emu.C ../liborgan.a ../libmidi.a ../libxml.a
+organ-emu.o: organ-emu.C
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
-organ-midi: organ-midi.o ../liborgan.a ../libmidi.a ../libxml.a
+organ-midi: organ-midi.o $(LIBDEPS)
 	$(CXX) $(LDFLAGS) -o $@ $< $(LIBS)
-organ-midi.o: organ-midi.C ../liborgan.a ../libmidi.a ../libxml.a
+organ-midi.o: organ-midi.C
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
-organ-create: organ-create.o ../liborgan.a ../libxml.a
+organ-create: organ-create.o $(LIBDEPS)
 	$(CXX) $(LDFLAGS) -o $@ $< $(LIBS)
 
-organ-create.o: organ-create.C ../liborgan.a ../libxml.a
+organ-create.o: organ-create.C
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
 clean:
