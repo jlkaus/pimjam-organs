@@ -15,8 +15,8 @@ CC = /usr/local/avr/bin/avr-gcc
 CXX = /usr/local/avr/bin/avr-g++
 OBJCOPY = /usr/local/avr/bin/avr-objcopy
 OBJDUMP = /usr/local/avr/bin/avr-objdump
-CFLAGS = -c -Wall -Os $(STD_AVR_DEFS) $(EXTRA_DEFS) -I../corelib
-CXXFLAGS = -c -D__STDC_LIMIT_MACROS -Wall -Os $(STD_AVR_DEFS) $(EXTRA_DEFS) -I../corelib
+CFLAGS = -Wall -Os $(STD_AVR_DEFS) $(EXTRA_DEFS) -I../corelib
+CXXFLAGS = -D__STDC_LIMIT_MACROS -Wall -Os $(STD_AVR_DEFS) $(EXTRA_DEFS) -I../corelib
 LDFLAGS = -L.. -Wl,--section-start=.text=0x0000
 
 
@@ -32,9 +32,9 @@ bootloader: ATmegaBOOT.hex
 %.elf: %.o
 	$(CC) $(LDFLAGS) -o $@ $< $(LIBS)
 %.o: %.c
-	$(CC) $(CFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS) -o $@ $<
 %.o: %.C
-	$(CXX) $(CXXFLAGS) -o $@ $<
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
 %.lst: %.elf
 	$(OBJDUMP) -h -S $< > $@
 %.hex: %.elf

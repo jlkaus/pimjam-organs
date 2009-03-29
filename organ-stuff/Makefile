@@ -4,7 +4,7 @@ LIBDEPS = ../liborgan.a ../libxml.a ../libmidi.a
 
 CC = gcc
 CXX = g++
-CXXFLAGS = -c -D__STDC_LIMIT_MACROS -DTIXML_USE_TICPP -I../general-stuff -I../midi-stuff -I../xml-stuff
+CXXFLAGS = -D__STDC_LIMIT_MACROS -DTIXML_USE_TICPP -I../general-stuff -I../midi-stuff -I../xml-stuff
 LDFLAGS = -L..
 LIBS = -lmidi -lorgan -lxml
 
@@ -32,8 +32,8 @@ organ-create: $(LIBDEPS)
 
 # implicit rules
 %.o: %.C
-	$(CXX) $(CXXFLAGS) -o $@ $<
-%:%.o
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
+%::%.o
 	$(CXX) $(LDFLAGS) -o $@ $< $(LIBS)
 
 

@@ -12,8 +12,8 @@ CC = /usr/local/avr/bin/avr-gcc
 CXX = /usr/local/avr/bin/avr-g++
 OBJCOPY = /usr/local/avr/bin/avr-objcopy
 OBJDUMP = /usr/local/avr/bin/avr-objdump
-CFLAGS = -c -Wall -Os $(STD_AVR_DEFS) $(EXTRA_DEFS)
-CXXFLAGS = -c -D__STDC_LIMIT_MACROS -Wall -Os $(STD_AVR_DEFS) $(EXTRA_DEFS)
+CFLAGS = -Wall -Os $(STD_AVR_DEFS) $(EXTRA_DEFS)
+CXXFLAGS = -D__STDC_LIMIT_MACROS -Wall -Os $(STD_AVR_DEFS) $(EXTRA_DEFS)
 LDFLAGS = -L..
 
 
@@ -30,9 +30,9 @@ corelib: ../libcore.a
 
 # implicit rules
 %.o: %.c
-	$(CC) $(CFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS) -o $@ $<
 %.o: %.C
-	$(CCC) $(CXXFLAGS) -o $@ $<
+	$(CCC) -c $(CXXFLAGS) -o $@ $<
 
 
 clean:

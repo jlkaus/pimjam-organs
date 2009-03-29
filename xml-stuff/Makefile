@@ -4,7 +4,7 @@
 
 CC = gcc
 CXX = g++
-CXXFLAGS = -c -D__STDC_LIMIT_MACROS -DTIXML_USE_TICPP
+CXXFLAGS = -D__STDC_LIMIT_MACROS -DTIXML_USE_TICPP
 LDFLAGS = -L..
 LIBS =
 
@@ -26,7 +26,7 @@ tinyxmlparser.o: tinyxml.h ticpprc.h
 
 # implicit rules
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) -o $@ $<
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
 
 clean:
 	rm -f *.o

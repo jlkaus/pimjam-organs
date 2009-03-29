@@ -13,8 +13,8 @@ CC = /usr/local/avr/bin/avr-gcc
 CXX = /usr/local/avr/bin/avr-g++
 OBJCOPY = /usr/local/avr/bin/avr-objcopy
 OBJDUMP = /usr/local/avr/bin/avr-objdump
-CFLAGS = -c -Wall -Os $(STD_AVR_DEFS) $(EXTRA_DEFS) -Icorelib
-CXXFLAGS = -c -D__STDC_LIMIT_MACROS -Wall -Os $(STD_AVR_DEFS) $(EXTRA_DEFS) -Icorelib
+CFLAGS = -Wall -Os $(STD_AVR_DEFS) $(EXTRA_DEFS) -Icorelib
+CXXFLAGS = -D__STDC_LIMIT_MACROS -Wall -Os $(STD_AVR_DEFS) $(EXTRA_DEFS) -Icorelib
 LDFLAGS = -L..
 
 .PHONY: all clean $(SYSTEMS) cleanall firmware
@@ -40,9 +40,9 @@ firmware: libcore.a
 %.elf: %.o
 	$(CC) $(LDFLAGS) -o $@ $< $(LIBS)
 %.o: %.c
-	$(CC) $(CFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS) -o $@ $<
 %.o: %.C
-	$(CXX) $(CXXFLAGS) -o $@ $<
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
 %.lst: %.elf
 	$(OBJDUMP) -h -S $< > $@
 %.hex: %.elf

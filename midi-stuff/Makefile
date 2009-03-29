@@ -6,8 +6,8 @@ LIBDEPS = ../liborgan.a ../libxml.a ../libmidi.a
 
 CC = gcc
 CXX = g++
-CXXFLAGS = -c -D__STDC_LIMIT_MACROS -I../organ-stuff -I../general-stuff -I../midi-stuff
-CFLAGS = -c
+CXXFLAGS = -D__STDC_LIMIT_MACROS -I../organ-stuff -I../general-stuff -I../midi-stuff
+CFLAGS = 
 LDFLAGS = -L..
 LIBS = -lorgan -lxml -lmidi
 
@@ -37,9 +37,9 @@ Midi.o: Midi.H
 
 # implicit rules
 %.o: %.C
-	$(CXX) $(CXXFLAGS) -o $@ $<
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
 %.o: %.c
-	$(CC) $(CFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS) -o $@ $<
 %: %.o
 	$(CXX) $(LDFLAGS) -o $@ $< $(LIBS)
 

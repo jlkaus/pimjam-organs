@@ -4,7 +4,7 @@ LIBDEPS = ../liborgan.a ../libxml.a ../libmidi.a
 
 CC = gcc
 CXX = g++
-CXXFLAGS = -c -D__STDC_LIMIT_MACROS -DTIXML_USE_TICPP -I../xml-stuff -I../midi-stuff -I../general-stuff
+CXXFLAGS = -D__STDC_LIMIT_MACROS -DTIXML_USE_TICPP -I../xml-stuff -I../midi-stuff -I../general-stuff
 LDFLAGS = -L..
 LIBS = -lorgan -lxml -lmidi
 
@@ -40,7 +40,7 @@ Stop.o: Stop.H Env.H
 
 # implicit rules
 %.o: $.C
-	$(CXX) $(CXXFLAGS) -o $@ $<
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
 
 clean:
 	rm -f *.o
