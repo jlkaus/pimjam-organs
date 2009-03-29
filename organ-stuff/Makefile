@@ -1,45 +1,48 @@
 .PHONY: all clean cleanall
 
-LIBDEPS = ../liborgan.a ../libxml.a ../libmidi.a
+ACT_TARGETS = organ-emu organ-midi organ-create
+LIB_SRC =
+LIBS = -lmidi -lorgan -lxml
 
+VPATH = ../lib
 CC = gcc
 CXX = g++
 CXXFLAGS = -D__STDC_LIMIT_MACROS -DTIXML_USE_TICPP -I../general-stuff -I../midi-stuff -I../xml-stuff
-LDFLAGS = -L..
-LIBS = -lmidi -lorgan -lxml
+LDFLAGS = -L../lib
 
-all: organ-emu organ-midi organ-create
 
-../libmidi.a: FORCE
+all: $(ACT_TARGETS)
+
+../lib/libmidi.a: FORCE
 	$(MAKE) -C ../midi-stuff libmidi
-
-../liborgan.a: FORCE
+../lib/liborgan.a: FORCE
 	$(MAKE) -C ../general-stuff liborgan
-
-../libxml.a: FORCE
+../lib/libxml.a: FORCE
 	$(MAKE) -C ../xml-stuff libxml
-
 FORCE:
 
-
 # actual targets
-organ-emu: $(LIBDEPS)
-organ-midi: $(LIBDEPS)
-organ-create: $(LIBDEPS)
+$(ACT_TARGETS): $(LIBS)
 
 # source prerequisites
-
+-include $(ACT_TARGETS:%=../deps/%.d)
+-include $(LIB_SRC:%=../deps/%.d)
 
 # implicit rules
 %.o: %.C
 	$(CXX) -c $(CXXFLAGS) -o $@ $<
-%::%.o
+../deps/%.d: %.C
+	@set -e; rm -f $@; \
+	$(CXX) -MM $(CXXFLAGS) $< > $@.$$$$; \
+	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+	rm -f $@.$$$$
+%: %.o
 	$(CXX) $(LDFLAGS) -o $@ $< $(LIBS)
-
+	cp $@ ../bin/$@
 
 clean:
-	rm -f *.o
-	rm -f organ-emu organ-midi organ-create
+	-rm -f *.o
+	-rm -f $(ACT_TARGETS)
 
 cleanall: clean
 

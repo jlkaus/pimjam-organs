@@ -54,7 +54,7 @@ firmware: libcore.a
 
 
 clean:
-	rm -f *.o
+	-rm -f *.o
 
 cleanall: clean
 	@for dir in $(SYSTEMS); do $(MAKE) -C $$dir cleanall; done

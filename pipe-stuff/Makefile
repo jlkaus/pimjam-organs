@@ -1,49 +1,50 @@
 .PHONY: all clean cleanall
 
-LIBDEPS = ../liborgan.a ../libxml.a ../libmidi.a
+ACT_TARGETS = wavdft dftwav pipegen rankgen playpipe playset playrank playbar
+LIB_SRC =
+LIBS = -lorgan -lxml -lmidi
 
+VPATH = ../lib
 CC = gcc
 CXX = g++
 CXXFLAGS =  -D__STDC_LIMIT_MACROS -I../general-stuff -I../xml-stuff -I../midi-stuff
 CFLAGS = 
-LDFLAGS = -L..
-LIBS = -lorgan -lxml -lmidi
+LDFLAGS = -L../lib
 
-all: playpipe pipegen playset dftwav wavdft rankgen playrank playbar
 
-../liborgan.a: FORCE
+all: $(ACT_TARGETS)
+
+../lib/liborgan.a: FORCE
 	$(MAKE) -C ../general-stuff liborgan
-
-../libxml.a: FORCE
+../lib/libxml.a: FORCE
 	$(MAKE) -C ../xml-stuff libxml
-
-../libmidi.a: FORCE
+../lib/libmidi.a: FORCE
 	$(MAKE) -C ../midi-stuff libmidi
-
 FORCE:
 
 # actual targets
-wavdft: $(LIBDEPS)
-dftwav: $(LIBDEPS)
-pipegen: $(LIBDEPS)
-rankgen: $(LIBDEPS)
-playpipe: $(LIBDEPS)
-playset: $(LIBDEPS)
-playrank: $(LIBDEPS)
-playbar: $(LIBDEPS)
+$(ACT_TARGETS): $(LIBS)
 
 # source prerequisites
+-include $(ACT_TARGETS:%=../deps/%.d)
+-include $(LIB_SRC:%=../deps/%.d)
 
 # implicit rules
 %.o: %.C
 	$(CXX) -c $(CXXFLAGS) -o $@ $<
+../deps/%.d: %.C
+	@set -e; rm -f $@; \
+	$(CXX) -MM $(CXXFLAGS) $< > $@.$$$$; \
+	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+	rm -f $@.$$$$
 %: %.o
 	$(CXX) $(LDFLAGS) -o $@ $< $(LIBS)
+	cp $@ ../bin/$@
 
 
 clean:
-	rm -f *.o
-	rm -f playpipe pipegen playset dftwav wavdft rankgen playrank playbar
+	-rm -f *.o
+	-rm -f $(ACT_TARGETS)
 
 cleanall: clean
 

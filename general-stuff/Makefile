@@ -1,50 +1,48 @@
 .PHONY: all clean cleanall liborgan
 
-LIBDEPS = ../liborgan.a ../libxml.a ../libmidi.a
+ACT_TARGETS =
+LIB_SRC = AlsaHelp Rank Pipe Organ Division PipeSet PlayControlBlock Coupler Effect Input Keyboard Stop Env
+LIBS = -lorgan -lxml -lmidi
 
+VPATH = ../lib
 CC = gcc
 CXX = g++
 CXXFLAGS = -D__STDC_LIMIT_MACROS -DTIXML_USE_TICPP -I../xml-stuff -I../midi-stuff -I../general-stuff
-LDFLAGS = -L..
-LIBS = -lorgan -lxml -lmidi
+LDFLAGS = -L../lib
 
-all: ../liborgan.a 
+all: ../lib/liborgan.a $(ACT_TARGETS)
 
-../libxml.a: FORCE
+../lib/libxml.a: FORCE
 	$(MAKE) -C ../xml-stuff libxml
-../libmidi.a: FORCE
+../lib/libmidi.a: FORCE
 	$(MAKE) -C ../midi-stuff libmidi
-
 FORCE:
-
-liborgan: ../liborgan.a
+liborgan: ../lib/liborgan.a
 
 # Actual targets
-../liborgan.a: AlsaHelp.o Rank.o Pipe.o Organ.o Division.o PipeSet.o PlayControlBlock.o Coupler.o Effect.o Input.o Keyboard.o Stop.o Env.o
+../lib/liborgan.a: $(LIB_SRC:=.o)
 	ar cr $@ $^
+$(ACT_TARGETS): $(LIBS)
 
-# source prereqs
-Env.o: Env.H
-PlayControlBlock.o: PlayControlBlock.H Pipe.H Env.H
-AlsaHelp.o: AlsaHelp.H Env.H
-Rank.o: Rank.H PipeSet.H Env.H rankfile.H
-Pipe.o: Pipe.H Env.H rankfile.H
-Organ.o: Organ.H Division.H Input.H Env.H PlayControlBlock.H
-Division.o: Division.H Rank.H Stop.H Coupler.H Effect.H Input.H Keyboard.H PlayControlBlock.H Env.H
-PipeSet.o: PipeSet.H Pipe.H Env.H rankfile.H
-Coupler.o: Coupler.H Env.H
-Effect.o: Effect.H Env.H
-Input.o: Input.H Env.H
-Keyboard.o: Keyboard.H Env.H
-Stop.o: Stop.H Env.H
+# source prerequisites
+-include $(ACT_TARGETS:%=../deps/%.d)
+-include $(LIB_SRC:%=../deps/%.d)
 
 # implicit rules
-%.o: $.C
+%.o: %.C
 	$(CXX) -c $(CXXFLAGS) -o $@ $<
+../deps/%.d: %.C
+	@set -e; rm -f $@; \
+	$(CXX) -MM $(CXXFLAGS) $< > $@.$$$$; \
+	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+	rm -f $@.$$$$
+%: %.o
+	$(CXX) $(LDFLAGS) -o $@ $< $(LIBS)
+	cp $@ ../bin/$@
 
 clean:
-	rm -f *.o
-	rm -f ../liborgan.a 
+	-rm -f *.o
+	-rm -f $(ACT_TARGETS) ../lib/liborgan.a 
 
 cleanall: clean
 

@@ -36,7 +36,7 @@ corelib: ../libcore.a
 
 
 clean:
-	rm -f *.o
-	rm -f ../libcore.a
+	-rm -f *.o
+	-rm -f ../libcore.a
 
 cleanall: clean

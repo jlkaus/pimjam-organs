@@ -2,35 +2,44 @@
 
 .PHONY: all clean cleanall libxml
 
+ACT_TARGETS =
+LIB_SRC = ticpp tinystr tinyxml tinyxmlerror tinyxmlparser
+LIBS =
+
+VPATH = ../lib
 CC = gcc
 CXX = g++
 CXXFLAGS = -D__STDC_LIMIT_MACROS -DTIXML_USE_TICPP
-LDFLAGS = -L..
-LIBS =
+LDFLAGS = -L../lib
 
 all: libxml
 
-
-libxml: ../libxml.a
+libxml: ../lib/libxml.a
 
 # Actual targets
-../libxml.a: ticpp.o tinystr.o tinyxml.o tinyxmlerror.o tinyxmlparser.o
+../lib/libxml.a: $(LIB_SRC:=.o)
 	ar cr $@ $^
+$(ACT_TARGETS): $(LIBS)
 
 # Source prereqs
-ticpp.o: ticpp.h tinyxml.h ticpprc.h
-tinystr.o: tinystr.h
-tinyxml.o: tinyxml.h ticpprc.h
-tinyxmlerror.o: tinyxml.h ticpprc.h
-tinyxmlparser.o: tinyxml.h ticpprc.h
+-include $(ACT_TARGETS:%=../deps/%.d)
+-include $(LIB_SRC:%=../deps/%.d)
 
 # implicit rules
 %.o: %.cpp
 	$(CXX) -c $(CXXFLAGS) -o $@ $<
+../deps/%.d: %.cpp
+	@set -e; rm -f $@; \
+	$(CXX) -MM $(CXXFLAGS) $< > $@.$$$$; \
+	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+	rm -f $@.$$$$
+%: %.o
+	$(CXX) $(LDFLAGS) -o $@ $< $(LIBS)
+	cp $@ ../bin/$@
 
 clean:
-	rm -f *.o
-	rm -f ../libxml.a
+	-rm -f *.o
+	-rm -f ../lib/libxml.a $(ACT_TARGETS)
 
 cleanall: clean
 

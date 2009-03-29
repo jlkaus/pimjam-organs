@@ -2,51 +2,56 @@
 
 .PHONY: all clean cleanall libmidi
 
-LIBDEPS = ../liborgan.a ../libxml.a ../libmidi.a
+ACT_TARGETS = midi-test
+LIB_SRC = SComm Midi
+LIBS = -lorgan -lxml -lmidi
 
+VPATH = ../lib
 CC = gcc
 CXX = g++
 CXXFLAGS = -D__STDC_LIMIT_MACROS -I../organ-stuff -I../general-stuff -I../midi-stuff
 CFLAGS = 
-LDFLAGS = -L..
-LIBS = -lorgan -lxml -lmidi
+LDFLAGS = -L../lib
 
-all: libmidi midi-test scom
+all: libmidi $(ACT_TARGETS) scom
 
-../libxml.a: FORCE
+../lib/libxml.a: FORCE
 	$(MAKE) -C ../xml-stuff libxml
-
-../liborgan.a: FORCE
+../lib/liborgan.a: FORCE
 	$(MAKE) -C ../general-stuff liborgan
-
 FORCE:
-
-libmidi: ../libmidi.a
+libmidi: ../lib/libmidi.a
 
 # Actual targets
-../libmidi.a: SComm.o Midi.o
+../lib/libmidi.a: $(LIB_SRC:=.o)
 	ar cr $@ $^
-midi-test: $(LIBDEPS)
+$(ACT_TARGETS): $(LIBS)
 scom: scom.o
 	$(CC) $(LDFLAGS) -o $@ $<
+	cp $@ ../bin/$@
 
 # source prereqs
-midi-test.o: Scomm.H Midi.H
-Scomm.o: Scomm.H
-Midi.o: Midi.H
+-include $(ACT_TARGETS:%=../deps/%.d)
+-include $(LIB_SRC:%=../deps/%.d)
 
 # implicit rules
 %.o: %.C
 	$(CXX) -c $(CXXFLAGS) -o $@ $<
 %.o: %.c
 	$(CC) -c $(CFLAGS) -o $@ $<
+../deps/%.d: %.C
+	@set -e; rm -f $@; \
+	$(CXX) -MM $(CXXFLAGS) $< > $@.$$$$; \
+	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+	rm -f $@.$$$$
 %: %.o
 	$(CXX) $(LDFLAGS) -o $@ $< $(LIBS)
+	cp $@ ../bin/$@
 
 clean:
-	rm -f *.o
-	rm -f ../libmidi.a
-	rm -f midi-test scom
+	-rm -f *.o
+	-rm -f ../lib/libmidi.a
+	-rm -f $(ACT_TARGETS) scom
 
 cleanall: clean
 

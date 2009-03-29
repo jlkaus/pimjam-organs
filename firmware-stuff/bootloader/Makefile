@@ -45,6 +45,6 @@ bootloader: ATmegaBOOT.hex
 	$(OBJCOPY) -j .text -j .data -O binary $< $@
 
 clean:
-	rm -f *.o *.hex *.lst *.srec *.elf *.bin
+	-rm -f *.o *.hex *.lst *.srec *.elf *.bin
 
 cleanall: clean

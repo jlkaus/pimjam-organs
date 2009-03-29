@@ -29,8 +29,10 @@ $(SYSTEMS):
 
 
 clean:
-	rm -f *.o
+	-rm -f *.o
 
 cleanall: clean
 	@for dir in $(SYSTEMS); do $(MAKE) -C $$dir cleanall; done
-
+	-rm -f deps/*.d
+	-rm -f bin/*
+	-rm -f lib/*
