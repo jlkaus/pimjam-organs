@@ -21,22 +21,21 @@ all: organ-emu organ-midi organ-create
 
 FORCE:
 
-organ-emu: organ-emu.o $(LIBDEPS)
+
+# actual targets
+organ-emu: $(LIBDEPS)
+organ-midi: $(LIBDEPS)
+organ-create: $(LIBDEPS)
+
+# source prerequisites
+
+
+# implicit rules
+%.o: %.C
+	$(CXX) $(CXXFLAGS) -o $@ $<
+%:%.o
 	$(CXX) $(LDFLAGS) -o $@ $< $(LIBS)
 
-organ-emu.o: organ-emu.C
-	$(CXX) $(CXXFLAGS) -o $@ $<
-
-organ-midi: organ-midi.o $(LIBDEPS)
-	$(CXX) $(LDFLAGS) -o $@ $< $(LIBS)
-organ-midi.o: organ-midi.C
-	$(CXX) $(CXXFLAGS) -o $@ $<
-
-organ-create: organ-create.o $(LIBDEPS)
-	$(CXX) $(LDFLAGS) -o $@ $< $(LIBS)
-
-organ-create.o: organ-create.C
-	$(CXX) $(CXXFLAGS) -o $@ $<
 
 clean:
 	rm -f *.o

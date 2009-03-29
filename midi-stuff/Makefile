@@ -23,25 +23,25 @@ FORCE:
 
 libmidi: ../libmidi.a
 
+# Actual targets
 ../libmidi.a: SComm.o Midi.o
 	ar cr $@ $^
-
-Scomm.o: Scomm.C Scomm.H
-	$(CXX) $(CXXFLAGS) -o $@ $<
-Midi.o: Midi.C Midi.H
-	$(CXX) $(CXXFLAGS) -o $@ $<
-
-midi-test: midi-test.o $(LIBDEPS)
-	$(CXX) $(LDFLAGS) -o $@ $< $(LIBS)
-
-midi-test.o: midi-test.C Scomm.H Midi.H
-	$(CXX) $(CXXFLAGS) -o $@ $<
-
+midi-test: $(LIBDEPS)
 scom: scom.o
 	$(CC) $(LDFLAGS) -o $@ $<
 
-scom.o: scom.c
+# source prereqs
+midi-test.o: Scomm.H Midi.H
+Scomm.o: Scomm.H
+Midi.o: Midi.H
+
+# implicit rules
+%.o: %.C
+	$(CXX) $(CXXFLAGS) -o $@ $<
+%.o: %.c
 	$(CC) $(CFLAGS) -o $@ $<
+%: %.o
+	$(CXX) $(LDFLAGS) -o $@ $< $(LIBS)
 
 clean:
 	rm -f *.o

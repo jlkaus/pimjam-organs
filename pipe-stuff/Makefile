@@ -22,32 +22,24 @@ all: playpipe pipegen playset wavdft rankgen playrank playbar
 
 FORCE:
 
+# actual targets
 wavdft: $(LIBDEPS)
-# REAL STUFF HERE
-
-pipegen: pipegen.o $(LIBDEPS)
-	$(CXX) $(LDFLAGS) -o $@ $< $(LIBS)
-
-pipegen.o: pipegen.C
-	$(CXX) $(CXXFLAGS) -o $@ $<
-
+dftwav: $(LIBDEPS)
+pipegen: $(LIBDEPS)
 rankgen: $(LIBDEPS)
-# REAL STUFF HERE
-
 playpipe: $(LIBDEPS)
-# REAL STUFF HERE
+playset: $(LIBDEPS)
+playrank: $(LIBDEPS)
+playbar: $(LIBDEPS)
 
-playset: playset.o $(LIBDEPS)
+# source prerequisites
+
+# implicit rules
+%.o: %.C
+	$(CXX) $(CXXFLAGS) -o $@ $<
+%: %.o
 	$(CXX) $(LDFLAGS) -o $@ $< $(LIBS)
 
-playset.o: playset.C
-	$(CXX) $(CXXFLAGS) -o $@ $<
-
-playrank: $(LIBDEPS)
-# REAL STUFF HERE
-
-playbar: $(LIBDEPS)
-# REAL STUFF HERE
 
 clean:
 	rm -f *.o

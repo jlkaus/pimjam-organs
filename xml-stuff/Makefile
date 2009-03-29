@@ -13,21 +13,20 @@ all: libxml
 
 libxml: ../libxml.a
 
+# Actual targets
 ../libxml.a: ticpp.o tinystr.o tinyxml.o tinyxmlerror.o tinyxmlparser.o
 	ar cr $@ $^
 
-ticpp.o: ticpp.cpp ticpp.h tinyxml.h ticpprc.h
-	$(CXX) $(CXXFLAGS) -o $@ $<
+# Source prereqs
+ticpp.o: ticpp.h tinyxml.h ticpprc.h
+tinystr.o: tinystr.h
+tinyxml.o: tinyxml.h ticpprc.h
+tinyxmlerror.o: tinyxml.h ticpprc.h
+tinyxmlparser.o: tinyxml.h ticpprc.h
 
-tinystr.o: tinystr.cpp tinystr.h
+# implicit rules
+%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -o $@ $<
-tinyxml.o: tinyxml.cpp tinyxml.h ticpprc.h
-	$(CXX) $(CXXFLAGS) -o $@ $<
-tinyxmlerror.o: tinyxmlerror.cpp tinyxml.h ticpprc.h
-	$(CXX) $(CXXFLAGS) -o $@ $<
-tinyxmlparser.o: tinyxmlparser.cpp tinyxml.h ticpprc.h
-	$(CXX) $(CXXFLAGS) -o $@ $<
-
 
 clean:
 	rm -f *.o

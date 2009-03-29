@@ -19,36 +19,28 @@ FORCE:
 
 liborgan: ../liborgan.a
 
+# Actual targets
 ../liborgan.a: AlsaHelp.o Rank.o Pipe.o Organ.o Division.o PipeSet.o PlayControlBlock.o Coupler.o Effect.o Input.o Keyboard.o Stop.o Env.o
 	ar cr $@ $^
 
-Env.o: Env.C Env.H
-	$(CXX) $(CXXFLAGS) -o $@ $<
-PlayControlBlock.o: PlayControlBlock.C PlayControlBlock.H Pipe.H Env.H
-	$(CXX) $(CXXFLAGS) -o $@ $<
-AlsaHelp.o: AlsaHelp.C AlsaHelp.H Env.H
-	$(CXX) $(CXXFLAGS) -o $@ $<
-Rank.o: Rank.C Rank.H PipeSet.H Env.H rankfile.H
-	$(CXX) $(CXXFLAGS) -o $@ $<
-Pipe.o: Pipe.C Pipe.H Env.H rankfile.H
-	$(CXX) $(CXXFLAGS) -o $@ $<
-Organ.o: Organ.C Organ.H Division.H Input.H Env.H PlayControlBlock.H
-	$(CXX) $(CXXFLAGS) -o $@ $<
-Division.o: Division.C Division.H Rank.H Stop.H Coupler.H Effect.H Input.H Keyboard.H PlayControlBlock.H Env.H
-	$(CXX) $(CXXFLAGS) -o $@ $<
-PipeSet.o: PipeSet.C PipeSet.H Pipe.H Env.H rankfile.H
-	$(CXX) $(CXXFLAGS) -o $@ $<
-Coupler.o: Coupler.C Coupler.H Env.H
-	$(CXX) $(CXXFLAGS) -o $@ $<
-Effect.o: Effect.C Effect.H Env.H
-	$(CXX) $(CXXFLAGS) -o $@ $<
-Input.o: Input.C Input.H Env.H
-	$(CXX) $(CXXFLAGS) -o $@ $<
-Keyboard.o: Keyboard.C Keyboard.H Env.H
-	$(CXX) $(CXXFLAGS) -o $@ $<
-Stop.o: Stop.C Stop.H Env.H
-	$(CXX) $(CXXFLAGS) -o $@ $<
+# source prereqs
+Env.o: Env.H
+PlayControlBlock.o: PlayControlBlock.H Pipe.H Env.H
+AlsaHelp.o: AlsaHelp.H Env.H
+Rank.o: Rank.H PipeSet.H Env.H rankfile.H
+Pipe.o: Pipe.H Env.H rankfile.H
+Organ.o: Organ.H Division.H Input.H Env.H PlayControlBlock.H
+Division.o: Division.H Rank.H Stop.H Coupler.H Effect.H Input.H Keyboard.H PlayControlBlock.H Env.H
+PipeSet.o: PipeSet.H Pipe.H Env.H rankfile.H
+Coupler.o: Coupler.H Env.H
+Effect.o: Effect.H Env.H
+Input.o: Input.H Env.H
+Keyboard.o: Keyboard.H Env.H
+Stop.o: Stop.H Env.H
 
+# implicit rules
+%.o: $.C
+	$(CXX) $(CXXFLAGS) -o $@ $<
 
 clean:
 	rm -f *.o
