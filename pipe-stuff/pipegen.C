@@ -80,6 +80,42 @@ int main(int argc, char* argv[]) {
 
   }
 
+  FILE* spf = fopen(spectrum_fn,"wb");
+  float f = fundamental;
+  float r = norm;
+  float c = 0.0;
+  fwrite(&f, sizeof(float),1, spf);
+  fwrite(&r, sizeof(float),1, spf);
+  fwrite(&c, sizeof(float),1, spf);
+  if(harmonics >1 && evens) {
+    f = fundamental * 2.0;
+    fwrite(&f, sizeof(float),1, spf);
+    fwrite(&r, sizeof(float),1, spf);
+    fwrite(&c, sizeof(float),1, spf);
+  }
+  if(harmonics >2) {
+    f = fundamental * 3.0;
+    fwrite(&f, sizeof(float),1, spf);
+    fwrite(&r, sizeof(float),1, spf);
+    fwrite(&c, sizeof(float),1, spf);
+  }
+  if(harmonics >3 && evens) {
+    f = fundamental * 4.0;
+    fwrite(&f, sizeof(float),1, spf);
+    fwrite(&r, sizeof(float),1, spf);
+    fwrite(&c, sizeof(float),1, spf);
+  }
+  if(harmonics >4) {
+    f = fundamental * 5.0;
+    fwrite(&f, sizeof(float),1, spf);
+    fwrite(&r, sizeof(float),1, spf);
+    fwrite(&c, sizeof(float),1, spf);
+  }
+
+  fclose(spf);
+
+
+
   //TODO: buzzing! gah!
 
 
