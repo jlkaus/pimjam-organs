@@ -40,11 +40,7 @@ void Pipe::readPipeData(FILE* fh, long int offs) {
 
   mFundamental = pipeHeader.mFundamental;
   mSustainSamples = pipeHeader.mSustainSamples;
-  mAttackSamples = pipeHeader.mAttackSamples;
-  mReleaseSamples = pipeHeader.mReleaseSamples;
   mSustainDuration = pipeHeader.mSustainDuration;
-  mAttackDuration = pipeHeader.mAttackDuration;
-  mReleaseDuration = pipeHeader.mReleaseDuration;
   mPipeVolume = pipeHeader.mRelativeVolume;
   mDecayRate = pipeHeader.mDecayRate;
 
@@ -56,23 +52,9 @@ void Pipe::readPipeData(FILE* fh, long int offs) {
   } else {
     mSustainData = NULL;
   }
-  if(mAttackSamples) {
-    mAttackData = new float[mAttackSamples];
-    if(!mAttackData) noGood = true;
-  } else {
-    mAttackData = NULL;
-  }
-  if(mReleaseSamples) {
-    mReleaseData = new float[mReleaseSamples];
-    if(!mReleaseData) noGood = true;
-  } else {
-    mReleaseData = NULL;
-  }
 
   if(noGood) {
     delete [] mSustainData;
-    delete [] mAttackData;
-    delete [] mReleaseData;
     Env::err() << "Couldn't get enough memory for all the samples" <<std::endl;
     throw 8;
   }
@@ -82,21 +64,9 @@ void Pipe::readPipeData(FILE* fh, long int offs) {
       noGood = true;
     }
   }
-  if(mAttackSamples) {
-    if(fread(mAttackData,sizeof(float),mAttackSamples,fh) != mAttackSamples) {
-      noGood = true;
-    }
-  }
-  if(mReleaseSamples) {
-    if(fread(mReleaseData, sizeof(float),mReleaseSamples,fh) != mReleaseSamples) {
-      noGood = true;
-    }
-  }
 
   if(noGood) {
     delete [] mSustainData;
-    delete [] mAttackData;
-    delete [] mReleaseData;
     Env::err() << "Couldn't read all the samples for the pipe" << std::endl;
     throw 9;
   }
@@ -105,7 +75,5 @@ void Pipe::readPipeData(FILE* fh, long int offs) {
   
 Pipe::~Pipe() {
   delete [] mSustainData;
-  delete [] mAttackData;
-  delete [] mReleaseData;
   Env::msg(Env::CreationMsg,10,10)<<"Destroying pipe"<<std::endl;
 }

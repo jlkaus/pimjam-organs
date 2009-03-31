@@ -12,25 +12,24 @@
 // This emphasizes that a given pipe might be used in a variety of actual ranks, but usually they would all be of the same rank name, just a different pitch length class.  (Not necessarily true: mixed ranks might contain a pipe that is also in an unmixed rank).
 
 struct pipe_hdr_t {
-  int mFundamental;    // actual frequency of the fundamental, in cents
-  int mSustainSamples;  // for a bell, for instance, this might be zero
-  int mAttackSamples;
-  int mReleaseSamples;
-
+  float mFundamental;    // actual frequency of the fundamental
   float mSustainDuration;
-  float mAttackDuration;
-  float mReleaseDuration;
   float mRsvd1;
-  
+  float mRsvd2;
+
   float mRelativeVolume;
   float mDecayRate;   // volume decrease per sustain repeat
-  float mRsvd2;
   float mRsvd3;
+  float mRsvd4;
 
-  // Then: the actual array of floats for the sustain, then for the attack, then for the release
+  int mSustainSamples;
+  int mRsvd5;
+  int mRsvd6;
+  int mRsvd7;
+  
+
+  // Then: the actual array of floats for the sustain
   // float mSustainData[];
-  // float mAttackData[];
-  // float mReleaseData[];
 };
 
 struct pipe_desc_t {

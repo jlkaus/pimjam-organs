@@ -27,32 +27,31 @@ protected:
   void readPipeData(FILE* fh, long int offset);
 
 protected:
-  // in cents
-  int mFundamental;
-  
-  // in samples:
-  int mSustainSamples;  // might be zero for no sustain (bells, chimes, etc)
-  int mAttackSamples;
-  int mReleaseSamples;
-
+  // in hertz
+  float mFundamental;
   // in seconds:
   float mSustainDuration;
-  float mAttackDuration;
-  float mReleaseDuration;
   float mRsvd1;
-  
+  float mRsvd2;
+
   // this is volume relative to the entire organ
   float mPipeVolume;
   // volume decrease (relative to mPipeVolume) per sustain repeat (zero for organs)
   float mDecayRate;
-  float mRsvd2;
   float mRsvd3;
+  float mRsvd4;
   
+  // in samples:
+  int mSustainSamples;  // might be zero for no sustain (bells, chimes, etc)
+  int mRsvd5;
+  int mRsvd6;
+  int mRsvd7;
+
   // array of samples for attack, normalized to a peak pipe volume of 1.
   float* mSustainData;
-  float* mAttackData;
-  float* mReleaseData;
-  void* mRsvd4;
+  void* mRsvd8;
+  void* mRsvd9;
+  void* mRsvd10;
 
 };
 
