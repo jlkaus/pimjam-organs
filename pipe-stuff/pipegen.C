@@ -72,6 +72,14 @@ int main(int argc, char* argv[]) {
 
   float norm = 0.0;
 
+  for(int harmonic = 1; harmonic <= harmonics; ++harmonic) {
+	  if(harmonics %2 || evens) {
+	  	norm+=1.0/harmonic*harmonic;
+	  }
+  }
+
+  norm = 1.0/sqrt(norm);
+/*
   if(evens) {
     norm = 1.0/sqrt((float)harmonics);
 
@@ -79,14 +87,24 @@ int main(int argc, char* argv[]) {
     norm = 1.0/sqrt((float)((harmonics+1)/2));
 
   }
-
+*/
   FILE* spf = fopen(spectrum_fn,"wb");
-  float f = fundamental;
-  float r = norm;
+  float f = 0.0;
+  float r = 0.0;
   float c = 0.0;
   fwrite(&f, sizeof(float),1, spf);
   fwrite(&r, sizeof(float),1, spf);
   fwrite(&c, sizeof(float),1, spf);
+  for(int harmonic = 1; harmonic <= harmonics; harmonic++) {
+    if(harmonic % 2 || evens) {
+      f = fundamental * harmonic;
+      fwrite(&f, sizeof(float),1, spf);
+      r = norm/(harmonic*harmonic);
+      fwrite(&r, sizeof(float),1, spf);
+      fwrite(&c, sizeof(float),1, spf);
+    }
+  }
+  /*
   if(harmonics >1 && evens) {
     f = fundamental * 2.0;
     fwrite(&f, sizeof(float),1, spf);
@@ -111,6 +129,7 @@ int main(int argc, char* argv[]) {
     fwrite(&r, sizeof(float),1, spf);
     fwrite(&c, sizeof(float),1, spf);
   }
+  */
 
   fclose(spf);
 

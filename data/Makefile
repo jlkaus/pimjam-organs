@@ -25,10 +25,18 @@ pipe-data: ../bin/pipegen ../bin/dftwav
 	../bin/dftwav fourth_440.dft
 	../bin/pipegen fifth_440.dft 5 1
 	../bin/dftwav fifth_440.dft
+	../bin/pipegen twentythird_440.dft 23 1
+	../bin/dftwav twentythird_440.dft
+	../bin/pipegen tenth_440.dft 10 1
+	../bin/dftwav tenth_440.dft
+	../bin/pipegen stopped_ninth_250.dft 9 0
+	../bin/dftwav stopped_ninth_250.dft
 	../bin/pipegen stopped_third_440.dft 3 0
 	../bin/dftwav stopped_third_440.dft
 	../bin/pipegen stopped_fifth_440.dft 5 0
 	../bin/dftwav stopped_fifth_440.dft
+	../bin/pipegen stopped_twentythird_440.dft 23 0
+	../bin/dftwav stopped_twentythird_440.dft
 
 
 
