@@ -22,9 +22,9 @@ int main(int argc, char* argv[]) {
   // will place all dfts into directories based on pipe family (about 90 directories, given defaults. decay rate parameter changes might generate more): Xddxxyyz
   // So each directoy will contain all dfts for that family, including all colors, all mutations, all notes, and all tunings.  Given defaults, about 20,000 dfts per directory.
 
-  for(int i=0; i< argc; ++i) {
-    printf("%d: %s\n", i, argv[i]);
-  }
+  //for(int i=0; i< argc; ++i) {
+  //  printf("%d: %s\n", i, argv[i]);
+  //}
 
   int max_mut_harm = 9;
   if(argc > 1) {
@@ -110,10 +110,13 @@ int main(int argc, char* argv[]) {
 	  printf("Creating pipe family %s...\n",dir_name);
 
 	  // limitation ranging: L00p, L00i, argv[11+]
-	  for(int lim_index = 0; lim_index <= (argc >=11)?(argc - 11):0; ++lim_index) {
+	  for(int lim_index = 0; lim_index <= ((argc >=11)?(argc - 11):0); ++lim_index) {
+	    //printf("%d %d %d\n", lim_index, argc, ((argc>=11)?(argc-11):0)); 
 	    for(int lim_imperfect = 0; lim_imperfect < 2; ++lim_imperfect) {
 	      bzero(color_dir,256);
 	      int lim_cutoff = ((lim_index == 0)?0:atoi(argv[lim_index+10]));
+	      //printf(" %d %d\n",lim_index, lim_cutoff);
+
 	      sprintf(color_dir,"L%02d%c",lim_cutoff, lim_imperfect?'i':'p');
 
 	      // directories created at this level
