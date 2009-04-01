@@ -22,6 +22,10 @@ int main(int argc, char* argv[]) {
   // will place all dfts into directories based on pipe family (about 90 directories, given defaults. decay rate parameter changes might generate more): Xddxxyyz
   // So each directoy will contain all dfts for that family, including all colors, all mutations, all notes, and all tunings.  Given defaults, about 20,000 dfts per directory.
 
+  for(int i=0; i< argc; ++i) {
+    printf("%d: %s\n", i, argv[i]);
+  }
+
   int max_mut_harm = 9;
   if(argc > 1) {
     max_mut_harm = atoi(argv[1]);
@@ -157,9 +161,9 @@ int main(int argc, char* argv[]) {
 		      strcat(sysspace,spectrum_fn);
 		      strcat(sysspace,".dft");	      
 
-		      printf("O %1d, BF %.3f, NC %06.2f, M %1d, MC %06.2f, ", octave, base_freq, note_cents, mutation, mutation_cents);
-		      printf("D %d, DC %06.2f, FC %06.2f, F %.3f, K %d, ", detune_c, detune_cents, f_cents, fundamental, (int)k_max);
-		      printf("%s\n", spectrum_fn);
+		      //printf("O %1d, BF %.3f, NC %06.2f, M %1d, MC %06.2f, ", octave, base_freq, note_cents, mutation, mutation_cents);
+		      //printf("D %d, DC %06.2f, FC %06.2f, F %.3f, K %d, ", detune_c, detune_cents, f_cents, fundamental, (int)k_max);
+		      //printf("%s\n", spectrum_fn);
 
 		      FILE* sf = fopen(sysspace, "wb");
 
