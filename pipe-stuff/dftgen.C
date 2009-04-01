@@ -153,41 +153,43 @@ int main(int argc, char* argv[]) {
 		      // determine highest harmonic we can use
 		      float k_max = f_max / fundamental;
 
-		      bzero(sysspace,256);
-		      strcat(sysspace, "THP_");
-		      strcat(sysspace, dir_name);
-		      strcat(sysspace,"/");
-		      strcat(sysspace,color_dir);
-		      strcat(sysspace,"/");
-		      strcat(sysspace, dir_name);
-		      strcat(sysspace,color_dir);
-		      strcat(sysspace,spectrum_fn);
-		      strcat(sysspace,".dft");	      
+		      if((int)k_max > 2) {
+			bzero(sysspace,256);
+			strcat(sysspace, "THP_");
+			strcat(sysspace, dir_name);
+			strcat(sysspace,"/");
+			strcat(sysspace,color_dir);
+			strcat(sysspace,"/");
+			strcat(sysspace, dir_name);
+			strcat(sysspace,color_dir);
+			strcat(sysspace,spectrum_fn);
+			strcat(sysspace,".dft");	      
 
-		      //printf("O %1d, BF %.3f, NC %06.2f, M %1d, MC %06.2f, ", octave, base_freq, note_cents, mutation, mutation_cents);
-		      //printf("D %d, DC %06.2f, FC %06.2f, F %.3f, K %d, ", detune_c, detune_cents, f_cents, fundamental, (int)k_max);
-		      //printf("%s\n", spectrum_fn);
+			//printf("O %1d, BF %.3f, NC %06.2f, M %1d, MC %06.2f, ", octave, base_freq, note_cents, mutation, mutation_cents);
+			//printf("D %d, DC %06.2f, FC %06.2f, F %.3f, K %d, ", detune_c, detune_cents, f_cents, fundamental, (int)k_max);
+			//printf("%s\n", spectrum_fn);
 
-		      FILE* sf = fopen(sysspace, "wb");
+			FILE* sf = fopen(sysspace, "wb");
 
-		      float norm = 0.0;
-		      // determine normalization by going through things once
-		      for(int k = 1; k <= (int)k_max; ++k) {
-			dft_freq_point_t dftv;
-			generateDftv(&dftv, decay, stoppage, overblow, phasing, lim_cutoff, lim_imperfect, fundamental, k, imperfect_stop, imperfect_overblow, imperfect_limitation);
-			norm += sqrt(dftv.mRealFactor * dftv.mRealFactor + dftv.mImagFactor * dftv.mImagFactor);
+			float norm = 0.0;
+			// determine normalization by going through things once
+			for(int k = 1; k <= (int)k_max; ++k) {
+			  dft_freq_point_t dftv;
+			  generateDftv(&dftv, decay, stoppage, overblow, phasing, lim_cutoff, lim_imperfect, fundamental, k, imperfect_stop, imperfect_overblow, imperfect_limitation);
+			  norm += sqrt(dftv.mRealFactor * dftv.mRealFactor + dftv.mImagFactor * dftv.mImagFactor);
+			}
+
+			// Now that we have our normalization, actual generate and write the harmonics to the output file
+			for(int k = 1; k <= (int)k_max; ++k) {
+			  dft_freq_point_t dftv;
+			  generateDftv(&dftv, decay, stoppage, overblow, phasing, lim_cutoff, lim_imperfect, fundamental, k, imperfect_stop, imperfect_overblow, imperfect_limitation);
+			  dftv.mRealFactor/=norm;
+			  dftv.mImagFactor/=norm;
+			  fwrite(&dftv, sizeof(dft_freq_point_t), 1, sf);
+			}
+
+			fclose(sf);
 		      }
-
-		      // Now that we have our normalization, actual generate and write the harmonics to the output file
-		      for(int k = 1; k <= (int)k_max; ++k) {
-			dft_freq_point_t dftv;
-			generateDftv(&dftv, decay, stoppage, overblow, phasing, lim_cutoff, lim_imperfect, fundamental, k, imperfect_stop, imperfect_overblow, imperfect_limitation);
-			dftv.mRealFactor/=norm;
-			dftv.mImagFactor/=norm;
-       			fwrite(&dftv, sizeof(dft_freq_point_t), 1, sf);
-		      }
-
-       		      fclose(sf);
 		    }
 		  }
 		}
