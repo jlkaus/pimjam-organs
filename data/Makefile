@@ -15,8 +15,20 @@ FORCE:
 
 rank-data: pipe-data ../bin/rankgen
 
+
+# parms:	max mutation harmonic (9)
+#		detuning amount in cents (2)
+#		note range, in octave numbers (0-9)
+#		imperfection of stopping (0.25)
+#            imperfection of overblowing (0.25)
+#		decay rate step (0.50)
+#		decay rate max (2.00)
+#            cutoff frequency (22050)
+#		limitation imperfection (0.25)
+#		list of limitation harmonics to generate other than fake ones for L0p and L0i
+
 dft-data: ../bin/dftgen
-	../bin/dftgen 9 2 0 9 0.25 0.25 0.50 2.00 0.25 3 5 13 37
+	../bin/dftgen 9 2 0 9 0.25 0.25 0.50 2.00 22050 0.25 3 5 13 37
 
 pipe-data: dft-data ../bin/pipegen ../bin/dftwav
 #	../bin/dftwav pure_440.dft
