@@ -15,7 +15,7 @@ OBJCOPY = /usr/local/avr/bin/avr-objcopy
 OBJDUMP = /usr/local/avr/bin/avr-objdump
 CFLAGS = -Wall -Os $(STD_AVR_DEFS) $(EXTRA_DEFS) -Icorelib
 CXXFLAGS = -D__STDC_LIMIT_MACROS -Wall -Os $(STD_AVR_DEFS) $(EXTRA_DEFS) -Icorelib
-LDFLAGS = -L..
+LDFLAGS = -L.
 
 .PHONY: all clean $(SYSTEMS) cleanall firmware
 
