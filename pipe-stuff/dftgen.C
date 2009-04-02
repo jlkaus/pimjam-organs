@@ -176,16 +176,20 @@ int main(int argc, char* argv[]) {
 			for(int k = 1; k <= (int)k_max; ++k) {
 			  dft_freq_point_t dftv;
 			  generateDftv(&dftv, decay, stoppage, overblow, phasing, lim_cutoff, lim_imperfect, fundamental, k, imperfect_stop, imperfect_overblow, imperfect_limitation);
-			  norm += sqrt(dftv.mRealFactor * dftv.mRealFactor + dftv.mImagFactor * dftv.mImagFactor);
+			  if(abs(dftv.mRealFactor) > 1e-14 || abs(dftv.mImagFactor) > 1e-14) {
+			    norm += sqrt(dftv.mRealFactor * dftv.mRealFactor + dftv.mImagFactor * dftv.mImagFactor);
+			  }
 			}
 
 			// Now that we have our normalization, actual generate and write the harmonics to the output file
 			for(int k = 1; k <= (int)k_max; ++k) {
 			  dft_freq_point_t dftv;
 			  generateDftv(&dftv, decay, stoppage, overblow, phasing, lim_cutoff, lim_imperfect, fundamental, k, imperfect_stop, imperfect_overblow, imperfect_limitation);
-			  dftv.mRealFactor/=norm;
-			  dftv.mImagFactor/=norm;
-			  fwrite(&dftv, sizeof(dft_freq_point_t), 1, sf);
+			  if(abs(dftv.mRealFactor) > 1e-14 || abs(dftv.mImagFactor) > 1e-14) {
+			    dftv.mRealFactor/=norm;
+			    dftv.mImagFactor/=norm;
+			    fwrite(&dftv, sizeof(dft_freq_point_t), 1, sf);
+			  }
 			}
 
 			fclose(sf);

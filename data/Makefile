@@ -61,7 +61,7 @@ pipe-data: dft-data ../bin/pipegen ../bin/dftwav
 
 
 %.raw: %.dft
-	../bin/dftwav $< 8000 5 0.05 1.1 44100
+	../bin/dftwav $< 8000 2 0.1 1.5 44100
 
 %.pipe: %.dft
 	../bin/pipegen $< 1.0 5 0.05 1.1 44100
