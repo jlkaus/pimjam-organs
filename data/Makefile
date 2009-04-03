@@ -18,12 +18,22 @@ rank-data:
 
 pipe-data: 
 
+testing-raws: testing/XD100OD000ED000F100E005S005P0_L0020_261.626.raw \
+	testing/XD100OD000ED000F100E005S005P0_L0020_293.665.raw\
+	testing/XD100OD000ED000F100E005S005P0_L0020_329.628.raw\
+	testing/XD100OD000ED000F100E005S005P0_L0020_349.228.raw\
+	testing/XD100OD000ED000F100E005S005P0_L0020_391.995.raw\
+	testing/XD100OD000ED000F100E005S005P0_L0020_440.000.raw\
+	testing/XD100OD000ED000F100E005S005P0_L0020_493.884.raw\
+	testing/XD100OD000ED000F100E005S005P0_L0020_523.251.raw
 
 
 %.dft: ../bin/dftgen
+%.dft:
 	../bin/dftgen $@ 2
 
-%.raw: %.dft ../bin/dftwav
+%.raw: ../bin/dftwav
+%.raw: %.dft
 	../bin/dftwav $< 8000 0.25 0.08 1.4 44100
 
 %.pipe: %.dft ../bin/pipegen
