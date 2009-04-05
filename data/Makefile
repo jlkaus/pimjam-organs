@@ -29,11 +29,9 @@ testing-raws: testing/XD100OD000ED000F100E005S005P0_L0020_261.626.raw \
 
 
 %.dft: ../bin/dftgen
-%.dft:
 	../bin/dftgen $@ 2
 
-%.raw: ../bin/dftwav
-%.raw: %.dft
+%.raw: %.dft ../bin/dftwav
 	../bin/dftwav $< 8000 0.25 0.08 1.4 44100
 
 %.pipe: %.dft ../bin/pipegen
