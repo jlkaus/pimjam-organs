@@ -2,60 +2,42 @@
 
 use strict;
 use POSIX;
+use Getopt::Long;
 
-# rankname basepipes length breakclass detune notes belows aboves
-#Except for the the fundamental, the name of the pipe spectra is used to determine the rank. Another name can be given as a memory aid. 
-#We also can specify a delta, in cents, to detune the pipes from equal temperament.
-#We specify a length class of the pipes, in fractional feet.
-#The final thing we can specify how many notes to generate, and also if we want to add an octave below, or an octave above to allow for offset coupling.
+my %options = (
+	keys => 61,
+	aboves => 0,
+	belows => 0,
+	detune => 0.0,
+	output => "",
+	length => "8",
+	canlen => 0
+	);
+GetOptions(\%options, "keys|k=i","aboves|a=i","belows|b=i","detune|d=f","output|o=s", "length|l=s");
 
-# break interval indicates how much to drop each pitch at the breaks, if this were a mixture.  0 indicates no drops throughout. 3 indicates to drop a third every 8 keys. 5 indicates to drop a fifth every 12 keys. 8 indicates to drop an octave every 24 keys.
+# process remaining argv to get input fis files, and lengths
+# [[file][:len]*]*
+# nothing    -> base:8
+# file       -> file:8
+# :len       -> base:len
+# file:len   -> file:len
+# :l1:l2     -> base:l1 and base:l2
+# file:l1:l2 -> file:l1 and file:l2
 
-# NOTE: Only breakclass 0 and 8 are supported at this time because the higher ones aren't regular and are kinda sucky.  Also, the math doesn't work for them here.  Especially if the lengthclass isn't an octave, fifth, or third.  (and it doesn't work for those either...)
+my @breaks = ();
 
-# Breakclass 8 indicates to drop an octave every 24 keys, so we use floordiv24 to map:
-my %break8 = (-1 => 4,
-	      0 =>  8,
-	      1 => 16,
-	      2 => 32,
-	      3 => 64
-    );
-# breakclass 5 indicates to drop a fifth every 12 keys, so we use floordiv12 to map:
-my %break5 = (-2 => 4,
-	      -1 => 5+1/3,
-	      0 => 8,
-	      1 => 10+2/3,
-	      2 => 16,
-	      3 => 21+1/3,
-	      4 => 32,
-	      5 => 42+2/3,
-	      6 => 64
-    );
-# breakclass3 indicates to drop a third every 8 keys, so we use floordiv8 to map:
-my %break3 = (-3 => 4,
-	      -2 => 5+1/3,
-	      -1 => 6+2/5,
-	      0 => 8,
-	      1 => 10+2/3,
-	      2 => 12+4/5,
-	      3 => 16,
-	      4 => 21+1/3,
-	      5 => 25+3/5,
-	      6 => 32,
-	      7 => 42+2/3,
-	      8 => 51+1/5,
-	      9 => 64
-    );
-
-my %bctodiv = (8 => 24,
-	       5 => 12,
-	       3 => 8
-    );
-
-my %bctobreak = (8 => \%break8,
-		 5 => \%break5,
-		 3 => \%break3
-    );
+# normalize breaks, and set output if it wasn't given.  May need to set the length as well, if not specified, and not in output filename.
+# breaks should be sorted by break length, with shortest lenghts are at the top (left), under the assumption that as we get higher pitched, we have to break lower pitched, so that we still have pipes that are manageable. breaks with the same length but different names should be left in original order.
+# also need to figure out, based on number of breaks, and number of keys, where the breaks are at:
+#   prefer key 0 to start a break set. work backwords for negative keys
+#   keys-1 + aboves*12 + belows*12 -1 is adjusted number of keys.  The last key should use the length of the last break set.
+#   adjusted number of keys / number of breaks should equal the keys per break.  Set key 0 to use the canonical length, and find the leftmost cannonical length input file to put there.  then work the way right and left.
+#   prefered keys per break (not counting aboves and belows) are
+#     60   for normal ranks
+#     30   for split ranks
+#     24   drop octaves for mutations
+#     12   drop fifths for mutations
+#     8    drop thirds for mutations
 
 
 
