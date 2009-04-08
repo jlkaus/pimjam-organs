@@ -10,12 +10,8 @@ all: rank-data
 	$(MAKE) -C ../pipe-stuff pipegen
 ../bin/dftwav: FORCE
 	$(MAKE) -C ../pipe-stuff dftwav
-../bin/ssffis: FORCE
-	$(MAKE) -C ../pipe-stuff ssffis
 ../bin/wavdft: FORCE
 	$(MAKE) -C ../pipe-stuff wavdft
-../bin/rsfgen: FORCE
-	$(MAKE) -C ../pipe-stuff rsfgen
 FORCE:
 
 rank-data:
@@ -38,8 +34,8 @@ testing-raws: testing/X1.00F1.00V0.05S0.05P0_L20_261.626.raw \
 #   Unstopped
 #     Medium
 # typisch 8,4,2,1,16
-Diapason_%.rsf: ../bin/rsfgen
-	../bin/rsfgen -o $@ Diapason.fis -k61 -a0 -b0 -d0
+Diapason_%.rsf:
+	../scripts/rsfgen.pl -o $@ Diapason.fis -k61 -a0 -b0 -d0
 
 #     Slightly narrower
 # typisch 8
@@ -108,13 +104,9 @@ VoxHumana_%.rsf:
 
 
 
-%.fis: %.ssf ../bin/ssffis
-	../bin/ssffis $< -o $@ -fauto
+%.fis: %.ssf
+	../scripts/ssffis.pl $< -o $@ -fauto
 %.fis: %.wav ../bin/wavdft
-	../bin/wavdft $< -o $@ -fauto
-%_*.dft: %.ssf ../bin/ssffis
-	../bin/ssffis $< -o $@ -fauto
-%_*.dft: %.wav ../bin/wavdft
 	../bin/wavdft $< -o $@ -fauto
 %.fis: ../bin/dftgen
 	../bin/dftgen -o $@ -v2
@@ -124,13 +116,7 @@ VoxHumana_%.rsf:
 	../bin/dftwav $< -o $@ -r44100 -n8000 -a0.05 -d0.05 -l1.0
 %.wav: %.dft ../bin/dftwav
 	../bin/dftwav $< -o $@ -r44100 -n8000 -a0.05 -d0.05 -l1.0
-%_*.raw: %.fis ../bin/dftwav
-	../bin/dftwav $< -o $@ -r44100 -n8000 -a0.05 -d0.05 -l1.0
-%_*.wav: %.fis ../bin/dftwav
-	../bin/dftwav $< -o $@ -r44100 -n8000 -a0.05 -d0.05 -l1.0
 %.pipe: %.dft ../bin/pipegen
-	../bin/pipegen $< -o $@ -r44100 -n1.0 -l1.0
-%_*.pipe: %.fis ../bin/pipegen
 	../bin/pipegen $< -o $@ -r44100 -n1.0 -l1.0
 %.rank: %.rsf ../bin/rankgen
 	-include %.rsf
@@ -139,9 +125,9 @@ VoxHumana_%.rsf:
 clean:
 	-rm -f *.pipe
 	-rm -f *.rank
-	-rm -f *.raw
-	-rm -f *.dft
-	-rm -rf XD*
+	-rm -f *.rsf
+	-rm -f *.raw *.wav
+	-rm -f *.dft *.fis
 
 
 cleanall: clean
