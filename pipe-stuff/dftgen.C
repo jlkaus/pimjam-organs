@@ -4,16 +4,16 @@
 #include <math.h>
 #include "rankfile.H"
 
-void generateDftv(dft_freq_point_t*, float, float, float, float, float, float, bool, int, float, int);
+void generateDftv(dft_freq_point_t*, float, float, float, float, bool, int, float, int);
 
 int main(int argc, char* argv[]) {
   // generate only one pipe
   // input parm is just a directory/filename.  Filename is parsed to determine pipe characteristics and frequency.  Directory is just used to place the dft into.
-  //  path/XDxxxODxxxEDxxxFxxxExxxSxxxPx_Lllll_ffff.dft
+  //  path/Xx.xxFx.xxVx.xxSx.xxPx_Ll_ffff.dft
   // verbosity is argv[2]
 
   if(argc == 1) {
-    fprintf(stderr,"Syntax: dftgen [path/]XDxxxODxxxEDxxxFxxxExxxSxxxPb_Lllll_ffff.dft [verbosity]\n");
+    fprintf(stderr,"Syntax: dftgen [path/]Xx.xxFx.xxVx.xxSx.xxPb_Ll_ffff.dft [verbosity]\n");
     exit(-1);
   }
 
@@ -25,8 +25,6 @@ int main(int argc, char* argv[]) {
   int verbosity = argc>2 ? atoi(argv[2]) : 0;
 
   float Dx=0.0;
-  float Do=0.0;
-  float De=0.0;
   float Af=0.0;
   float Ae=0.0;
   float As=0.0;
@@ -46,22 +44,16 @@ int main(int argc, char* argv[]) {
   phasing = atoi(dex+1);
 
   for(;dex > dir_name-1 && *dex != 'S'; --dex);
-  As = atoi(dex+1) / 100.0;
+  As = atof(dex+1) / 100.0;
 
-  for(;dex > dir_name-1 && *dex != 'E'; --dex);
-  Ae = atoi(dex+1) / 100.0;
+  for(;dex > dir_name-1 && *dex != 'V'; --dex);
+  Ae = atof(dex+1) / 100.0;
 
   for(;dex > dir_name-1 && *dex != 'F'; --dex);
-  Af = atoi(dex+1) / 100.0;
+  Af = atof(dex+1) / 100.0;
 
-  for(;dex > dir_name-1 && *dex != 'D'; --dex);
-  De = atoi(dex+1) / 100.0;
-
-  for(;dex > dir_name-1 && *dex != 'D'; --dex);
-  Do = atoi(dex+1) / 100.0;
-
-  for(;dex > dir_name-1 && *dex != 'D'; --dex);
-  Dx = atoi(dex+1) / 100.0;
+  for(;dex > dir_name-1 && *dex != 'X'; --dex);
+  Dx = atof(dex+1) / 100.0;
 
   for(;dex > dir_name-1 && *dex != '/'; --dex);
   spectrum_fn = dex+1;
@@ -85,7 +77,7 @@ int main(int argc, char* argv[]) {
   float k_max = 22050.0 / fundamental;
 
   if(verbosity > 1) {
-    printf("  Dx %f Do %f De %f\n", Dx, Do, De);
+    printf("  Dx %f\n", Dx);
     printf("  Af %f Ae %f As %f\n", Af, Ae, As);
     printf("  P %d L %d\n", (int)phasing, limitation);
     printf("  F %f from k = 1 to %d\n", fundamental, (int)k_max);
@@ -100,7 +92,7 @@ int main(int argc, char* argv[]) {
     // determine normalization by going through things once
     for(int k = 1; k <= (int)k_max; ++k) {
       dft_freq_point_t dftv;
-      generateDftv(&dftv, Dx, Do, De, Af, Ae, As, phasing, limitation, fundamental, k);
+      generateDftv(&dftv, Dx, Af, Ae, As, phasing, limitation, fundamental, k);
       if(fabs(dftv.mRealFactor) > 1e-14 || fabs(dftv.mImagFactor) > 1e-14) {
 	norm += sqrt(dftv.mRealFactor * dftv.mRealFactor + dftv.mImagFactor * dftv.mImagFactor);
       }
@@ -109,7 +101,7 @@ int main(int argc, char* argv[]) {
     // Now that we have our normalization, actual generate and write the harmonics to the output file
     for(int k = 1; k <= (int)k_max; ++k) {
       dft_freq_point_t dftv;
-      generateDftv(&dftv, Dx, Do, De, Af, Ae, As, phasing, limitation, fundamental, k);
+      generateDftv(&dftv, Dx, Af, Ae, As, phasing, limitation, fundamental, k);
       if(fabs(dftv.mRealFactor) > 1e-14 || fabs(dftv.mImagFactor) > 1e-14) {
 	dftv.mRealFactor/=norm;
 	dftv.mImagFactor/=norm;
@@ -131,7 +123,7 @@ int main(int argc, char* argv[]) {
 }
 
 
-void generateDftv(dft_freq_point_t* dftv, float Dx, float Do, float De, float Af, float Ae, float As, bool phasing, int limitation, float fundamental, int k) {
+void generateDftv(dft_freq_point_t* dftv, float Dx, float Af, float Ae, float As, bool phasing, int limitation, float fundamental, int k) {
   dftv->mFrequency = fundamental * (float)k;
 
   // base magnitude
@@ -144,11 +136,6 @@ void generateDftv(dft_freq_point_t* dftv, float Dx, float Do, float De, float Af
 
   // deal with decay
   initial_strength *= pow((float)k, -Dx);
-  if(k%2 == 0) {
-    initial_strength *= (1.0 - De*(1.0-(float)k));
-  } else {
-    initial_strength *= (1.0 - Do*(1.0-(float)k));
-  }
 
   // deal with cutoff
   if(k == limitation - 1) {

@@ -10,7 +10,12 @@ all: rank-data
 	$(MAKE) -C ../pipe-stuff pipegen
 ../bin/dftwav: FORCE
 	$(MAKE) -C ../pipe-stuff dftwav
-
+../bin/ssffis: FORCE
+	$(MAKE) -C ../pipe-stuff ssffis
+../bin/wavdft: FORCE
+	$(MAKE) -C ../pipe-stuff wavdft
+../bin/rsfgen: FORCE
+	$(MAKE) -C ../pipe-stuff rsfgen
 FORCE:
 
 rank-data:
@@ -18,24 +23,118 @@ rank-data:
 
 pipe-data: 
 
-testing-raws: testing/XD100OD000ED000F100E005S005P0_L0020_261.626.raw \
-	testing/XD100OD000ED000F100E005S005P0_L0020_293.665.raw\
-	testing/XD100OD000ED000F100E005S005P0_L0020_329.628.raw\
-	testing/XD100OD000ED000F100E005S005P0_L0020_349.228.raw\
-	testing/XD100OD000ED000F100E005S005P0_L0020_391.995.raw\
-	testing/XD100OD000ED000F100E005S005P0_L0020_440.000.raw\
-	testing/XD100OD000ED000F100E005S005P0_L0020_493.884.raw\
-	testing/XD100OD000ED000F100E005S005P0_L0020_523.251.raw
+testing-raws: testing/X1.00F1.00V0.05S0.05P0_L20_261.626.raw \
+	testing/X1.00F1.00V0.05S0.05P0_L20_293.665.raw\
+	testing/X1.00F1.00V0.05S0.05P0_L20_329.628.raw\
+	testing/X1.00F1.00V0.05S0.05P0_L20_349.228.raw\
+	testing/X1.00F1.00V0.05S0.05P0_L20_391.995.raw\
+	testing/X1.00F1.00V0.05S0.05P0_L20_440.000.raw\
+	testing/X1.00F1.00V0.05S0.05P0_L20_493.884.raw\
+	testing/X1.00F1.00V0.05S0.05P0_L20_523.251.raw
 
 
+
+# Flues
+#   Unstopped
+#     Medium
+# typisch 8,4,2,1,16
+Diapason_%.rsf: ../bin/rsfgen
+	../bin/rsfgen -o $@ Diapason.fis -k61 -a0 -b0 -d0
+
+#     Slightly narrower
+# typisch 8
+Geigenprincipal_%.rsf:
+
+#   Stopped
+#     Slightly broader
+# typisch 8,16,32
+Bourdon_%.rsf:
+
+#   Incompletely stopped
+# typisch 4
+Rohrfloete_%.rsf:
+
+#   Unstopped
+#     Wider
+# typisch 8,16,4,2,1
+Flute_%.rsf:
+
+#     Narrower
+# typisch 8,16
+Gamba_%.rsf:
+
+#     Narrower, but a bit wider than gamba
+# typisch 8,4
+Salicional_%.rsf:
+
+#   Stopped
+#     gamba sized
+# typisch 8
+Quintation_%.rsf:
+
+#   Unstopped
+#     very narrow
+# typisch 8
+Dulciana_%.rsf:
+
+#     narrow and narrowing to top
+Gemshorn_%.rsf:
+
+#   Unstopped
+#     gamba sized
+# Slightly detuned (sharp)
+VoxCeleste_%.rsf:
+
+# Reeds
+#   Unstopped
+#     normal length, widening to top
+# typisch 8,16,4
+Trumpet_%.rsf:
+
+#     normal length and straight, but widening cone at the top
+# typisch 8
+Oboe_%.rsf:
+
+#     just like Oboe, but slightly wider resonator
+# typisch 16
+Bassoon_%.rsf:
+
+#     half length resonator
+# typisch 8
+Clarinet_%.rsf:
+
+#     very short resonator
+VoxHumana_%.rsf:
+
+
+
+%.fis: %.ssf ../bin/ssffis
+	../bin/ssffis $< -o $@ -fauto
+%.fis: %.wav ../bin/wavdft
+	../bin/wavdft $< -o $@ -fauto
+%_*.dft: %.ssf ../bin/ssffis
+	../bin/ssffis $< -o $@ -fauto
+%_*.dft: %.wav ../bin/wavdft
+	../bin/wavdft $< -o $@ -fauto
+%.fis: ../bin/dftgen
+	../bin/dftgen -o $@ -v2
 %.dft: ../bin/dftgen
-	../bin/dftgen $@ 2
-
+	../bin/dftgen -o $@ -v2
 %.raw: %.dft ../bin/dftwav
-	../bin/dftwav $< 8000 0.25 0.08 1.4 44100
-
+	../bin/dftwav $< -o $@ -r44100 -n8000 -a0.05 -d0.05 -l1.0
+%.wav: %.dft ../bin/dftwav
+	../bin/dftwav $< -o $@ -r44100 -n8000 -a0.05 -d0.05 -l1.0
+%_*.raw: %.fis ../bin/dftwav
+	../bin/dftwav $< -o $@ -r44100 -n8000 -a0.05 -d0.05 -l1.0
+%_*.wav: %.fis ../bin/dftwav
+	../bin/dftwav $< -o $@ -r44100 -n8000 -a0.05 -d0.05 -l1.0
 %.pipe: %.dft ../bin/pipegen
-	../bin/pipegen $< 1.0 5 0.05 1.1 44100
+	../bin/pipegen $< -o $@ -r44100 -n1.0 -l1.0
+%_*.pipe: %.fis ../bin/pipegen
+	../bin/pipegen $< -o $@ -r44100 -n1.0 -l1.0
+%.rank: %.rsf ../bin/rankgen
+	-include %.rsf
+	../bin/rankgen $< -o $@
 
 clean:
 	-rm -f *.pipe

@@ -105,7 +105,7 @@ my $aboves = shift @ARGV || 0;
 
 #print "I\tLC\tBRC\tTD\tDEX\tBSC\tLF\tEL\tF\n";
 
-open OPF, ">${rankname}_${lengthclass}${us}${bc}${dt}.rank";
+open OPF, ">${rankname}_${lengthclass}${us}${bc}${dt}.ranktxt";
 
 
 my $i = 0;
@@ -126,6 +126,7 @@ for($i = 0 - 12*$belows; $i < 0 + $notes + 12*$aboves; ++$i) {
     print "${rankname}_${lengthclass}${us}${bc}${dt}.rank ($i): ${basepipes}_${freq}.pipe\n";
     print OPF "$i: ${basepipes}_${freq}.pipe\n";
     system("make ${basepipes}_${freq}.raw");
+    system("make ${basepipes}_${freq}.pipe");
 
 }
 
