@@ -56,19 +56,35 @@ int main(void)
     DDRD &= ~_BV(PIND0);
     PORTD |= _BV(PIND0);
 
-    /* Pull up PORTC */
+    /* Set data direction of PORTC for input */
     DDRC &= 0x00;
     PORTC |= 0xFF;
 
     /* set LED pin as output */
     LED_DDR |= _BV(LED);
-    flash_led(NUM_LED_FLASHES);
+
+    /* set data direction of PORTB for output */
+    DDRB |= 0xFF;
 
     /* forever loop */
     for (;;)
     {
+    	flash_led(NUM_LED_FLASHES);
+	
 	/* get character from UART */
 	ch = getch();
+
+	PORTB = 0 << 1;
+	_delay_ms(1);
+	putch(PINC);
+	PORTB = 1 << 1;
+	_delay_ms(1);
+	putch(PINC);
+	PORTB = 2 << 1;
+	_delay_ms(1);
+	putch(PINC);
+	PORTB = 3 << 1;
+	_delay_ms(1);
 	putch(PINC);
 
 	_delay_ms(1000);
@@ -106,8 +122,8 @@ void flash_led(uint8_t count)
     for (i = 0; i < count; ++i)
     {
 	LED_PORT |= _BV(LED);
-	_delay_ms(1);
+	_delay_ms(50);
 	LED_PORT &= ~_BV(LED);
-	_delay_ms(1);
+	_delay_ms(50);
     }
 }
