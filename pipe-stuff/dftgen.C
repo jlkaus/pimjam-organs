@@ -2,7 +2,49 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <argp.h>    /* arg_parse and co. */
 #include "rankfile.H"
+
+const char *argp_program_version = "dftgen 0.5";
+const char *argp_program_bug_address = "<jlkaus@gmail.com>";
+static char program_documentation[] = "dftgen - Program to generate some theoretical pipe spectrums.\n";
+
+
+static struct argp_option program_options[] = {
+  {"output",	'o',"PATH/XxFxVxSxPb_Ll[_f.dft|.fis]",	0,"Specifies the output spectrum file.  The name of the file is used to determine what type of pipe to generate."},
+  {"freq",	'f',"FREQ",	0,"Generate a dft file at frequency FREQ.  If not specified, a fis file is generated, or a dft with the frequency determined by the filename."},
+  {"verbosity",	'v',"VERBOSITY",	0,"Use VERBOSITY as the level of verbosity while generating the pipe spectrum."},
+  {0}
+};
+
+struct program_arguments {
+  char *output;
+  float freq;
+  int verbosity;
+};
+
+static error_t parse_opt(int key, char *arg, struct argp_state *state) {
+  struct program_arguments *args = state->input;
+
+  switch(key) {
+
+  case 'o':
+    args->output = arg;
+    break;
+  case 'f':
+    args->freq = atof(arg);
+    break;
+  case 'v':
+    args->verbosity = atoi(arg);
+    break;
+  default:
+    return ARGP_ERR_UNKNOWN;
+  }
+
+  return 0;
+}
+
+static struct argp program_arg_parser = {program_options, parse_opt, 0, program_documentation};
 
 void generateDftv(dft_freq_point_t*, float, float, float, float, bool, int, float, int);
 
@@ -12,17 +54,15 @@ int main(int argc, char* argv[]) {
   //  path/Xx.xxFx.xxVx.xxSx.xxPx_Ll_ffff.dft
   // verbosity is argv[2]
 
-  if(argc == 1) {
-    fprintf(stderr,"Syntax: dftgen [path/]Xx.xxFx.xxVx.xxSx.xxPb_Ll_ffff.dft [verbosity]\n");
-    exit(-1);
-  }
+  struct program_arguments args = {"", 0.0, 0};
+  argp_parse(&program_arg_parser, argc, argv, 0,0, &args);
 
-  char* dir_name=argv[1];
+  char* dir_name=args->output;
   char* spectrum_fn;
   char sysstuff[512];
   bzero(sysstuff,512);
 
-  int verbosity = argc>2 ? atoi(argv[2]) : 0;
+  int verbosity = args->verbosity;
 
   float Dx=0.0;
   float Af=0.0;
@@ -30,12 +70,24 @@ int main(int argc, char* argv[]) {
   float As=0.0;
   bool phasing = false;
   int limitation=0;
-  float fundamental = 0.0;
+  float fundamental = args->freq;
 
   char* dex = argv[1] + strlen(argv[1]);
 
-  for(;dex > dir_name-1 && *dex != '_'; --dex);
-  fundamental = atof(dex+1);
+  for(;dex > dir_name-1 && *dex != '.'; --dex);
+  if(strcmp(dex+1,"dft")==0) {
+    if(fundamental == 0.0) {
+      for(;dex > dir_name-1 && *dex != '_'; --dex);
+      fundamental = atof(dex+1);      
+    }
+  } else {
+    fundamental = 1.0;
+  }
+
+  if(fundamental == 0.0) {
+    fprintf(stderr,"Trying to generate a .dft file with no frequency specified with --freq or in the filename. Aborting.\n");
+    exit(-1);
+  }
 
   for(;dex > dir_name-1 && *dex != 'L'; --dex);
   limitation = atoi(dex+1);
