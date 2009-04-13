@@ -25,6 +25,8 @@
 #define NUM_LED_FLASHES 3
 #define MAX_TIME_COUNT 8000000L>>1
 
+#define NUM_INPUT_BUFFERS 5
+
 /* define various device id's */
 /* manufacturer byte is always the same */
 #define SIG1	0x1E	// Yep, Atmel is the only manufacturer of AVR micros.  Single source :(
@@ -41,7 +43,9 @@ void flash_led(uint8_t count);
 /* main program starts here */
 int main(void)
 {
-    uint8_t ch;
+    //uint8_t ch;
+    uint8_t cur_state[NUM_INPUT_BUFFERS];
+    uint8_t i,j;
 	
     asm volatile("nop\n\t");
 
@@ -66,28 +70,35 @@ int main(void)
     /* set data direction of PORTB for output */
     DDRB |= 0xFF;
 
+    /* Initialize cur_state array assume all keys off */
+    for(i = 0; i < NUM_INPUT_BUFFERS; i++) {
+        cur_state[i] = 0x00;
+    }
+
     /* forever loop */
     for (;;)
     {
     	flash_led(NUM_LED_FLASHES);
-	
-	/* get character from UART */
-	ch = getch();
 
-	PORTB = 0 << 1;
-	_delay_ms(1);
-	putch(PINC);
-	PORTB = 1 << 1;
-	_delay_ms(1);
-	putch(PINC);
-	PORTB = 2 << 1;
-	_delay_ms(1);
-	putch(PINC);
-	PORTB = 3 << 1;
-	_delay_ms(1);
-	putch(PINC);
+	for(i = 0; i < NUM_INPUT_BUFFERS; i++) {
 
-	_delay_ms(1000);
+	    /* Left shift 1 to skip over the LED pin */
+	    PORTB = i << 1;
+	    uint8_t tmp = cur_state[i];
+	    cur_state[i] = PINC;
+	    for(j = 0; j < sizeof(uint8_t); j++) {
+                if(((tmp ^ cur_state[i]) >> j) & 0x01) {
+                    /* Send changed event */
+                    putch(0x10);
+                    putch(i);
+                    putch(j);
+                    putch(0x20);
+		}
+	    }
+	}
+
+	/* Wait 20 ms before polling again */
+	_delay_ms(20);
     }
     /* end of forever loop */
 }
