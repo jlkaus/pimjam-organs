@@ -8,10 +8,22 @@ my %options = ( "output" => "",
 		"targetfreq" => 1.0,
 		"decibel" => 0,
 		"rect" => 1,
-		"maxdb" => 0
+		"maxdb" => 0,
+		"divisor" => 1.0,
+		"help" => 0
     );
 
-GetOptions(\%options, "output|o=s","freq|f=f");
+GetOptions(\%options, "output|o=s","freq|f=f","help|h");
+
+if($options{help}) {
+    print "ssffis.pl - Convert a ssf file to a fis or dft file.\n";
+    print "  -o,--output=FILE	Output file specifier\n";
+    print "  -f,--freq=FREQ     Source frequency base of the ssf file\n";
+    print "  -h,--help		Display this help\n";
+    print "  INPUTFILE		Unnamed argument is input ssf filename.\n";
+    exit(1);
+
+}
 
 my $inputfile = shift @ARGV || die "No input file specified\n";
 
@@ -37,10 +49,19 @@ if($options{freq} == 0) {
 if(scalar @things == 3) {
     $options{rect} = 0;
 }
-if($things[1] =~ /^\s*([-0-9.]+)\s*[dD][bB]\s*$/) {
+if($things[1] =~ /^\s*([-0-9.]+)\s*[dD][bB]\s*([-0-9.]+)?\/?([-0-9.]+)?\s*$/) {
     $options{rect} = 0;
     $options{decibel} = 1;
     $options{maxdb} = $1;
+    if($2 ne "") {
+	if($3 ne "") {
+	    $options{divisor} = $2/$3;
+	} else {
+	    $options{divisor} = $2;
+	}
+    } else {
+	$options{divisor} = 1.0;
+    }
 }
 
 if($options{decibel} == 1) {
@@ -61,8 +82,9 @@ my $ci = 0.0;
 foreach(@inlines) {
     @things = split(/,/,$_);
     $cf = $options{targetfreq} * $things[0]/$options{freq};
-    if($options{decibel} && $things[1] =~ /^\s*([-0-9.]+)\s*([dD][bB])?\s*$/) {
-	$cr = 10.0**(($1 - $options{maxdb})/20);
+    if($options{decibel} && $things[1] =~ /^\s*([-0-9.]+)\s*([dD][bB])?\s*([-0-9.\/]*)$/) {
+	$cr = 10.0**(($1 - $options{maxdb})/20/$options{divisor});
+#	print "Max: $options{maxdb}, divisor: $options{divisor}, data: $1, computed: $cr\n";
 	$ci = 0.0;
     } elsif($options{rect} && $things[1] =~ /^\s*([-0-9.]*)\s*([-+])\s*j\s*([0-9.]*)\s*$/) {
 	$cr = $1;

@@ -36,7 +36,7 @@ struct program_arguments {
 };
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state) {
-  struct program_arguments *args = state->input;
+  struct program_arguments *args = (program_arguments*)state->input;
 
   switch(key) {
   case ARGP_KEY_ARG:
@@ -82,18 +82,18 @@ int main(int argc, char* argv[]) {
 
   bool isRaw = false;
   bool isDft = false;
-  float fundamental = args->freq;
+  float fundamental = args.freq;
   float sourcefreq = 1.0;
-  int renorm = args->norm;
-  int sample_rate = args->rate;
-  float duration = args->length;
-  float attack_t = args->attack;
-  float decay_t = args->decay;
+  int renorm = args.norm;
+  int sample_rate = args.rate;
+  float duration = args.length;
+  float attack_t = args.attack;
+  float decay_t = args.decay;
 
   // we assume the dft file is prenormalized to unity
 
-  char *spectrum_fn = args->input;
-  char *raw_fn = args->output;
+  char *spectrum_fn = args.input;
+  char *raw_fn = args.output;
 
   if(!spectrum_fn && !raw_fn) {
     fprintf(stderr, "No input or output filename specified. Aborting.\n");
@@ -155,7 +155,7 @@ int main(int argc, char* argv[]) {
 
   int drecs = ss.st_size/sizeof(dft_freq_point_t);
 
-  if(args->verbosity) {
+  if(args.verbosity) {
     printf("Spectrum file: %s\n",spectrum_fn);
     printf("  DFT records: %d\n",drecs);
     printf("     Raw file: %s\n",raw_fn);
@@ -170,7 +170,7 @@ int main(int argc, char* argv[]) {
   float sustain_t = attack_t;
   float attack_constant = -log(0.01)/attack_t;
   float release_t = duration-decay_t;
-  float decay_constant = -log(0.01)/decay_t
+  float decay_constant = -log(0.01)/decay_t;
 
   dft_freq_point_t* dftrecs = new dft_freq_point_t[drecs];
 
@@ -190,11 +190,13 @@ int main(int argc, char* argv[]) {
   for(int j=0; j < drecs; ++j) {
     precs[j].freq = dftrecs[j].mFrequency*fundamental/sourcefreq;
     precs[j].mag = sqrt(dftrecs[j].mRealFactor * dftrecs[j].mRealFactor + dftrecs[j].mImagFactor * dftrecs[j].mImagFactor);
-    power += mag;
+    if(precs[j].freq < sample_rate/2) {
+      power += precs[j].mag;
+    }
     precs[j].phase = atan2(dftrecs[j].mImagFactor, dftrecs[j].mRealFactor);
   }
 
-  if(args->verbosity) {
+  if(args.verbosity) {
     printf("Spectral Power: %f\n",power);
   }
 
@@ -208,11 +210,13 @@ int main(int argc, char* argv[]) {
     if(cur_time < sustain_t) {
       rel_level = 1.0 - 1.0*exp(-attack_constant * cur_time);
     } else if(cur_time > release_t) {
-      rel_level = 1.0 * exp(-release_constant * (cur_time - release_t)); 
+      rel_level = 1.0 * exp(-decay_constant * (cur_time - release_t)); 
     }
 
     for(int j=0;j<drecs;++j) {
-      cur_val += precs[j].mag * sin(2.0*M_PI*precs[j].freq*cur_time + precs[j].phase);
+      if(precs[j].freq < sample_rate/2) {
+	cur_val += precs[j].mag * sin(2.0*M_PI*precs[j].freq*cur_time + precs[j].phase);
+      }
     }
 
     cur_val *= rel_level * renorm;
@@ -222,7 +226,7 @@ int main(int argc, char* argv[]) {
 
   fclose(rf);
 
-  if(args->verbosity) {
+  if(args.verbosity) {
     printf("Wrote out %d samples.\n",total_samples);
   }
 

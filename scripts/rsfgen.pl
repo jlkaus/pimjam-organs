@@ -11,20 +11,75 @@ my %options = (
 	detune => 0.0,
 	output => "",
 	length => "8",
-	canlen => 0
+	canlen => 8.0
 	);
 GetOptions(\%options, "keys|k=i","aboves|a=i","belows|b=i","detune|d=f","output|o=s", "length|l=s");
 
+sub computeLength {
+    my $lengthclass = shift || "";
+
+    my $lenfactor = shift || 8.0;
+    if($lengthclass =~ m|^([0-9]+)\s*$|) {
+	$lenfactor = $1;
+    } elsif($lengthclass =~ m|^([0-9]+)-([0-9]+)/([0-9]+)\s*$|) {
+	$lenfactor = $1 + $2/$3;
+    } elsif($lengthclass =~ m|^([0-9]+)/([0-9]+)\s*$|) {
+	$lenfactor = $1/$2;
+    }
+
+    return $lenfactor;
+}
+
+$options{canlen} = computeLength($options{length},$options{canlen});
+
+
+
 # process remaining argv to get input fis files, and lengths
-# [[file][:len]*]*
+# [[file][:[len]]*]*
 # nothing    -> base:8
+# :	     -> last:8
 # file       -> file:8
-# :len       -> base:len
+# :len       -> last:len
+# file:      -> file:8
 # file:len   -> file:len
-# :l1:l2     -> base:l1 and base:l2
+# :l1:l2     -> last:l1 and last:l2
 # file:l1:l2 -> file:l1 and file:l2
 
 my @breaks = ();
+my @lengths = ();
+my $nextname = $options{output};
+$nextname =~ s/^(.*)\.rsf$/$1.fis/;
+
+foreach(@ARGV) {
+    if(/^([^:]*)$/) {
+	$nextname = "$1";
+    } elsif(/^([^:]*):(.*)$/) {
+	if("$1" ne "") {
+	    $nextname = "$1";
+	}
+	@lengths = split(':', "$2 ",-1);
+	foreach(@lengths) {
+	    if($nextname eq "") {
+		die "Couldn't figure out what name to use for inputs.  Aborting.\n";
+	    }
+	    push @breaks,["$nextname", computeLength("$_",$options{canlen})];
+	}
+    }
+    if($options{output} eq "") {
+	if("$nextname" ne "") {
+	    $options{output} = "$nextname";
+	    $options{output} =~ s/^(.*)\.fis$/$1.rsf/;
+	}
+    }
+}
+if(scalar @breaks == 0) {
+    push @breaks, [$nextname, computeLength($_,$options{canlen})];
+}
+
+print "Output: $options{output}\n";
+print "  $_->[1] $_->[0]\n" foreach(@breaks);
+
+exit;
 
 # normalize breaks, and set output if it wasn't given.  May need to set the length as well, if not specified, and not in output filename.
 # breaks should be sorted by break length, with shortest lenghts are at the top (left), under the assumption that as we get higher pitched, we have to break lower pitched, so that we still have pipes that are manageable. breaks with the same length but different names should be left in original order.
@@ -95,9 +150,9 @@ for($i = 0 - 12*$belows; $i < 0 + $notes + 12*$aboves; ++$i) {
     my $baseclass = 8.0;
  #   print "$i\t$lengthclass\t$breakclass\t";
     if($breakclass > 0) {
-	my $td = $bctodiv{$breakclass};
+	my $td = 0; #$bctodiv{$breakclass};
 	my $dex = POSIX::floor($i/$td);
-	$baseclass = $bctobreak{$breakclass}->{$dex};
+	$baseclass = 0; #$bctobreak{$breakclass}->{$dex};
 	#print "$td\t$dex\t";
     } else {
 	#print "0\t0\t";

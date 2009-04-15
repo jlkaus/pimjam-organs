@@ -24,7 +24,7 @@ struct program_arguments {
 };
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state) {
-  struct program_arguments *args = state->input;
+  struct program_arguments *args = (program_arguments*)state->input;
 
   switch(key) {
 
@@ -54,15 +54,20 @@ int main(int argc, char* argv[]) {
   //  path/Xx.xxFx.xxVx.xxSx.xxPx_Ll_ffff.dft
   // verbosity is argv[2]
 
-  struct program_arguments args = {"", 0.0, 0};
+  struct program_arguments args = {NULL, 0.0, 0};
   argp_parse(&program_arg_parser, argc, argv, 0,0, &args);
 
-  char* dir_name=args->output;
+  if(!args.output) {
+    fprintf(stderr,"No output filename specified. Aborting.\n");
+    exit(-1);
+  }
+
+  char* dir_name=args.output;
   char* spectrum_fn;
   char sysstuff[512];
   bzero(sysstuff,512);
 
-  int verbosity = args->verbosity;
+  int verbosity = args.verbosity;
 
   float Dx=0.0;
   float Af=0.0;
@@ -70,9 +75,9 @@ int main(int argc, char* argv[]) {
   float As=0.0;
   bool phasing = false;
   int limitation=0;
-  float fundamental = args->freq;
+  float fundamental = args.freq;
 
-  char* dex = argv[1] + strlen(argv[1]);
+  char* dex = args.output + strlen(args.output);
 
   for(;dex > dir_name-1 && *dex != '.'; --dex);
   if(strcmp(dex+1,"dft")==0) {
