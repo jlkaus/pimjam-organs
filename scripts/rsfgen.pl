@@ -79,20 +79,112 @@ if(scalar @breaks == 0) {
 print "Output: $options{output}\n";
 print "  $_->[1] $_->[0]\n" foreach(@breaks);
 
-exit;
+# compute num keys and num breaks, keys/break, etc
+my $numkeys = $options{keys} + $options{aboves}*12 + $options{belows}*12;
+my $cankeys = $numkeys -1;
+my $subkeys = $options{belows}*12;
+my $numbrks = scalar @breaks;
+my $keysbrk = $cankeys/$numbrks;
+my $canbrk = $keysbrk;
 
-# normalize breaks, and set output if it wasn't given.  May need to set the length as well, if not specified, and not in output filename.
-# breaks should be sorted by break length, with shortest lenghts are at the top (left), under the assumption that as we get higher pitched, we have to break lower pitched, so that we still have pipes that are manageable. breaks with the same length but different names should be left in original order.
-# also need to figure out, based on number of breaks, and number of keys, where the breaks are at:
-#   prefer key 0 to start a break set. work backwords for negative keys
-#   keys-1 + aboves*12 + belows*12 -1 is adjusted number of keys.  The last key should use the length of the last break set.
-#   adjusted number of keys / number of breaks should equal the keys per break.  Set key 0 to use the canonical length, and find the leftmost cannonical length input file to put there.  then work the way right and left.
-#   prefered keys per break (not counting aboves and belows) are
 #     60   for normal ranks
 #     30   for split ranks
 #     24   drop octaves for mutations
 #     12   drop fifths for mutations
 #     8    drop thirds for mutations
+
+if($keysbrk > 45) {
+    $canbrk = 60;
+} elsif($keysbrk > 27) {
+    $canbrk = 30;
+} elsif($keysbrk > 18) {
+    $canbrk = 24;
+} elsif($keysbrk > 10) {
+    $canbrk = 12;
+} else {
+    $canbrk = 8;
+}
+
+print "Keys:\n";
+print "  $numkeys ($subkeys) $cankeys\n";
+print "  $numbrks ($keysbrk > $canbrk)\n";
+
+my @keylab=();
+my $index = 0;
+for($index =0;$index < $options{belows}*12;++$index) {
+    push @keylab, "s$index";
+}
+for($index =0;$index < $options{keys}; ++$index) {
+    push @keylab, "m$index";
+}
+for($index =0;$index < $options{aboves}*12;++$index) {
+    push @keylab, "a$index";
+}
+
+my @octlab=();
+my $curind = 0;
+my $curoct = -1;
+for($index = $options{belows}*12 -1; $index >=0; --$index) {
+    $octlab[$index] = $curoct;
+    ++$curind;
+    if($curind == 12) {
+	$curind = 0;
+	--$curoct;
+    }
+}
+$curoct = 0;
+for($index = $options{belows}*12; $index < $numkeys; ++$index) {
+    $octlab[$index] = $curoct;
+    ++$curind;
+    if($curind == 12) {
+	$curind = 0;
+	++$curoct;
+    }
+}
+
+my @brklab = ();
+$curind = 0;
+my $curbrk = int($options{belows}*12/$canbrk) -1;
+if($curbrk <0) {
+    $curbrk = 0;
+}
+for($index = $options{belows}*12 -1; $index >=0; --$index) {
+    $brklab[$index] = $curbrk;
+    ++$curind;
+    if($curind == $canbrk) {
+	$curind = 0;
+	--$curbrk;
+	if($curbrk == -1) {
+	    ++$curbrk;
+	}
+    }
+}
+$curind = 0;
+$curbrk = int($options{belows}*12/$canbrk);
+if($curbrk > $numbrks-1) {
+    $curbrk = $numbrks -1;
+}
+for($index = $options{belows}*12; $index < $numkeys; ++$index) {
+    $brklab[$index] = $curbrk;
+    ++$curind;
+    if($curind == $canbrk) {
+	$curind = 0;
+	++$curbrk;
+	if($curbrk == $numbrks) {
+	    --$curbrk;
+	}
+    }
+}
+
+print "\n";
+print "$_\t" foreach(@keylab);
+print "\n";
+print "$_\t" foreach(@octlab);
+print "\n";
+print "$_\t" foreach(@brklab);
+print "\n";
+
+exit;
 
 
 
