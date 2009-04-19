@@ -38,7 +38,7 @@ firmware: libcore.a
 
 # implicit rules
 %.elf: %.o
-	$(CC) $(LDFLAGS) -o $@ $< $(LIBS)
+	$(CC) $(LDFLAGS) -g -o $@ $< $(LIBS)
 %.o: %.c
 	$(CC) -c $(CFLAGS) -o $@ $<
 %.o: %.C
@@ -54,7 +54,7 @@ firmware: libcore.a
 
 
 clean:
-	-rm -f *.o
+	-rm -f *.o *.elf *.lst *.hex
 
 cleanall: clean
 	@for dir in $(SYSTEMS); do $(MAKE) -C $$dir cleanall; done

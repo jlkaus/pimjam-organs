@@ -71,28 +71,33 @@ int main(void)
     DDRB |= 0xFF;
 
     /* Initialize cur_state array assume all keys off */
-    for(i = 0; i < NUM_INPUT_BUFFERS; i++) {
+    for(i = 0; i < NUM_INPUT_BUFFERS; ++i) {
         cur_state[i] = 0x00;
     }
+    	
+    flash_led(NUM_LED_FLASHES);
 
     /* forever loop */
     for (;;)
     {
-    	flash_led(NUM_LED_FLASHES);
-
-	for(i = 0; i < NUM_INPUT_BUFFERS; i++) {
+	for(i = 0; i < NUM_INPUT_BUFFERS; ++i) {
 
 	    /* Left shift 1 to skip over the LED pin */
 	    PORTB = i << 1;
 	    uint8_t tmp = cur_state[i];
 	    cur_state[i] = PINC;
-	    for(j = 0; j < sizeof(uint8_t); j++) {
-                if(((tmp ^ cur_state[i]) >> j) & 0x01) {
+	    tmp = tmp ^ cur_state[i];
+	    for(j = 0; j < 8; ++j) {
+    		if(tmp & (1 << j)) {
+		    uint8_t state_val = cur_state[i] & (1 << j) ? 1 : 0;
+
+                    /* flash_led(1); */
+
                     /* Send changed event */
-                    putch(0x10);
+		    putch(state_val);
                     putch(i);
                     putch(j);
-                    putch(0x20);
+                    putch(0);
 		}
 	    }
 	}
