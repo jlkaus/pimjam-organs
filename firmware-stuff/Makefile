@@ -38,11 +38,11 @@ firmware: libcore.a
 
 # implicit rules
 %.elf: %.o
-	$(CC) $(LDFLAGS) -g -o $@ $< $(LIBS)
+	$(CC) $(LDFLAGS) -o $@ $< $(LIBS)
 %.o: %.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS) -g -o $@ $<
 %.o: %.C
-	$(CXX) -c $(CXXFLAGS) -o $@ $<
+	$(CXX) -c $(CXXFLAGS) -g -o $@ $<
 %.lst: %.elf
 	$(OBJDUMP) -h -S $< > $@
 %.hex: %.elf
