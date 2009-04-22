@@ -25,7 +25,7 @@
 #define NUM_LED_FLASHES 3
 #define MAX_TIME_COUNT 8000000L>>1
 
-#define NUM_INPUT_BUFFERS 5
+#define NUM_INPUT_BUFFERS 4
 
 /* define various device id's */
 /* manufacturer byte is always the same */
@@ -94,10 +94,14 @@ int main(void)
                     /* flash_led(1); */
 
                     /* Send changed event */
+		    putch(0xFF);
+		    putch(0xFE);
 		    putch(state_val);
                     putch(i);
                     putch(j);
-                    putch(0);
+		    putch(0);
+                    putch(0xFD);
+		    putch(0xFC);
 		}
 	    }
 	}

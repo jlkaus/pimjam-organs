@@ -29,6 +29,9 @@ $(ACT_TARGETS): $(LIBS)
 scom: scom.o
 	$(CC) $(LDFLAGS) -o $@ $<
 	cp $@ ../bin/$@
+midi-test: midi-test.o
+	$(CC) $(LDFLAGS) -o $@ $<
+	cp $@ ../bin/$@
 
 # source prereqs
 -include $(ACT_TARGETS:%=../deps/%.d)
