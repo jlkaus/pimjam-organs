@@ -219,7 +219,7 @@ int main(int argc, char* argv[]) {
       }
     }
 
-    cur_val *= rel_level * renorm;
+    cur_val *= rel_level/power * renorm;
     int16_t rnd_val = (int16_t)cur_val;
     fwrite(&rnd_val, sizeof(int16_t), 1, rf);
   }
