@@ -48,14 +48,16 @@ $options{canlen} = computeLength($options{length},$options{canlen});
 my @breaks = ();
 my @lengths = ();
 my $nextname = $options{output};
-$nextname =~ s/^(.*)\.rsf$/$1.fis/;
+$nextname =~ s/^(.*)\.rsf$/$1/;
 
 foreach(@ARGV) {
     if(/^([^:]*)$/) {
 	$nextname = "$1";
+	$nextname =~ s/\.fis$//;
     } elsif(/^([^:]*):(.*)$/) {
 	if("$1" ne "") {
 	    $nextname = "$1";
+	    $nextname =~ s/\.fis$//;
 	}
 	@lengths = split(':', "$2 ",-1);
 	foreach(@lengths) {
@@ -76,8 +78,8 @@ if(scalar @breaks == 0) {
     push @breaks, [$nextname, computeLength($_,$options{canlen})];
 }
 
-print "Output: $options{output}\n";
-print "  $_->[1] $_->[0]\n" foreach(@breaks);
+#print "Output: $options{output}\n";
+#print "  $_->[1] $_->[0]\n" foreach(@breaks);
 
 # compute num keys and num breaks, keys/break, etc
 my $numkeys = $options{keys} + $options{aboves}*12 + $options{belows}*12;
@@ -105,9 +107,9 @@ if($keysbrk > 45) {
     $canbrk = 8;
 }
 
-print "Keys:\n";
-print "  $numkeys ($subkeys) $cankeys\n";
-print "  $numbrks ($keysbrk > $canbrk)\n";
+#print "Keys:\n";
+#print "  $numkeys ($subkeys) $cankeys\n";
+#print "  $numbrks ($keysbrk > $canbrk)\n";
 
 my @keylab=();
 my $index = 0;
@@ -176,88 +178,30 @@ for($index = $options{belows}*12; $index < $numkeys; ++$index) {
     }
 }
 
-print "\n";
-print "$_\t" foreach(@keylab);
-print "\n";
-print "$_\t" foreach(@octlab);
-print "\n";
-print "$_\t" foreach(@brklab);
-print "\n";
+#print "\n";
+#print "$_\t" foreach(@keylab);
+#print "\n";
+#print "$_\t" foreach(@octlab);
+#print "\n";
+#print "$_\t" foreach(@brklab);
+#print "\n";
 
-exit;
-
-
-
-my $rankname = shift @ARGV or die "No rankname: create-rank.pl rankname pipespec length breakclass detune notes belows aboves\n";
-my $basepipes = shift @ARGV or die "No pipe spec: create-rank.pl rankname pipespec length breakclass detune notes belows aboves\n";
-
-my $lengthclass = shift @ARGV || 8;
-
-my $lenfactor = 8;
-if($lengthclass =~ m|^([0-9]+)$|) {
-    $lenfactor = $1;
-} elsif($lengthclass =~ m|^([0-9]+)-([0-9]+)/([0-9]+)$|) {
-    $lenfactor = $1 + $2/$3;
-} elsif($lengthclass =~ m|^([0-9]+)/([0-9]+)$|) {
-    $lenfactor = $1/$2;
-} else {
-    die "Invalid length class specified.\n";
-}
-
-my $breakclass = shift @ARGV || 0;
-my $bc="";
-if($breakclass == 8) {
-    $bc="b";
-} elsif($breakclass ==0) {
-    $bc ="";
-} else {
-    die "Don't currently support given breakclass. Only support 0 and 8.\n";
-}
-
-my $detune = shift @ARGV || 0.00;
-my $dt = "";
-if($detune < -0.00001) {
-    $dt = "-";
-} elsif($detune > 0.00001) {
-    $dt = "+";
-} else {
-    $dt = "";
-}
-
-my $us = "";
-if($bc ne "" || $dt ne "") {
-    $us = "_";
-}
-my $notes = shift @ARGV || 61;
-my $belows = shift @ARGV || 0;
-my $aboves = shift @ARGV || 0;
-
-#print "I\tLC\tBRC\tTD\tDEX\tBSC\tLF\tEL\tF\n";
-
-open OPF, ">${rankname}_${lengthclass}${us}${bc}${dt}.ranktxt";
-
+open OPF, ">$options{output}";
+my $rname = $options{output};
+$rname =~ s/\.rsf$/.rank/;
+print OPF "${rname}: \t#$subkeys\\\n";
 
 my $i = 0;
-for($i = 0 - 12*$belows; $i < 0 + $notes + 12*$aboves; ++$i) {
-    my $baseclass = 8.0;
- #   print "$i\t$lengthclass\t$breakclass\t";
-    if($breakclass > 0) {
-	my $td = 0; #$bctodiv{$breakclass};
-	my $dex = POSIX::floor($i/$td);
-	$baseclass = 0; #$bctobreak{$breakclass}->{$dex};
-	#print "$td\t$dex\t";
-    } else {
-	#print "0\t0\t";
-    }
-    my $eff_len = $lenfactor * $baseclass / 8.0;
-    my $freq = (8.0 * 110.0 / $eff_len) * 2.0**((-900.0 + 100.0*$i + $detune)/1200.0);
-    #print "$baseclass\t$lenfactor\t$eff_len\t$freq\n";
-    print "${rankname}_${lengthclass}${us}${bc}${dt}.rank ($i): ${basepipes}_${freq}.pipe\n";
-    print OPF "$i: ${basepipes}_${freq}.pipe\n";
-    system("make ${basepipes}_${freq}.raw");
-    system("make ${basepipes}_${freq}.pipe");
+for($i = 0 - 12*$options{belows}; $i < 0 + $options{keys} + 12*$options{aboves}; ++$i) {
+    my $eff_len = $breaks[$brklab[$i+12*$options{belows}]]->[1];
+    my $eff_rank = $breaks[$brklab[$i+12*$options{belows}]]->[0];
+    my $freq = (8.0 * 110.0 / $eff_len) * 2.0**((-900.0 + 100.0*$i + $options{detune})/1200.0);
 
+    my $res = sprintf("\t%s_%.3f.pipe \t#%d \t%f\\\n",${eff_rank},${freq},$i,$eff_len);
+    print OPF $res;
 }
+
+print OPF "\t$options{output}\n";
 
 close(OPF);
 
