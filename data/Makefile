@@ -19,16 +19,9 @@ rank-data:
 
 pipe-data: 
 
-testing-raws: testing/X1.00F1.00V0.05S0.05P0_L20_261.626.raw \
-	testing/X1.00F1.00V0.05S0.05P0_L20_293.665.raw\
-	testing/X1.00F1.00V0.05S0.05P0_L20_329.628.raw\
-	testing/X1.00F1.00V0.05S0.05P0_L20_349.228.raw\
-	testing/X1.00F1.00V0.05S0.05P0_L20_391.995.raw\
-	testing/X1.00F1.00V0.05S0.05P0_L20_440.000.raw\
-	testing/X1.00F1.00V0.05S0.05P0_L20_493.884.raw\
-	testing/X1.00F1.00V0.05S0.05P0_L20_523.251.raw
 
-
+Principal_8.rsf: OpenDiapason.fis
+	../scripts/rsfgen.pl -o $@ OpenDiapason.fis:8 -k61 -a0 -b0 -d0
 
 # Flues
 #   Unstopped
@@ -105,22 +98,18 @@ VoxHumana_%.rsf:
 
 
 %.fis: %.ssf
-	../scripts/ssffis.pl $< -o $@ -fauto
-%.fis: %.wav ../bin/wavdft
-	../bin/wavdft $< -o $@ -fauto
+	../scripts/ssffis.pl $< -o $@ 
 %.fis: ../bin/dftgen
 	../bin/dftgen -o $@ -v2
-%.dft: ../bin/dftgen
-	../bin/dftgen -o $@ -v2
-%.raw: %.dft ../bin/dftwav
-	../bin/dftwav $< -o $@ -r44100 -n8000 -a0.05 -d0.05 -l1.0
-%.wav: %.dft ../bin/dftwav
-	../bin/dftwav $< -o $@ -r44100 -n8000 -a0.05 -d0.05 -l1.0
-%.pipe: %.dft ../bin/pipegen
-	../bin/pipegen $< -o $@ -r44100 -n1.0 -l1.0
 %.rank: %.rsf ../bin/rankgen
-	-include %.rsf
+	-include $< 
 	../bin/rankgen $< -o $@
+%.raw: FORCE ../bin/dftwav
+	../bin/dftwav -o $@ -v2 -r44100 -n8000 -a0.05 -d0.05 -l1.0
+%.pipe: FORCE ../bin/pipegen
+	../bin/pipegen -o $@ -v2 -r44100 -n1.0 -l1.0
+%.wav: FORCE ../bin/dftwav
+	../bin/dftwav -o $@ -v2 -r44100 -n8000 -a0.05 -d0.05 -l1.0
 
 clean:
 	-rm -f *.pipe
