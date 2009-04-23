@@ -189,7 +189,8 @@ for($index = $options{belows}*12; $index < $numkeys; ++$index) {
 open OPF, ">$options{output}";
 my $rname = $options{output};
 $rname =~ s/\.rsf$/.rank/;
-print OPF "${rname}: \t#$subkeys\\\n";
+print OPF "#$subkeys\n";
+print OPF "${rname}: \\\n";
 
 my $i = 0;
 for($i = 0 - 12*$options{belows}; $i < 0 + $options{keys} + 12*$options{aboves}; ++$i) {
@@ -197,7 +198,7 @@ for($i = 0 - 12*$options{belows}; $i < 0 + $options{keys} + 12*$options{aboves};
     my $eff_rank = $breaks[$brklab[$i+12*$options{belows}]]->[0];
     my $freq = (8.0 * 110.0 / $eff_len) * 2.0**((-900.0 + 100.0*$i + $options{detune})/1200.0);
 
-    my $res = sprintf("\t%s_%.3f.pipe \t#%d \t%f",${eff_rank},${freq},$i,$eff_len);
+    my $res = sprintf("\t%s_%.3f.pipe ",${eff_rank},${freq},$i,$eff_len);
     print OPF $res;
     print OPF "\\" if($i != $options{keys} + 12*$options{aboves} -1);
     print OPF "\n";
