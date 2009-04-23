@@ -1,47 +1,80 @@
 <?xml version="1.0" ?>
 <organ name="PimJam">
-  <division name="Great">
+  <keyboard name="Solo"			length="8"	channel="0" 			target="Great" />
+  <keyboard name="Accompaniment"	length="8"	channel="1" 			target="Swell" />
+  <keyboard name="Pedal"		length="8"	channel="7" 			target="Pedal" />
 
-    <keyboard name="Solo"				channel="0" />
+  <division name="Great">
 
     <effect name="Sustain"		type="sustain"	channel="6"	input="17" />
     <effect name="Light Vibrato"	type="vibrato"	channel="6"	input="12"	arg="0.5" />
     <effect name="Full Vibrato"		type="vibrato"	channel="6"	input="13"	arg="1.0" />
 
-    <stop name="Tibia 16'"		length="16"	channel="6"	input="3"	rank="tibia_16.rank" />
-    <stop name="Tibia 8'"		length="8"	channel="6"	input="4"	rank="tibia_8.rank" />
-    <stop name="Salicional 8'"		length="8"	channel="6"	input="5"	rank="salicional_8.rank" />
-    <stop name="Saxaphone 8'"		length="8"	channel="6"	input="6"	rank="saxaphone_8.rank" />
-    <stop name="Clarinet 8'"		length="8"	channel="6"	input="7"	rank="clarinet_8.rank" />
-    <stop name="Oboe Horn 8'"		length="8"	channel="6"	input="8"	rank="oboe_horn_8.rank" />
-    <stop name="Tibia 4'"		length="4"	channel="6"	input="9"	rank="tibia_4.rank" />
-    <stop name="Salicet 4'"		length="4"	channel="6"	input="10"	rank="salicet_4.rank" />
-
-    <stop name="Vibraharp 8'"		length="8"	channel="6"	input="14"	rank="vibraharp_8.rank" />
-    <stop name="Organharp 8'"		length="8"	channel="6"	input="15"	rank="organharp_8.rank" />
-    <stop name="String 8'"		length="8"	channel="6"	input="16"	rank="string_8.rank" />
+    <stop name="Tibia 16'"		length="16"	channel="6"	input="3">
+	<rank name="tibia_16.rank" 	offset="0" />
+    </stop>
+    <stop name="Tibia 8'"		length="8"	channel="6"	input="4">
+	<rank name="tibia_8.rank" 	offset="0" />
+    </stop>
+    <stop name="Salicional 8'"		length="8"	channel="6"	input="5">
+	<rank name="salicional_8.rank" 	offset="0" />
+    </stop>
+    <stop name="Saxaphone 8'"		length="8"	channel="6"	input="6">
+	<rank name="saxaphone_8.rank" 	offset="0" />
+    </stop>
+    <stop name="Clarinet 8'"		length="8"	channel="6"	input="7">
+	<rank name="clarinet_8.rank" 	offset="0" />
+    </stop>
+    <stop name="Oboe Horn 8'"		length="8"	channel="6"	input="8">
+	<rank name="oboe_horn_8.rank" 	offset="0" />
+    </stop>
+    <stop name="Tibia 4'"		length="4"	channel="6"	input="9">
+	<rank name="tibia_4.rank" 	offset="0" />
+    </stop>
+    <stop name="Salicet 4'"		length="4"	channel="6"	input="10">
+	<rank name="salicet_4.rank" 	offset="0" />
+    </stop>
+    <stop name="Vibraharp 8'"		length="8"	channel="6"	input="14">
+	<rank name="vibraharp_8.rank" 	offset="0" />
+    </stop>
+    <stop name="Organharp 8'"		length="8"	channel="6"	input="15">
+	<rank name="organharp_8.rank" 	offset="0" />
+    </stop>
+    <stop name="String 8'"		length="8"	channel="6"	input="16">
+	<rank name="string_8.rank" 	offset="0" />
+    </stop>
 
   </division>
-  <division name="Swell">
-
-    <keyboard name="Accompaniment"			channel="1" />
+  <division name="Swell" expression="A0">
 
     <coupler name="Swell to Great 16'"	length="16"	channel="6"	input="11"	target="Great" />
     <effect name="Volume"		type="volume"	channel="6"	input="22" />
 
-    <stop name="Horn Diapason 8'"	length="8"	channel="6"	input="18"	rank="horn_diapason_8.rank" />
-    <stop name="Flute 8'"		length="8"	channel="6"	input="19"	rank="flute_8.rank" />
-    <stop name="Gemshorn 8'"		length="8"	channel="6"	input="20"	rank="gemshorn_8.rank" />
-    <stop name="Trumpet 8'"		length="8"	channel="6"	input="21"	rank="trumpet_8.rank" />
+    <stop name="Horn Diapason 8'"	length="8"	channel="6"	input="18">
+	<rank name="horn_diapason_8.rank" offset="0" />
+    </stop>
+    <stop name="Flute 8'"		length="8"	channel="6"	input="19">
+	<rank name="flute_8.rank" 	offset="0" />
+    </stop>
+    <stop name="Gemshorn 8'"		length="8"	channel="6"	input="20">
+	<rank name="gemshorn_8.rank" 	offset="0" />
+    </stop>
+    <stop name="Trumpet 8'"		length="8"	channel="6"	input="21">
+	<rank name="trumpet_8.rank" 	offset="0" />
+    </stop>
 
   </division>
   <division name="Pedal">
 
-    <keyboard name="Pedal"				channel="7" />
-
-    <stop name="Bourdon 16'"		length="16"	channel="6"	input="0"	rank="bourdon_16.rank" />
-    <stop name="Dulciana 16'"		length="16"	channel="6"	input="1"	rank="dulciana_16.rank" />
-    <stop name="Flute 8'"		length="8"	channel="6"	input="2"	rank="flute_8.rank" />
+    <stop name="Bourdon 16'"		length="16"	channel="6"	input="0">
+	<rank name="bourdon_16.rank" 	offset="0" />
+    </stop>
+    <stop name="Dulciana 16'"		length="16"	channel="6"	input="1">
+	<rank name="dulciana_16.rank" 	offset="0" />
+    </stop>
+    <stop name="Flute 8'"		length="8"	channel="6"	input="2">
+	<rank name="flute_8.rank" 	offset="0" />
+    </stop>
   
   </division>
 </organ>
