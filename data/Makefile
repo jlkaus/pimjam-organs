@@ -16,19 +16,19 @@ FORCE:
 
 rank-data:
 
+rsfs = Principal_8.rsf
 
-pipe-data: 
+pipe-data: $(patsubst %.ssf,%.fis,$(wildcard BookSource/*.ssf))
 
 
-Principal_8.rsf: OpenDiapason.fis
-	../scripts/rsfgen.pl -o $@ OpenDiapason.fis:8 -k61 -a0 -b0 -d0
+Principal_8.rsf: BookSource/OpenDiapason.fis
+	../scripts/rsfgen.pl -o $@ BookSource/OpenDiapason.fis:8 --keys 61 --aboves 0 --belows 0 --detune 0.00
 
 # Flues
 #   Unstopped
 #     Medium
 # typisch 8,4,2,1,16
 Diapason_%.rsf:
-	../scripts/rsfgen.pl -o $@ Diapason.fis -k61 -a0 -b0 -d0
 
 #     Slightly narrower
 # typisch 8
@@ -96,13 +96,13 @@ Clarinet_%.rsf:
 VoxHumana_%.rsf:
 
 
+-include $(rsfs)
 
 %.fis: %.ssf
 	../scripts/ssffis.pl $< -o $@ 
 %.fis: ../bin/dftgen
 	../bin/dftgen -o $@ -v2
 %.rank: %.rsf ../bin/rankgen
-	-include $< 
 	../bin/rankgen $< -o $@
 %.raw: FORCE ../bin/dftwav
 	../bin/dftwav -o $@ -v2 -r44100 -n8000 -a0.05 -d0.05 -l1.0

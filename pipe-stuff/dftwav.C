@@ -140,21 +140,20 @@ int main(int argc, char* argv[]) {
     strcpy(tex,".wav");
   } else if(!spectrum_fn && raw_fn) {
     // we have no input filename, so we'll have to copy it over.  Assume fis.
-    spectrum_fn = (char*)alloca(strlen(raw_fn)+1);
-    bzero(spectrum_fn, strlen(raw_fn)+1);
-    strcpy(spectrum_fn, raw_fn);
-    char *tex = spectrum_fn + strlen(raw_fn) - 4;
-    *tex=0;
-    strcpy(tex,".fis");
+     spectrum_fn = (char*)alloca(strlen(raw_fn)+1);
+     bzero(spectrum_fn, strlen(raw_fn)+1);
+     strcpy(spectrum_fn, raw_fn);
+     char *tex = spectrum_fn + strlen(raw_fn) - 4;
+     for(;tex > spectrum_fn-1 && *tex != '_'; --tex);
+     *tex=0;
+     strcpy(tex,".fis");
   }
 
-
-
   struct stat ss;
-  stat(spectrum_fn, &ss);
+   stat(spectrum_fn, &ss);
 
   int drecs = ss.st_size/sizeof(dft_freq_point_t);
-
+   
   if(args.verbosity) {
     printf("Spectrum file: %s\n",spectrum_fn);
     printf("  DFT records: %d\n",drecs);
@@ -173,7 +172,7 @@ int main(int argc, char* argv[]) {
   float decay_constant = -log(0.01)/decay_t;
 
   dft_freq_point_t* dftrecs = new dft_freq_point_t[drecs];
-
+	 
   FILE* sf = fopen(spectrum_fn, "rb");
   fread(dftrecs, sizeof(dft_freq_point_t), drecs, sf);
   fclose(sf);

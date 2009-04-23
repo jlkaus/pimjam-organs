@@ -197,11 +197,13 @@ for($i = 0 - 12*$options{belows}; $i < 0 + $options{keys} + 12*$options{aboves};
     my $eff_rank = $breaks[$brklab[$i+12*$options{belows}]]->[0];
     my $freq = (8.0 * 110.0 / $eff_len) * 2.0**((-900.0 + 100.0*$i + $options{detune})/1200.0);
 
-    my $res = sprintf("\t%s_%.3f.pipe \t#%d \t%f\\\n",${eff_rank},${freq},$i,$eff_len);
+    my $res = sprintf("\t%s_%.3f.pipe \t#%d \t%f",${eff_rank},${freq},$i,$eff_len);
     print OPF $res;
+    print OPF "\\" if($i != $options{keys} + 12*$options{aboves} -1);
+    print OPF "\n";
 }
 
-print OPF "\t$options{output}\n";
+#print OPF "\t$options{output}\n";
 
 close(OPF);
 
