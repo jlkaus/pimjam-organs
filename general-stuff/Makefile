@@ -1,7 +1,7 @@
 .PHONY: all clean cleanall liborgan
 
 ACT_TARGETS =
-LIB_SRC = AlsaHelp Rank Pipe Organ Division PipeSet PlayControlBlock Coupler Effect Input Keyboard Stop Env
+LIB_SRC = AlsaHelp Rank Pipe Organ Division PlayControlBlock Coupler Effect Input Keyboard Stop Env
 LIBS = -lorgan -lxml -lmidi
 
 VPATH = ../lib

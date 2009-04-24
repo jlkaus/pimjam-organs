@@ -2,7 +2,6 @@
 #include <map>
 
 #include "Rank.H"
-#include "PipeSet.H"
 #include "Env.H"
 
 Rank::Rank(std::string rankFile) {
@@ -12,10 +11,10 @@ Rank::Rank(std::string rankFile) {
 }
 
 Rank::~Rank() {
-  std::map<int,PipeSet*>::iterator curSet;
-  for(curSet = mSets.begin(); curSet != mSets.end(); ) {
-    delete (*curSet).second;
-    mSets.erase(curSet++);
+  std::map<int,Pipe*>::iterator curPipe;
+  for(curPipe = mPipes.begin(); curPipe != mPipes.end(); ) {
+    delete (*curPipe).second;
+    mPipes.erase(curPipe++);
   }
   Env::msg(Env::CreationMsg,10,6)<<"Destroying rank from file "<<std::endl;
 }

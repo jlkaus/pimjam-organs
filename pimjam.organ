@@ -4,7 +4,7 @@
   <keyboard name="Accompaniment"	length="8"	channel="1" 			target="Swell" />
   <keyboard name="Pedal"		length="8"	channel="7" 			target="Pedal" />
 
-  <division name="Great">
+  <division name="Great" lp="256" ro="0.3" rp="0.0" tp="1.0" zeta="0.0">
 
     <effect name="Sustain"		type="sustain"	channel="6"	input="17" />
     <effect name="Light Vibrato"	type="vibrato"	channel="6"	input="12"	arg="0.5" />
@@ -45,7 +45,7 @@
     </stop>
 
   </division>
-  <division name="Swell" expression="A0">
+  <division name="Swell" expression="A0" lp="256" ro="0.3" rp="0.3" tp="0.7" zeta="0.125">
 
     <coupler name="Swell to Great 16'"	length="16"	channel="6"	input="11"	target="Great" />
     <effect name="Volume"		type="volume"	channel="6"	input="22" />
@@ -64,7 +64,7 @@
     </stop>
 
   </division>
-  <division name="Pedal">
+  <division name="Pedal" lp="256" ro="0.3" rp="0.0" tp="1.0" zeta="0.0">
 
     <stop name="Bourdon 16'"		length="16"	channel="6"	input="0">
 	<rank name="bourdon_16.rank" 	offset="0" />
