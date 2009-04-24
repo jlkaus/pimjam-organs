@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
     int fb = 0;
     int fc = 0;
     int i = 1;
-    for(i = 1; i < 64; ++i) {
+    for(i = 1; i < 10; ++i) {
       if(ff*(double)i - floor(ff*(double)i) < 0.0001) {
 	fb = (int)floor(ff*(double)i);
 	fc = i;
@@ -60,14 +60,14 @@ int main(int argc, char* argv[]) {
     
     if(i == 1) {
       printf("%s\t%d\n",buffer,fa);
-    } else if(i == 64) {
+    } else if(i == 10) {
       //printf("%s\t\t\t\t\t\t%f\n",buffer,length);
     } else if(fa == 0) {
       printf("%s",buffer);
       if(fc > 17) {
 	printf("\t\t");
       }
-      if(fc > 8) {
+      if(fc > 9) {
 	printf("\t\t");
       }
       printf("\t%d/%d\n",fb,fc);
@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
       if(fc > 17) {
 	printf("\t\t");
       }
-      if(fc > 8) {
+      if(fc > 9) {
 	printf("\t\t");
       }
       printf("\t%d-%d/%d\n",fa,fb,fc);
