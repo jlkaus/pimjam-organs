@@ -1,8 +1,15 @@
 <?xml version="1.0" ?>
 <organ name="Mt. Olive">
-  <keyboard name="Solo"			length="8"	channel="0" 			target="Great" />
-  <keyboard name="Accompaniment"	length="8"	channel="1" 			target="Swell" />
-  <keyboard name="Pedal"		length="8"	channel="7" 			target="Pedal" />
+  <keyboard name="Solo"					channel="0">
+    <coupler name="Solo to Great 8'"	length="8"			default="1"	target="Great" />
+  </keyboard>
+  <keyboard name="Accompaniment"			channel="1">
+    <coupler name="Accompaniment to Swell 8'" length="8"		default="1"	target="Swell" />
+    <coupler name="Accompaniment to Great 16'" length="16" channel="6" 	input="11"	target="Great" />
+  </keyboard>
+  <keyboard name="Pedal"				channel="7">
+    <coupler name="Pedal to Pedal 8'"	length="8"			default="1"	target="Pedal" />
+  </keyboard>
 
   <division name="Great" lp="256" ro="0.3" rp="0.0" tp="1.0" zeta="0.0">
 
@@ -45,8 +52,6 @@
 
   </division>
   <division name="Swell" expression="A0" lp="256" ro="0.3" rp="0.3" tp="0.7" zeta="0.125">
-
-    <coupler name="Swell to Great 16'"	length="16"	channel="6"	input="11"	target="Great" />
 
     <stop name="Gedackt 8'"		length="8"	channel="6"	input="15">
 	<rank name="gedackt_8.rank" 	length="8" />
