@@ -3,9 +3,11 @@
 bool Input::matches(const Input& rhs) const{
   // channel has to match regardless of what type we are
   if(mChannel == rhs.mChannel) {
-    if(mType == ChannelInput) {
+    if(mType == ControlInput && rhs.mType == ControlInput) {
       return true;
-    } else if(mType == RangeInput) {
+    } else if(mType == ChannelInput && rhs.mType != ControlInput) {
+      return true;
+    } else if(mType == RangeInput && rhs.mType != ControlInput) {
       // if we are a range type, then the rhs must be a specific within our range, or a range within our range
       if(rhs.mLine >= mRangeLow && rhs.mLine <= mRangeHigh) {
 	return true;
@@ -46,8 +48,16 @@ bool Input::operator<(const Input& rhs) const{
     } else {
       return true;
     }
-  } else {
+  } else if(mType == ChannelInput) {
     if(rhs.mType == ChannelInput) {
+      return (mChannel < rhs.mChannel);
+    } else if(rhs.mType == ControlInput) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    if(rhs.mType == ControlInput) {
       return (mChannel < rhs.mChannel);
     } else {
       return false;

@@ -4,8 +4,10 @@
 
 int main(int argc, char* argv[]) {
 
+  
+
   double f_8 = 65.415;
-  double l_k = 512.0;
+  double l_k = argc==2?atof(argv[1]):512.0;
   double f_k = f_8/(l_k/8.0);
   float scale_set[] = {1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0};
   char* family_set[] = {"I","ii","II","iii","III","IV","v","V","vi","VI","vii","VII"};
