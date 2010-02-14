@@ -95,6 +95,14 @@ int portSetup(struct program_arguments *args) {
       cfsetispeed(&options, B9600);
       cfsetospeed(&options, B9600);
       break;
+    case 4800:
+      cfsetispeed(&options, B4800);
+      cfsetospeed(&options, B4800);
+      break;
+    case 2400:
+      cfsetispeed(&options, B2400);
+      cfsetospeed(&options, B2400);
+      break;
     default:
       fprintf(stderr, "ERROR: Unsupported baud rate specified. Sorry.  You can add it if you like.\n");
       close(outpfd);
