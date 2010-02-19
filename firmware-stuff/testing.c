@@ -17,15 +17,15 @@
 
 /* onboard LED is used to indicate, that the bootloader was entered (3x flashing) */
 /* if monitor functions are included, LED goes on after monitor was entered */
-#define LED_DDR  DDRB
-#define LED_PORT PORTB
-#define LED_PIN  PINB
-#define LED      PINB0
+#define LED_DDR  DDRD
+#define LED_PORT PORTD
+#define LED_PIN  PIND
+#define LED      PIND6
 
 #define NUM_LED_FLASHES 3
 #define MAX_TIME_COUNT 8000000L>>1
 
-#define NUM_INPUT_BUFFERS 4
+#define NUM_INPUT_BUFFERS 8
 
 /* define various device id's */
 /* manufacturer byte is always the same */
@@ -82,9 +82,9 @@ int main(void)
     {
 	for(i = 0; i < NUM_INPUT_BUFFERS; ++i) {
 
-	    /* Left shift 1 to skip over the LED pin */
-	    PORTB = i << 1;
+	    PORTB = i;
 	    uint8_t tmp = cur_state[i];
+	    _delay_us(1);
 	    cur_state[i] = PINC;
 	    tmp = tmp ^ cur_state[i];
 	    for(j = 0; j < 8; ++j) {
