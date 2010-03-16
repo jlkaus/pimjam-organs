@@ -16,16 +16,16 @@ my $RankHighNote = "C7";
 my $RankBreaks = 0;
 my $RankSubOctaves = 0;
 my $RankSuperOctaves = 0;
-my $CutoffHarmonic = 100;
-my $PeakHarmonic = 1;
+my $CutoffHarmonic = 60;
+my $PeakHarmonic = 5;
 my $FundamentalStrength = 1.00;
 my $PrimeStrength = 1.00;
-my $EvenStrength = 1.00;
-my $FrontShape = 0.50;
-my $BackShape = 0.50;
-my $NoiseWidth = 0.50;
-my $NoiseDensity = 0.00;
-my $NoiseShape = 0.50;
+my $EvenStrength = 0.40;
+my $FrontShape = 0.60;
+my $BackShape = 0.70;
+my $NoiseWidth = 0.6;
+my $NoiseDensity = 10.00;
+my $NoiseShape = 0.40;
 
 # test only and computed parms:
 
@@ -107,7 +107,7 @@ sub noisePartial {
     return $NoiseWidth/$NoiseDensity;
 }
 
-my $pip2 = atan2(1.0,0.0)/2.0;
+my $pip2 = 3.1415926/2.0; #atan2(1.0,0.0)/2.0;
 
 # k_dec
 sub noiseEnvelope {
@@ -119,6 +119,9 @@ sub noiseEnvelope {
 #            Q_N(x) = cos(pi/2 * N_w^(-exp(20*N_s -10))*abs(x)^(exp(20*N_s -10)), for each abs(x_n) <= 0.50
 #            x_n = n * N_w/N_d for all n in Z, abs(n) <= N_d
 
+    if(abs($k_dec) < 0.01) {
+	return 1.0;
+    }
     return cos($pip2 * ($NoiseWidth ** (-exp(20.0*$NoiseShape - 10.0))) * (abs($k_dec) ** exp(20.0*$NoiseShape - 10.0)));
 }
 
@@ -201,9 +204,11 @@ my @k_vals = ();
 my @y_vals = ();
 
 for(my $k = 1; $k < 100; ++$k) {
+    my $dk = 0.00;
     for(my $dk = -$NoiseDensity * noisePartial(); $dk < $NoiseDensity * noisePartial(); $dk+=noisePartial()) {
 	if(abs($dk) < 0.500) {
 	    push @k_vals, $k+$dk;
+	    print $k+$dk;
 
 	    my $Y_k = spectralEnvelope($k+$dk) * noiseEnvelope($dk);
 
@@ -218,9 +223,11 @@ for(my $k = 1; $k < 100; ++$k) {
 	    }
 
 	    push @y_vals, $Y_k;
+	    print "  $Y_k\n";
 	}
     }
 }
+
 
 
 ###################
