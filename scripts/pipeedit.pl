@@ -2,47 +2,84 @@
 
 use strict;
 use warnings;
+use CGI;
 
+# get parms from GET parms on request.  or command line args if not a GET request.
 
-# config parameters:
+my $cgif = CGI->new;
 
-my $Name = "Test";
-my $Mutation = "8";
-my $Detune = 0.00;
-my $A4Freq = 440.00;
-my $Volume = 1.00;
-my $VolumeFalloff = 0.00;
-my $RankHighNote = "C7";
-my $RankBreaks = 0;
-my $RankSubOctaves = 0;
-my $RankSuperOctaves = 0;
-my $CutoffHarmonic = 60;
-my $PeakHarmonic = 5;
-my $FundamentalStrength = 1.00;
-my $PrimeStrength = 1.00;
-my $EvenStrength = 0.40;
-my $FrontShape = 0.60;
-my $BackShape = 0.70;
-my $NoiseWidth = 0.6;
-my $NoiseDensity = 10.00;
-my $NoiseShape = 0.40;
+# Name used to save things
 
-# test only and computed parms:
+my $Name = $cgif->param("Name");
 
-my $TestNote = "C3";
+# Info needed to generate an FIS
+my $FundamentalStrength = $cgif->param("FundamentalStrength");
+my $PrimeStrength = $cgif->param("PrimeStrength");
+my $EvenStrength = $cgif->param("EvenStrength");
+my $PeakHarmonic = $cgif->param("PeakHarmonic");
+my $CutoffHarmonic = $cgif->param("CutoffHarmonic");
+my $HarmonicRiseA = $cgif->param("HarmonicRiseA");
+my $HarmonicRiseB = $cgif->param("HarmonicRiseB");
+my $HarmonicDecayC = $cgif->param("HarmonicDecayC");
+my $HarmonicDecayD = $cgif->param("HarmonicDecayD");
+my $NoiseWidth = $cgif->param("NoiseWidth");
+my $NoiseDensity = $cgif->param("NoiseDensity");
+my $NoiseDecayE = $cgif->param("NoiseDecayE");
+my $NoiseDecayF = $cgif->param("NoiseDecayF");
+my $NoiseDecayG = $cgif->param("NoiseDecayG");
+
+# Additional Info needed to test a PIPE
+my $TestNote = $cgif->param("TestNote");
+
+# Additional Info needed for both PIPE testing and RSF generation
+my $Mutation = $cgif->param("Mutation");
+my $Detune = $cgif->param("Detune");
+my $A4Freq = $cgif->param("A4Freq");
+my $Volume = $cgif->param("Volume");
+
+# Additional Info needed to generate an RSF
+my $VolumeFalloff = $cgif->param("VolumeFalloff");
+my $RankBreaks = $cgif->param("RankBreaks");
+my $RankSubOctaves = $cgif->param("RankSubOctaves");
+my $RankSuperOctaves = $cgif->param("RankSuperOctaves");
+
+# Computed parms:
+
 my $TestFrequency = 0.00;
 my $TestLength = 0.00;
 
+# Function control
+
+my $Command = $cgif->param("Command");
+
 # commands:
 
-# LoadConfig
-# SaveConfig
-# GenerateFIS
-# GenerateRSF
-# TestPipe
+# save cfg (Name, CFG) -> (0, saved cfg file)
+# load cfg (Name) -> (CFG, 0)
+# gen fis (Name, CFG) -> (0, saved fis file)
+# gen rsf (Name, CFG, RSF) -> (0, saved rsf file)
+# test pipe (Name, CFG, PIPE) -> (0, saved temp fis file/generate pipe/play pipe)
+# gen img basic (Name, CFG) -> (JPG, 0)
+# gen img noise (Name, CFG) -> (JPG, 0)
+# gen img pipe (Name, CFG, PIPE) -> (JPG, 0)
+
+# New Equations
+# Y_k = S(rnd(k))*X(rnd(k))*N(k-rnd(k))*Z(k)
+# S = strength modifier function
+# X = harmonic rise/decay function
+# N = noise decay function
+# Z = cutoff function
+
+# X(k) = |k-P|^(-A) * exp(-|k-P|*B)  for k > P
+# X(k) = 1.0 for k = P
+# X(k) = |k-P|^(-C) * exp(-|k-P|*D)  for k < P
+
+# N(dk) = 1.0 for dk < epsilon
+# N(dk) = E*|dk|^(-F) * exp(-|dk|*G) for dk > epsilon
+# dk is within (0,0.5), and takes values n*NoiseWidth/NoiseDensity where n is in W.
 
 
-# Equations
+# Old Equations
 
 # S_0  (0,1) strength multiplier for fundamental
 #            Y_1 = S_0 * X_1
@@ -56,6 +93,20 @@ my $TestLength = 0.00;
 #            Y_z,2,x_n = S_1 * S_e * X_(2+x_n) * Q_N(x_n)
 #            Y_z,ek,x_n = S_e * X_(k+x_n) * Q_N(x_n)
 #            Y_z,ok,x_n = X_(k+x_n) * Q_N(x_n)
+
+print $cgif->header("image/png");
+
+open(GNP, "| /usr/bin/gnuplot");
+print GNP "set terminal png\n";
+print GNP "plot sin(2*pi* $A4Freq * x)\n";
+close(GNP);
+
+exit;
+
+__END__
+
+
+
 
 # k, dontcutoff
 sub spectralEnvelope {
@@ -102,12 +153,8 @@ sub spectralEnvelope {
     return $X_k;
 }
 
-#
-sub noisePartial {
-    return $NoiseWidth/$NoiseDensity;
-}
 
-my $pip2 = 3.1415926/2.0; #atan2(1.0,0.0)/2.0;
+my $pip2 = atan2(1.0,0.0)/2.0;
 
 # k_dec
 sub noiseEnvelope {
@@ -198,14 +245,14 @@ sub findNormalization {
 
 
 # start from k = 1.
-# for each k, start from k - N_d * noisePartial() and go up to k + N_d * noisePartial().
+# for each k, start from k - N_w and go up to k + N_w.
 # using rules above, generate the strength of k, using S_0, S_1, S_e, spectralEnvelope() and noiseEnvelope(), between 0 and 100
 my @k_vals = ();
 my @y_vals = ();
 
 for(my $k = 1; $k < 100; ++$k) {
     my $dk = 0.00;
-    for(my $dk = -$NoiseDensity * noisePartial(); $dk < $NoiseDensity * noisePartial(); $dk+=noisePartial()) {
+    for(my $dk = -$NoiseWidth; $dk < $NoiseWidth; $dk+=($NoiseWidth/$NoiseDensity)) {
 	if(abs($dk) < 0.500) {
 	    push @k_vals, $k+$dk;
 	    print $k+$dk;

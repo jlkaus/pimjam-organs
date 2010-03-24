@@ -1,0 +1,111 @@
+<html>
+<head>
+<title>
+Testing
+</title>
+<script type="text/javascript">
+function generateQueryString(command) {
+  return ("http://thridhi/pipeedit.pl?Command="+command+
+    "&Name=" + document.getElementById("pe_Name").value +
+    "&FundamentalStrength=" + document.getElementById("pe_FundamentalStrength").value +
+    "&PrimeStrength=" + document.getElementById("pe_PrimeStrength").value +
+    "&EventStrength=" + document.getElementById("pe_EventStrength").value +
+    "&PeakHarmonic=" + document.getElementById("pe_PeakHarmonic").value +
+    "&CutoffHarmonic=" + document.getElementById("pe_CutoffHarmonic").value +
+    "&HarmonicRiseA=" + document.getElementById("pe_HarmonicRiseA").value +
+    "&HarmonicRiseB=" + document.getElementById("pe_HarmonicRiseB").value +
+    "&HarmonicDecayC=" + document.getElementById("pe_HarmonicDecayC").value +
+    "&HarmonicDecayD=" + document.getElementById("pe_HarmonicDecayD").value +
+    "&NoiseWidth=" + document.getElementById("pe_NoiseWidth").value +
+    "&NoiseDensity=" + document.getElementById("pe_NoiseDensity").value +
+    "&NoiseDecayE=" + document.getElementById("pe_NoiseDecayE").value +
+    "&NoiseDecayF=" + document.getElementById("pe_NoiseDecayF").value +
+    "&NoiseDecayG=" + document.getElementById("pe_NoiseDecayG").value +
+    "&TestNote=" + document.getElementById("pe_TestNote").value +
+    "&Mutation=" + document.getElementById("pe_Mutation").value +
+    "&Detune=" + document.getElementById("pe_Detune").value +
+    "&A4Freq=" + document.getElementById("pe_A4Freq").value +
+    "&Volume=" + document.getElementById("pe_Volume").value +
+    "&VolumeFalloff=" + document.getElementById("pe_VolumeFalloff").value +
+    "&RankBreaks=" + document.getElementById("pe_RankBreaks").value +
+    "&RankSubOctaves=" + document.getElementById("pe_RankSubOctaves").value +
+    "&RankSuperOctaves=" + document.getElementById("pe_RankSuperOctaves").value +
+    "");
+}
+
+
+function regenerate(imgid, command) {
+  document.getElementById(imgid).src = generateQueryString(command);
+}
+
+function othercmd(command) {
+  var qs = generateQueryString(command);
+
+  // Use ajax to send request and process response (if needed)
+
+}
+
+</script>
+</head>
+<body onload="regenerate('img_basic','genimgbasic'); regenerate('img_noise','genimgnoise'); regenerate('img_pipe','genimgpipe');">
+
+<form onsubmit="return false;">
+<p>
+<label>Name <input type="text" id="pe_Name" value="" /></label>
+<input type="button" onclick="othercmd('loadcfg');" value="Load CFG" />
+<input type="button" onclick="othercmd('savecfg');" value="Save CFG" />
+<input type="button" onclick="othercmd('genfis');" value="Generate FIS" />
+<input type="button" onclick="othercmd('genrsf');" value="Generate RSF" />
+</p>
+<p style="width: 33%; float: left;">
+<label>FundamentalStrength <input type="text" id="pe_FundamentalStrength" value="1.0" /></label><br />
+<label>PrimeStrength <input type="text" id="pe_PrimeStrength" value="1.0" /></label><br />
+<label>EventStrength <input type="text" id="pe_EventStrength" value="1.0" /></label><br />
+<label>PeakHarmonic <input type="text" id="pe_PeakHarmonic" value="0" /></label><br />
+<label>CutoffHarmonic <input type="text" id="pe_CutoffHarmonic" value="100" /></label>
+</p>
+<p style="width: 33%; float: left;">
+<label>HarmonicRiseA <input type="text" id="pe_HarmonicRiseA" value="1.0" /></label><br />
+<label>HarmonicRiseB <input type="text" id="pe_HarmonicRiseB" value="0.0" /></label><br />
+<label>HarmonicDecayC <input type="text" id="pe_HarmonicDecayC" value="1.0" /></label><br />
+<label>HarmonicDecayD <input type="text" id="pe_HarmonicDecayD" value="0.0" /></label>
+</p>
+<p style="width: 33%; float: left;">
+<label>NoiseWidth <input type="text" id="pe_NoiseWidth" value="0.50" /></label><br />
+<label>NoiseDensity <input type="text" id="pe_NoiseDensity" value="5" /></label><br />
+<label>NoiseDecayE <input type="text" id="pe_NoiseDecayE" value="1.0" /></label><br />
+<label>NoiseDecayF <input type="text" id="pe_NoiseDecayF" value="1.0" /></label><br />
+<label>NoiseDecayG <input type="text" id="pe_NoiseDecayG" value="0.0" /></label>
+</p>
+<p style="width: 33%; float: left;">
+<label>TestNote <input type="text" id="pe_TestNote" value="C2" /></label><br />
+<label>Mutation <input type="text" id="pe_Mutation" value="8" /></label><br />
+<label>Detune <input type="text" id="pe_Detune" value="0" /></label><br />
+<label>A4Freq <input type="text" id="pe_A4Freq" value="440.0" /></label><br />
+<label>Volume <input type="text" id="pe_Volume" value="30" /></label>
+</p>
+<p style="width: 33%; float: left;">
+<label>VolumeFalloff <input type="text" id="pe_VolumeFalloff" value="0.0" /></label><br />
+<label>RankBreaks <input type="text" id="pe_RankBreaks" value="0" /></label><br />
+<label>RankSubOctaves <input type="text" id="pe_RankSubOctaves" value="0" /></label><br />
+<label>RankSuperOctaves <input type="text" id="pe_RankSuperOctaves" value="0" /></label>
+</p>
+<p style="width: 33%; float: left;">
+<input type="button" onclick="regenerate('img_basic','genimgbasic');" value="Regenerate Basic Image" /><br />
+<input type="button" onclick="regenerate('img_noise','genimgnoise');" value="Regenerate Noise Image" /><br />
+<input type="button" onclick="regenerate('img_pipe','genimgpipe');" value="Regenerate Pipe Spectra" /><br />
+<input type="button" onclick="othercmd('testpipe');" value="Test Pipe" />
+</p>
+</form>
+<p style="width: 50%; clear: both; float: left;">
+<img id="img_basic" src="" />
+</p>
+<p style="width: 50%; float: left;">
+<img id="img_noise" src="" />
+</p>
+<p style="width: 100%; clear: both;">
+<img id="img_pipe" src="" />
+</p>
+
+</body>
+</html>
