@@ -34,7 +34,7 @@ my $TestNote = $cgif->param("TestNote");
 # Additional Info needed for both PIPE testing and RSF generation
 my $Mutation = $cgif->param("Mutation");
 my $Detune = $cgif->param("Detune");
-my $A4Freq = $cgif->param("A4Freq");
+my $A4Freq = $cgif->param("A4Freq") || 440.0;
 my $Volume = $cgif->param("Volume");
 
 # Additional Info needed to generate an RSF
@@ -97,8 +97,16 @@ my $Command = $cgif->param("Command");
 print $cgif->header("image/png");
 
 open(GNP, "| /usr/bin/gnuplot");
-print GNP "set terminal png\n";
-print GNP "plot sin(2*pi* $A4Freq * x)\n";
+print GNP <<EOS;
+set terminal png size 500,200
+set samples 500
+set logscale x 10
+set title "Test title for plot"
+set xlabel "Frequency"
+set ylabel "Volume"
+set key on
+plot [1:10000] [-1:1] sin(2*pi* $A4Freq * x) title "Crazy Sine" with lines lt 18
+EOS
 close(GNP);
 
 exit;
