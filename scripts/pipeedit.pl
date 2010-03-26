@@ -11,37 +11,38 @@ my $cgif = CGI->new;
 # Name used to save things
 
 my $Name = $cgif->param("Name");
+my $MaxK = $cgif->param("MaxK") || 100;
 
 # Info needed to generate an FIS
-my $FundamentalStrength = $cgif->param("FundamentalStrength");
-my $PrimeStrength = $cgif->param("PrimeStrength");
-my $EvenStrength = $cgif->param("EvenStrength");
-my $PeakHarmonic = $cgif->param("PeakHarmonic");
-my $CutoffHarmonic = $cgif->param("CutoffHarmonic");
-my $HarmonicRiseA = $cgif->param("HarmonicRiseA");
-my $HarmonicRiseB = $cgif->param("HarmonicRiseB");
-my $HarmonicDecayC = $cgif->param("HarmonicDecayC");
-my $HarmonicDecayD = $cgif->param("HarmonicDecayD");
-my $NoiseWidth = $cgif->param("NoiseWidth");
-my $NoiseDensity = $cgif->param("NoiseDensity");
-my $NoiseDecayE = $cgif->param("NoiseDecayE");
-my $NoiseDecayF = $cgif->param("NoiseDecayF");
-my $NoiseDecayG = $cgif->param("NoiseDecayG");
+my $FundamentalStrength = $cgif->param("FundamentalStrength") || 1.0;
+my $PrimeStrength = $cgif->param("PrimeStrength") || 1.0;
+my $EvenStrength = $cgif->param("EvenStrength") || 1.0;
+my $PeakHarmonic = $cgif->param("PeakHarmonic") || 1;
+my $CutoffHarmonic = $cgif->param("CutoffHarmonic") || 80;
+my $HarmonicRiseA = $cgif->param("HarmonicRiseA") || 1.0;
+my $HarmonicRiseB = $cgif->param("HarmonicRiseB") || 0.0;
+my $HarmonicDecayC = $cgif->param("HarmonicDecayC") || 1.0;
+my $HarmonicDecayD = $cgif->param("HarmonicDecayD") || 0.0;
+my $NoiseWidth = $cgif->param("NoiseWidth") || 0.5;
+my $NoiseDensity = $cgif->param("NoiseDensity") || 25;
+my $NoiseDecayE = $cgif->param("NoiseDecayE") || 20.0;
+my $NoiseDecayF = $cgif->param("NoiseDecayF") || 2.0;
+my $NoiseDecayG = $cgif->param("NoiseDecayG") || 0.0;
 
 # Additional Info needed to test a PIPE
-my $TestNote = $cgif->param("TestNote");
+my $TestNote = $cgif->param("TestNote") || "C2";
 
 # Additional Info needed for both PIPE testing and RSF generation
-my $Mutation = $cgif->param("Mutation");
-my $Detune = $cgif->param("Detune");
+my $Mutation = $cgif->param("Mutation") || "8";
+my $Detune = $cgif->param("Detune") || 0.0;
 my $A4Freq = $cgif->param("A4Freq") || 440.0;
-my $Volume = $cgif->param("Volume");
+my $Volume = $cgif->param("Volume") || 30.0;
 
 # Additional Info needed to generate an RSF
-my $VolumeFalloff = $cgif->param("VolumeFalloff");
-my $RankBreaks = $cgif->param("RankBreaks");
-my $RankSubOctaves = $cgif->param("RankSubOctaves");
-my $RankSuperOctaves = $cgif->param("RankSuperOctaves");
+my $VolumeFalloff = $cgif->param("VolumeFalloff") || 0.0;
+my $RankBreaks = $cgif->param("RankBreaks") || 0;
+my $RankSubOctaves = $cgif->param("RankSubOctaves") || 0;
+my $RankSuperOctaves = $cgif->param("RankSuperOctaves") || 0;
 
 # Computed parms:
 
@@ -94,27 +95,44 @@ my $Command = $cgif->param("Command");
 #            Y_z,ek,x_n = S_e * X_(k+x_n) * Q_N(x_n)
 #            Y_z,ok,x_n = X_(k+x_n) * Q_N(x_n)
 
-print $cgif->header("image/png");
+sub generatePngPlots {
+  my $args = shift;
 
-open(GNP, "| /usr/bin/gnuplot");
-print GNP <<EOS;
-set terminal png size 500,200
-set samples 500
-set logscale x 10
-set title "Test title for plot"
-set xlabel "Frequency"
-set ylabel "Volume"
-set key on
-plot [1:10000] [-1:1] sin(2*pi* $A4Freq * x) title "Crazy Sine" with lines lt 18
-EOS
-close(GNP);
+  my $keyon = "";
+  foreach (@{$args->{plots}}) {
+    $keyon = 1 if defined $_->{title};
+  }
 
-exit;
-
-__END__
-
-
-
+  my $gfh = do { local *GFH };
+  open($gfh, "| /usr/bin/gnuplot");
+#my $gfh = *STDOUT;
+  print $gfh "set terminal png";
+  print $gfh " size $args->{width},$args->{height}" if (defined $args->{width} && defined $args->{height});
+  print $gfh "\n";
+  print $gfh "set samples $args->{samples}\n" if defined $args->{samples};
+  print $gfh "set title \"$args->{title}\"\n" if defined $args->{title};
+  print $gfh "set xlabel \"$args->{xlabel}\"\n" if defined $args->{xlabel};
+  print $gfh "set ylabel \"$args->{ylabel}\"\n" if defined $args->{ylabel};
+  print $gfh "set key off\n" if !$keyon;
+  print $gfh "set logscale x $args->{log}\n" if defined $args->{log};
+  # args->plots is array of hashrefs: source (function/datafile including using clause), title, with, data (an arrayref of all the datapoints for this particular thing, or undef if not needed)
+  my @datalines = ();
+  my $first = 1;
+  print $gfh "plot ";
+  print $gfh "$args->{ranges} " if defined $args->{ranges};
+  foreach (@{$args->{plots}}) {
+    print $gfh "," if !$first;
+    $first = "";
+    print $gfh " $_->{source} ";
+    print $gfh "title \"$_->{title}\" " if defined $_->{title};
+    print $gfh "with $_->{with}" if defined $_->{with}; 
+    push @datalines, @{$_->{data}} if defined $_->{data};
+    push @datalines, "e" if defined $_->{data};
+  }
+  print $gfh "\n";
+  print $gfh "$_\n" foreach @datalines;
+  close($gfh);
+}
 
 # k, dontcutoff
 sub spectralEnvelope {
@@ -135,9 +153,9 @@ sub spectralEnvelope {
     if($k == $PeakHarmonic) {
 	$X_k = 1.0;
     } elsif($k > $PeakHarmonic) {
-	$X_k = exp(-($k - $PeakHarmonic)/exp(20.0*$FrontShape - 10.0));
+	$X_k = ($k-$PeakHarmonic+1.0)**(-$HarmonicDecayC) * exp(-$HarmonicDecayD*($k - $PeakHarmonic +1.0));
     } else {
-	$X_k = exp(($k - $PeakHarmonic)/exp(20.0*$BackShape - 10.0));
+	$X_k = ($PeakHarmonic-$k+1.0)**(-$HarmonicRiseA) * exp(-$HarmonicRiseB * ($PeakHarmonic-$k + 1.0));
     }
 
     if(defined $dontcutoff || $k < $CutoffHarmonic - 3) {
@@ -177,7 +195,7 @@ sub noiseEnvelope {
     if(abs($k_dec) < 0.01) {
 	return 1.0;
     }
-    return cos($pip2 * ($NoiseWidth ** (-exp(20.0*$NoiseShape - 10.0))) * (abs($k_dec) ** exp(20.0*$NoiseShape - 10.0)));
+    return ($NoiseDecayE * abs($k_dec)+1.0) ** (-$NoiseDecayF) * exp(-$NoiseDecayG * ($NoiseDecayE * abs($k_dec) +1.0));;
 }
 
 # Cents from A4 = $notes->{note} + 1200*(octave - 4)
@@ -256,29 +274,63 @@ sub findNormalization {
 # for each k, start from k - N_w and go up to k + N_w.
 # using rules above, generate the strength of k, using S_0, S_1, S_e, spectralEnvelope() and noiseEnvelope(), between 0 and 100
 my @k_vals = ();
-my @y_vals = ();
+my @imp_height = ();
+my @env_data = ();
+my @imp_data = ();
+my @noise_data = ();
 
 for(my $k = 1; $k < 100; ++$k) {
     my $dk = 0.00;
     for(my $dk = -$NoiseWidth; $dk < $NoiseWidth; $dk+=($NoiseWidth/$NoiseDensity)) {
 	if(abs($dk) < 0.500) {
 	    push @k_vals, $k+$dk;
-	    print $k+$dk;
 
-	    my $Y_k = spectralEnvelope($k+$dk) * noiseEnvelope($dk);
-
+	    my $ne = noiseEnvelope($dk);
+	    my $se = spectralEnvelope($k+$dk);
+	    my $senc = spectralEnvelope($k+$dk,1);
+	    my $sk = spectralEnvelope($k);
+	    
+	    my $factor = 1.0;
+	    
 	    if($k % 2 == 0) {
-		$Y_k *= $EvenStrength;
+	        $factor *= $EvenStrength*(1.0-abs($dk))+(abs($dk));
+	    } else {
+		$factor *= (1.0-abs($dk))+$EvenStrength*(abs($dk));
 	    }
 
 	    if($k == 1) {
-		$Y_k *= $FundamentalStrength;
+	        if($dk < 0) {
+			# merging with 0 (Null)
+			$factor *= $FundamentalStrength*(1.0-abs($dk));
+		} else {
+			# merging with 2 (Prime)
+			$factor *= $FundamentalStrength*(1.0-abs($dk))+$PrimeStrength*(abs($dk));
+		}
 	    } elsif($k == 2) {
-		$Y_k *= $PrimeStrength;
+	    	if($dk < 0) {
+			# merging with 1 (Fund)
+			$factor *= $PrimeStrength*(1.0-abs($dk)) + $FundamentalStrength*(abs($dk));
+		} else {
+			# merging with 3 (1.0)
+			$factor *= $PrimeStrength*(1.0-abs($dk)) + (abs($dk));
+		}
+	    } elsif($k == 3) {
+		if($dk < 0) {
+			# merging with 2 (Prime)
+			$factor *= (1.0-abs($dk)) + $PrimeStrength *(abs($dk));
+		} else {
+			# merging with 4 (1.0) (no change)
+		}
 	    }
 
-	    push @y_vals, $Y_k;
-	    print "  $Y_k\n";
+	    if($k == 1) {
+		push @noise_data, ($k+$dk)." $ne";
+	    }
+
+	    push @k_vals, $k+$dk; 
+ 	    push @env_data, ($k+$dk)." ".($senc);
+	    push @imp_data, ($k+$dk)." ".($se*$ne*$factor);
+	    push @imp_height, $se*$ne*$factor;
 	}
     }
 }
@@ -290,28 +342,98 @@ for(my $k = 1; $k < 100; ++$k) {
 ###################
 # plot assumes range between k=0 and k=2, and uses actual parameters for them.
 # also, using rules above, generate the continuous noise function between k=0 and k=2
+if($Command eq "genimgnoise") {
+  print $cgif->header("image/png");
+
+  generatePngPlots({
+      width=>300,
+      height=>150,
+      title=>"Noise plot for $Name",
+      xlabel=>"Harmonic",
+      ylabel=>"Relative Strength",
+      ranges=>"[0.5:1.5] [0:1]",
+      plots=>[{
+          source=>"'-' using 1:2",
+	  with=>"impulses",
+	  data=>\@noise_data
+	},{
+	  source=>"'-' using 1:2",
+	  with=>"lines lt 18",
+	  data=>\@noise_data
+	}]
+    });
+
+}
 
 ###################
 # generate plot for spectrum
 ###################
 # Displays for k=0 to 100.
 # also, using rules above, generate the continuous strength function, without the noiseEnvelope() or cutoffs (infinite cutoff), from k=0 to k=100
+if($Command eq "genimgbasic") {
+  print $cgif->header("image/png");
+  
+  generatePngPlots({
+      width=>1000,
+      height=>300,
+      title=>"Spectrum plot for $Name",
+      xlabel=>"Harmonic",
+      ylabel=>"Relative Strength",
+      ranges=>"[0:$MaxK] [0:1]",
+      plots=>[{
+          source=>"'-' using 1:2",
+	  with=>"impulses",
+	  data=>\@imp_data
+	},{
+	  source=>"'-' using 1:2",
+	  with=>"lines lt 18",
+	  data=>\@env_data
+	}]
+    });
+}
+
 
 ###################
 # generate spectrum plot for test pipe at appropriately dropped off volume
 ###################
 # Displays for k=0 to 100 in log Hz to dB.  Scaled to max volume.  Lines show audibles:  vertical lines at 20Hz and 20000Hz.  Base of plot is 0dB, which is audible threshold.
 # also, using actual frequency and volume stuff, generate the spectrum plot of the actual pipe. (findFrequency(), findVolume(), findNormalization())
+if($Command eq "genimgpipe") {
+  print $cgif->header("image/png");
+
+  my $maxfreq = findFrequency(int($CutoffHarmonic*1.2), $TestNote);
+
+  generatePngPlots({
+      width=>1000,
+      height=>300,
+      title=>"Real spectrum for the $TestNote pipe in rank [$Name $Mutation']".((abs($Detune) < 0.01)?"":" (Detuned by $Detune cents)").((abs($A4Freq-440.0)<0.01)?"":" (With A4 @ $A4Freq Hz)"),
+      xlabel=>"Frequency (log Hz)",
+      ylabel=>"Volume (dB)",
+      log=>10,
+      ranges=>"[1:$maxfreq] [0:$Volume]",
+      plots=>[{
+          source=>"'-' using 1:2",
+	  with=>"impulses",
+	  data=>\@imp_data
+	}]
+    });
+}
 
 ###################
 # generate fis
 ###################
+if($Command eq "genfis") {
+
+}
 
 
 ###################
 # generate rsf
 ###################
+if($Command eq "genrsf") {
 
+
+}
 
 
 exit;

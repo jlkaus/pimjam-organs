@@ -9,7 +9,7 @@ function generateQueryString(command) {
     "&Name=" + document.getElementById("pe_Name").value +
     "&FundamentalStrength=" + document.getElementById("pe_FundamentalStrength").value +
     "&PrimeStrength=" + document.getElementById("pe_PrimeStrength").value +
-    "&EventStrength=" + document.getElementById("pe_EventStrength").value +
+    "&EvenStrength=" + document.getElementById("pe_EvenStrength").value +
     "&PeakHarmonic=" + document.getElementById("pe_PeakHarmonic").value +
     "&CutoffHarmonic=" + document.getElementById("pe_CutoffHarmonic").value +
     "&HarmonicRiseA=" + document.getElementById("pe_HarmonicRiseA").value +
@@ -30,6 +30,7 @@ function generateQueryString(command) {
     "&RankBreaks=" + document.getElementById("pe_RankBreaks").value +
     "&RankSubOctaves=" + document.getElementById("pe_RankSubOctaves").value +
     "&RankSuperOctaves=" + document.getElementById("pe_RankSuperOctaves").value +
+    "&MaxK=" + document.getElementById("pe_MaxK").value +
     "");
 }
 
@@ -60,9 +61,9 @@ function othercmd(command) {
 <p style="width: 33%; float: left;">
 <label>FundamentalStrength <input type="text" id="pe_FundamentalStrength" value="1.0" /></label><br />
 <label>PrimeStrength <input type="text" id="pe_PrimeStrength" value="1.0" /></label><br />
-<label>EventStrength <input type="text" id="pe_EventStrength" value="1.0" /></label><br />
-<label>PeakHarmonic <input type="text" id="pe_PeakHarmonic" value="0" /></label><br />
-<label>CutoffHarmonic <input type="text" id="pe_CutoffHarmonic" value="100" /></label>
+<label>EvenStrength <input type="text" id="pe_EvenStrength" value="1.0" /></label><br />
+<label>PeakHarmonic <input type="text" id="pe_PeakHarmonic" value="1" /></label><br />
+<label>CutoffHarmonic <input type="text" id="pe_CutoffHarmonic" value="80" /></label>
 </p>
 <p style="width: 33%; float: left;">
 <label>HarmonicRiseA <input type="text" id="pe_HarmonicRiseA" value="1.0" /></label><br />
@@ -72,9 +73,9 @@ function othercmd(command) {
 </p>
 <p style="width: 33%; float: left;">
 <label>NoiseWidth <input type="text" id="pe_NoiseWidth" value="0.50" /></label><br />
-<label>NoiseDensity <input type="text" id="pe_NoiseDensity" value="5" /></label><br />
-<label>NoiseDecayE <input type="text" id="pe_NoiseDecayE" value="1.0" /></label><br />
-<label>NoiseDecayF <input type="text" id="pe_NoiseDecayF" value="1.0" /></label><br />
+<label>NoiseDensity <input type="text" id="pe_NoiseDensity" value="25" /></label><br />
+<label>NoiseDecayE <input type="text" id="pe_NoiseDecayE" value="20.0" /></label><br />
+<label>NoiseDecayF <input type="text" id="pe_NoiseDecayF" value="2.0" /></label><br />
 <label>NoiseDecayG <input type="text" id="pe_NoiseDecayG" value="0.0" /></label>
 </p>
 <p style="width: 33%; float: left;">
@@ -91,16 +92,16 @@ function othercmd(command) {
 <label>RankSuperOctaves <input type="text" id="pe_RankSuperOctaves" value="0" /></label>
 </p>
 <p style="width: 33%; float: left;">
-<input type="button" onclick="regenerate('img_basic','genimgbasic');" value="Regenerate Basic Image" /><br />
+<input type="button" onclick="regenerate('img_basic','genimgbasic');" value="Regenerate Basic Image" /><label>MaxK <input type="text" id="pe_MaxK" value="100" /></label><br />
 <input type="button" onclick="regenerate('img_noise','genimgnoise');" value="Regenerate Noise Image" /><br />
 <input type="button" onclick="regenerate('img_pipe','genimgpipe');" value="Regenerate Pipe Spectra" /><br />
 <input type="button" onclick="othercmd('testpipe');" value="Test Pipe" />
 </p>
 </form>
-<p style="width: 50%; clear: both; float: left;">
+<p style="width: 70%; clear: both; float: left;">
 <img id="img_basic" src="" />
 </p>
-<p style="width: 50%; float: left;">
+<p style="width: 30%; float: left;">
 <img id="img_noise" src="" />
 </p>
 <p style="width: 100%; clear: both;">
