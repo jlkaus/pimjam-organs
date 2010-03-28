@@ -17,15 +17,15 @@
 
 /* onboard LED is used to indicate, that the bootloader was entered (3x flashing) */
 /* if monitor functions are included, LED goes on after monitor was entered */
-#define LED_DDR  DDRD
-#define LED_PORT PORTD
-#define LED_PIN  PIND
-#define LED      PIND6
+#define LED_DDR  DDRB
+#define LED_PORT PORTB
+#define LED_PIN  PINB
+#define LED      PINB0
 
 #define NUM_LED_FLASHES 3
 #define MAX_TIME_COUNT 8000000L>>1
 
-#define NUM_INPUT_BUFFERS 8
+#define NUM_INPUT_BUFFERS 8*4
 
 /* define various device id's */
 /* manufacturer byte is always the same */
@@ -38,6 +38,7 @@
 /* function prototypes */
 void putch(char);
 char getch(void);
+char getch_async(void);
 void flash_led(uint8_t count);
 
 /* main program starts here */
@@ -74,17 +75,49 @@ int main(void)
     for(i = 0; i < NUM_INPUT_BUFFERS; ++i) {
         cur_state[i] = 0x00;
     }
+
+    /* Initialize the A/D converter */
+    /* 0x40 sets reference voltage to AVCC (0xC0 sets reference voltage to 2.56V) */
+    /* 0x07 selects ADC7 */
+    ADMUX = 0xC7;
+    ADCSRB = 0x00; /* Select free running mode */
+    DIDR0 = 0xFF;  /* Disable digital inputs on analog pins */
+    ADCSRA = 0xE7; /* 0xE0 - Enables & starts A/D Converter */
+                   /* 0x07 - Sets frequency prescaler to 128 */
     	
     flash_led(NUM_LED_FLASHES);
+    putch(0xAF);
+    putch(0xAE);
+    putch(0x07);
+    putch('O');
+    putch('B');
+    putch('F');
+    putch('W');
+    putch('v');
+    putch('1');
+    putch('1');
+    putch(0xAD);
+    putch(0xAC);
 
     /* forever loop */
     for (;;)
     {
-	for(i = 0; i < NUM_INPUT_BUFFERS; ++i) {
+	getch();
+	putch(ADCSRA);
+	putch(ADCL);
+	putch(ADCH);
 
-	    PORTB = i;
+	PORTB = getch();
+	_delay_us(5);
+	putch(PINC);
+	continue;
+
+	for(i = 0; i < NUM_INPUT_BUFFERS; ++i) {
+	    uint8_t addr_tmp = (i | ((~i & 0x18) << 2)) << 1;
+
+	    PORTB = addr_tmp;
 	    uint8_t tmp = cur_state[i];
-	    _delay_us(1);
+	    _delay_us(5);
 	    cur_state[i] = PINC;
 	    tmp = tmp ^ cur_state[i];
 	    for(j = 0; j < 8; ++j) {
@@ -126,6 +159,14 @@ char getch(void)
     return UDR0;
 }
 
+char getch_async(void)
+{
+  if(UCSR0A & _BV(RXC0)) {
+    return UDR0;
+  } else {
+    return 0x00;
+  }
+}
 
 void flash_led(uint8_t count)
 {
