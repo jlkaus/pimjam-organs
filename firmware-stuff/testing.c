@@ -77,9 +77,8 @@ int main(void)
     }
 
     /* Initialize the A/D converter */
-    /* 0x40 sets reference voltage to AVCC (0xC0 sets reference voltage to 2.56V) */
-    /* 0x07 selects ADC7 */
-    ADMUX = 0xC7;
+    ADMUX = 0xC7;  /* 0x40 sets reference voltage to AVCC (0xC0 sets reference voltage to 2.56V) */
+                   /* 0x07 selects ADC7 */
     ADCSRB = 0x00; /* Select free running mode */
     DIDR0 = 0xFF;  /* Disable digital inputs on analog pins */
     ADCSRA = 0xE7; /* 0xE0 - Enables & starts A/D Converter */
