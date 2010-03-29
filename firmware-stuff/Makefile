@@ -31,11 +31,11 @@ $(SYSTEMS): FORCE
 	$(MAKE) -C $@
 
 # Actual targets
-firmware: libcore.a
-
+firmware: organbop.o
 
 # source prereqs
 
+organbop.o: config_structures.h config_defaults.h
 
 # implicit rules
 %.elf: %.o
@@ -52,10 +52,15 @@ firmware: libcore.a
 	$(OBJCOPY) -j .text -j .data -O srec $< $@
 %.bin: %.elf
 	$(OBJCOPY) -j .text -j .data -O binary $< $@
-
+%_eeprom.hex: %.elf
+	$(OBJCOPY) -j .eeprom --change-section-lma .eeprom=0 -O ihex $< $@
+%_eeprom.srec: %.elf
+	$(OBJCOPY) -j .eeprom --change-section-lma .eeprom=0 -O srec $< $@
+%_eeprom.bin: %.elf
+	$(OBJCOPY) -j .eeprom --change-section-lma .eeprom=0 -O binary $< $@
 
 clean:
-	-rm -f *.o *.elf *.lst *.hex
+	-rm -f *.o *.elf *.lst *.hex *.srec *.bin
 
 cleanall: clean
 	@for dir in $(SYSTEMS); do $(MAKE) -C $$dir cleanall; done
