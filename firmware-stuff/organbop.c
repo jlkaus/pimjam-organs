@@ -93,8 +93,8 @@
 
 /* global vars */
 struct config_t liveCopy; // Lives in SRAM.  Loaded from savedCopy at reset. Values from here are used throughout the FW.
-struct config_t savedCopy __attributes__ ((section (".eeprom"))) = CONFIG_DEFAULT_INITIALIZER;  // Lives in low EEPROM.  Loaded to liveCopy at reset.  Change using command mode to change FW behavior.
-struct config_t backupCopy __attributes__ ((section (".eeprom"))) = CONFIG_DEFAULT_INITIALIZER;  // Lives in high EEPROM.  Can be used to reset savedCopy if you mess things up.  Reload the EEPROM to change these.
+struct config_t savedCopy EEMEM = CONFIG_DEFAULT_INITIALIZER;  // Lives in low EEPROM.  Loaded to liveCopy at reset.  Change using command mode to change FW behavior.
+struct config_t backupCopy EEMEM = CONFIG_DEFAULT_INITIALIZER;  // Lives in high EEPROM.  Can be used to reset savedCopy if you mess things up.  Reload the EEPROM to change these.
 
 
 /* function prototypes */
