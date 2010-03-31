@@ -253,8 +253,8 @@ sub determineKeyNumber {
 # note
 sub findVolume {
     my $note = shift;
-
-    return $Volume - $VolumeFalloff * determineKeyNumber($note);
+    # volume falloff is in dB/octave.  Rated Volume is at played C2, so lower notes would be louder for positive falloff. (should only be relevant for suboctaves)
+    return $Volume - $VolumeFalloff * determineKeyNumber($note)/12;
 }
 
 # SpectrumArray
@@ -399,6 +399,21 @@ if($Command eq "genimgbasic") {
 # Displays for k=0 to 100 in log Hz to dB.  Scaled to max volume.  Lines show audibles:  vertical lines at 20Hz and 20000Hz.  Base of plot is 0dB, which is audible threshold.
 # also, using actual frequency and volume stuff, generate the spectrum plot of the actual pipe. (findFrequency(), findVolume(), findNormalization())
 if($Command eq "genimgpipe") {
+
+  my @spec_data = ();
+  my $vfactor = findNormalization(@imp_data) * findVolume($TestNote);
+
+  my $i = 0;
+  foreach (@k_vals) {
+    my $freq = findFrequency($_, $TestNote);
+    my $power = $vfactor * $imp_height[$i];
+
+    push @spec_data, "$freq $power";
+
+    ++$i;
+  }
+
+
   print $cgif->header("image/png");
 
   my $maxfreq = findFrequency(int($CutoffHarmonic*1.2), $TestNote);
@@ -414,7 +429,7 @@ if($Command eq "genimgpipe") {
       plots=>[{
           source=>"'-' using 1:2",
 	  with=>"impulses",
-	  data=>\@imp_data
+	  data=>\@spec_data
 	}]
     });
 }
