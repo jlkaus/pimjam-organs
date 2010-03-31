@@ -439,8 +439,8 @@ if($Command eq "genimgpipe" || $Command eq "test") {
 
   my $minfreq = findFrequency(0.5, $TestNote);
   my $maxfreq = findFrequency(int($CutoffHarmonic*1.2), $TestNote);
-  my $minarrowend = ($minfreq > 20)?20: 10 ** (log(20)/log(10) + 0.3 * log( (20000<$maxfreq?20000:$maxfreq)/$minfreq)/log(10));
-  my $maxarrowend = ($maxfreq < 20000)?20000: 10 ** (log(20000)/log(10) - 0.3 * log( $maxfreq/(20>$minfreq?20:$minfreq))/log(10));
+  my $minarrowend = ($minfreq > 20)?20: 10 ** (log(20)/log(10) + 0.3 * log( (20000<$maxfreq?20000:$maxfreq)/20)/log(10));
+  my $maxarrowend = ($maxfreq < 20000)?20000: 10 ** (log(20000)/log(10) - 0.3 * log( 20000/(20>$minfreq?20:$minfreq))/log(10));
 
   generatePngPlots({
       width=>1000,
