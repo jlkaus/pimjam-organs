@@ -103,9 +103,11 @@ sub generatePngPlots {
     $keyon = 1 if defined $_->{title};
   }
 
-  my $gfh = do { local *GFH };
-  open($gfh, "| /usr/bin/gnuplot");
-#my $gfh = *STDOUT;
+  my $gfh = *STDOUT;
+  if($Command ne "test") {
+    $gfh = do { local *GFH };
+    open($gfh, "| /usr/bin/gnuplot");
+  }
   print $gfh "set terminal png";
   print $gfh " size $args->{width},$args->{height}" if (defined $args->{width} && defined $args->{height});
   print $gfh "\n";
@@ -115,7 +117,18 @@ sub generatePngPlots {
   print $gfh "set ylabel \"$args->{ylabel}\"\n" if defined $args->{ylabel};
   print $gfh "set key off\n" if !$keyon;
   print $gfh "set logscale x $args->{log}\n" if defined $args->{log};
-  # args->plots is array of hashrefs: source (function/datafile including using clause), title, with, data (an arrayref of all the datapoints for this particular thing, or undef if not needed)
+  # args->lines is an arrayref of hashrefs: from, to, head, with 
+  if(defined $args->{lines}) {
+	foreach (@{$args->{lines}}) {
+	  print $gfh "set arrow from $_->{from} to $_->{to}";
+	  print $gfh " nohead" if !defined $_->{head};
+	  print $gfh " front";
+	  print $gfh " $_->{with}" if defined $_->{with};
+	  print $gfh "\n";
+	}
+  }
+
+  # args->plots is arrayref of hashrefs: source (function/datafile including using clause), title, with, data (an arrayref of all the datapoints for this particular thing, or undef if not needed)
   my @datalines = ();
   my $first = 1;
   print $gfh "plot ";
@@ -130,8 +143,11 @@ sub generatePngPlots {
     push @datalines, "e" if defined $_->{data};
   }
   print $gfh "\n";
-  print $gfh "$_\n" foreach @datalines;
-  close($gfh);
+  if($Command ne "test") {
+    print $gfh "$_\n" foreach @datalines;
+  }
+  print $gfh "show arrow\n";
+  close($gfh) if $Command ne "test";
 }
 
 # k, dontcutoff
@@ -401,13 +417,17 @@ if($Command eq "genimgbasic") {
 if($Command eq "genimgpipe" || $Command eq "test") {
 
   my @spec_data = ();
-  my $vfactor = findNormalization(@imp_height) * findVolume($TestNote);
-  #print $vfactor."\n" if ($Command eq "test");
+  my $nfactor = findNormalization(@imp_height);
+  my $vsummand = findVolume($TestNote);
+  print $nfactor." $vsummand\n" if ($Command eq "test");
 
   my $i = 0;
   foreach (@k_vals) {
     my $freq = findFrequency($_, $TestNote);
-    my $power = $vfactor * $imp_height[$i];
+    my $power = 0;
+    if(defined $imp_height[$i] && $nfactor * $imp_height[$i] > 0) { 
+      $power = $vsummand + 20*log($nfactor * $imp_height[$i])/log(10);
+    }
 
     push @spec_data, "$freq $power";
    # print "$freq $power\n" if ($Command eq "test");
@@ -415,11 +435,12 @@ if($Command eq "genimgpipe" || $Command eq "test") {
     ++$i;
   }
   
-#  exit if ($Command eq "test");
-  
   print $cgif->header("image/png");
 
+  my $minfreq = findFrequency(0.5, $TestNote);
   my $maxfreq = findFrequency(int($CutoffHarmonic*1.2), $TestNote);
+  my $minarrowend = ($minfreq > 20)?20: 10 ** (log(20)/log(10) + 0.3 * log( (20000<$maxfreq?20000:$maxfreq)/$minfreq)/log(10));
+  my $maxarrowend = ($maxfreq < 20000)?20000: 10 ** (log(20000)/log(10) - 0.3 * log( $maxfreq/(20>$minfreq?20:$minfreq))/log(10));
 
   generatePngPlots({
       width=>1000,
@@ -428,11 +449,30 @@ if($Command eq "genimgpipe" || $Command eq "test") {
       xlabel=>"Frequency (log Hz)",
       ylabel=>"Volume (dB)",
       log=>10,
-      ranges=>"[1:$maxfreq] [0:$Volume]",
+      ranges=>"[$minfreq:$maxfreq] [0:$Volume]",
       plots=>[{
           source=>"'-' using 1:2",
 	  with=>"impulses",
 	  data=>\@spec_data
+	}],
+      lines=>[{
+          from=>"20,0",
+	  to=>"20,$Volume",
+	  with=>"lt 18"
+	},{
+	  from=>"20000,0",
+	  to=>"20000,$Volume",
+	  with=>"lt 18"
+	},{
+	  from=>"20,".($Volume/2),
+	  to=>"$minarrowend,".($Volume/2),
+	  with=>"lt 18",
+	  head=>""
+	},{
+	  from=>"20000,".($Volume/2),
+	  to=>"$maxarrowend,".($Volume/2),
+	  with=>"lt 18",
+	  head=>""
 	}]
     });
 }
