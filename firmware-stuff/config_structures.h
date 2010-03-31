@@ -4,6 +4,15 @@
 #include <inttypes.h>
 #include <stddefs.h>
 
+// Don't change this unless you really know what you're doing (all sorts of structures change size, address bits change, eeprom and sram layouts change...)
+#define BUFFERS_PER_HALF_BOARD 4
+
+struct command_t {
+  uint8_t opcode;
+  uint8_t arg1;
+  uint8_t arg2;  
+};
+
 struct half_board_settings_t {
 	uint8_t address_mask;
 	uint8_t buffer_shift;
@@ -19,7 +28,7 @@ struct control_settings_t {
 };
 
 struct half_board_values_t {
-	uint8_t buffer_values[4];
+	uint8_t buffer_values[BUFFERS_PER_HALF_BOARD];
 };
 
 struct control_values_t {
@@ -46,7 +55,8 @@ struct config_t {
 	uint8_t rsvd3;				// 0D
 	uint16_t sleep_time;			// 0E-0F
 
-	uint16_t uart_baud_rate;		// 10-11
+	uint8_t uart_baud_rate_register_low;	// 10
+	uint8_t uart_baud_rate_register_high;	// 11
 	uint8_t rsvd4;				// 12
 	uint8_t rsvd5;				// 13
 	
@@ -78,12 +88,17 @@ struct config_t {
 
 #include config_defaults.h
 
+// setbaud.h sets UBRRL_VALUE and UBRRH_VALUE based on F_CPU and BAUD
+#define BAUD CFG_BAUD_RATE
+#include <util/setbaud.h>
+
+
 #define CONFIG_DEFAULT_INITIALIZER { \
 	sizeof(struct config_t), CONFIG_LAYOUT_VERSION, RSVD_VAL, \
 	RSVD_VAL, sizeof(FW_DATE), offsetof(struct config_t, date_string), \
 	RSVD_VAL, sizeof(FW_BOOT), offsetof(struct config_t, boot_string), \
 	FW_VERSION, RSVD_VAL, CFG_SLEEP_TIME, \
-	CFG_BAUD_RATE, RSVD_VAL, RSVD_VAL, \
+	UBRRL_VALUE, UBRRH_VALUE, RSVD_VAL, RSVD_VAL, \
 	RSVD_VAL, CFG_NUM_HALF_BOARDS, CFG_BUFFER_WAIT_TIME, \
 	RSVD_VAL, CFG_NUM_CONTROLS, CFG_ADC_WAIT_TIME, \
 	{RSVD_VAL}, \
