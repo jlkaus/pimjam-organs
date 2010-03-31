@@ -51,7 +51,7 @@ my $TestLength = 0.00;
 
 # Function control
 
-my $Command = $cgif->param("Command");
+my $Command = $cgif->param("Command") || "test";
 
 # commands:
 
@@ -398,10 +398,11 @@ if($Command eq "genimgbasic") {
 ###################
 # Displays for k=0 to 100 in log Hz to dB.  Scaled to max volume.  Lines show audibles:  vertical lines at 20Hz and 20000Hz.  Base of plot is 0dB, which is audible threshold.
 # also, using actual frequency and volume stuff, generate the spectrum plot of the actual pipe. (findFrequency(), findVolume(), findNormalization())
-if($Command eq "genimgpipe") {
+if($Command eq "genimgpipe" || $Command eq "test") {
 
   my @spec_data = ();
-  my $vfactor = findNormalization(@imp_data) * findVolume($TestNote);
+  my $vfactor = findNormalization(@imp_height) * findVolume($TestNote);
+  #print $vfactor."\n" if ($Command eq "test");
 
   my $i = 0;
   foreach (@k_vals) {
@@ -409,11 +410,13 @@ if($Command eq "genimgpipe") {
     my $power = $vfactor * $imp_height[$i];
 
     push @spec_data, "$freq $power";
-
+   # print "$freq $power\n" if ($Command eq "test");
+#exit if ($i > 10 && $Command eq "test");
     ++$i;
   }
-
-
+  
+#  exit if ($Command eq "test");
+  
   print $cgif->header("image/png");
 
   my $maxfreq = findFrequency(int($CutoffHarmonic*1.2), $TestNote);
