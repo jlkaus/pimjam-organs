@@ -438,6 +438,7 @@ if($Command eq "genimgpipe" || $Command eq "test") {
   print $cgif->header("image/png");
 
   my $minfreq = findFrequency(0.5, $TestNote);
+  my $actfreq = findFrequency(1, $TestNote);
   my $maxfreq = findFrequency(int($CutoffHarmonic*1.2), $TestNote);
   my $minarrowend = ($minfreq > 20)?20: 10 ** (log(20)/log(10) + 0.3 * log( (20000<$maxfreq?20000:$maxfreq)/20)/log(10));
   my $maxarrowend = ($maxfreq < 20000)?20000: 10 ** (log(20000)/log(10) - 0.3 * log( 20000/(20>$minfreq?20:$minfreq))/log(10));
@@ -445,7 +446,7 @@ if($Command eq "genimgpipe" || $Command eq "test") {
   generatePngPlots({
       width=>1000,
       height=>300,
-      title=>"Real spectrum for the $TestNote pipe in rank [$Name $Mutation']".((abs($Detune) < 0.01)?"":" (Detuned by $Detune cents)").((abs($A4Freq-440.0)<0.01)?"":" (With A4 @ $A4Freq Hz)"),
+      title=>"Real spectrum for the $TestNote pipe in rank [$Name $Mutation']".((abs($Detune) < 0.01)?"":" (Detuned by $Detune cents)").((abs($A4Freq-440.0)<0.01)?"":" (With A4 @ $A4Freq Hz)").", f_0=$actfreq",
       xlabel=>"Frequency (log Hz)",
       ylabel=>"Volume (dB)",
       log=>10,
