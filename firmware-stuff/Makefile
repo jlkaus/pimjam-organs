@@ -14,13 +14,13 @@ CC = /usr/local/avr/bin/avr-gcc
 CXX = /usr/local/avr/bin/avr-g++
 OBJCOPY = /usr/local/avr/bin/avr-objcopy
 OBJDUMP = /usr/local/avr/bin/avr-objdump
-CFLAGS = -Wall -Os $(STD_AVR_DEFS) $(EXTRA_DEFS) -Icorelib
+CFLAGS = -Wall -Os $(STD_AVR_DEFS) $(EXTRA_DEFS) -Icorelib -std=gnu99 
 CXXFLAGS = -D__STDC_LIMIT_MACROS -Wall -Os $(STD_AVR_DEFS) $(EXTRA_DEFS) -Icorelib
-LDFLAGS = -L.
+LDFLAGS = $(STD_AVR_DEFS) -L.
 
 .PHONY: all clean $(SYSTEMS) cleanall firmware
 
-all: bootloader firmware
+all: bootloader firmware eeprom
 
 libcore.a: FORCE
 	$(MAKE) -C corelib
@@ -31,7 +31,9 @@ $(SYSTEMS): FORCE
 	$(MAKE) -C $@
 
 # Actual targets
-firmware: organbop.o
+firmware: organbop.hex
+
+eeprom: organbop_eeprom.hex
 
 # source prereqs
 
@@ -60,7 +62,7 @@ organbop.o: config_structures.h config_defaults.h
 	$(OBJCOPY) -j .eeprom --change-section-lma .eeprom=0 -O binary $< $@
 
 clean:
-	-rm -f *.o *.elf *.lst *.hex *.srec *.bin
+	-rm -f *.o *.elf *.lst *.hex *.srec *.bin *.a
 
 cleanall: clean
 	@for dir in $(SYSTEMS); do $(MAKE) -C $$dir cleanall; done

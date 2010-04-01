@@ -112,7 +112,7 @@ void send_boot_msg();
 void send_response_msg(struct command_t* cmd, char* response_data, uint8_t response_data_len);
 
 void send_msg_header(uint8_t type, uint16_t length);
-void send_submsg(uint8_t num, uint8_t length, char* data);
+void send_submsg(uint8_t num, uint8_t length, void* data);
 void send_msg_footer();
 
 void doSetup();
@@ -245,14 +245,14 @@ void send_midi_msg(uint8_t opcode, uint8_t channel, uint8_t arg1, uint8_t arg2)
   return;
 }
 
-void send_submsg(uint8_t num, uint8_t length, char* data)
+void send_submsg(uint8_t num, uint8_t length, void* data)
 {
   if(length && data) {
     putch(num);
     putch(length);
 
     for(int i=0; i < length; ++i) {
-      putch(data[i]);
+      putch(((char*)data)[i]);
     }
 
     putch(SUBMSG_END);
@@ -380,13 +380,13 @@ void doCommandMode()
 	break;
 
       case CMD_READ_CONFIG_LIVE_COPY:
-	data_ptr = &liveCopy + current_command.arg1;
+	data_ptr = ((char*)&liveCopy) + current_command.arg1;
 	data_len = current_command.arg2;
 	break;
 
       case CMD_READ_CONFIG_SAVED_COPY:
 	if(loadEepromConfigData(current_command.arg1, 0, current_command.arg2)) {
-	  data_ptr = &liveCopy + current_command.arg1;
+	  data_ptr = ((char*)&liveCopy) + current_command.arg1;
 	  data_len = current_command.arg2;
 	} else {
 	  flash_led(SRC_INVALID_COMMAND);
@@ -397,7 +397,7 @@ void doCommandMode()
 
       case CMD_READ_CONFIG_BACKUP_COPY:
 	if(loadEepromConfigData(current_command.arg1, 1, current_command.arg2)) {
-	  data_ptr = &liveCopy + current_command.arg1;
+	  data_ptr = ((char*)&liveCopy) + current_command.arg1;
 	  data_len = current_command.arg2;
 	} else {
 	  flash_led(SRC_INVALID_COMMAND);
@@ -407,7 +407,7 @@ void doCommandMode()
 	break;
 
       case CMD_CHANGE_SAVED_CONFIG_BYTE:
-	eeprom_write_byte(&savedCopy + current_command.arg1, current_command.arg2);
+	eeprom_write_byte(((uint8_t*)&savedCopy) + current_command.arg1, current_command.arg2);
 	data_ptr = NULL;
 	data_len = 0;
 	break;
@@ -464,7 +464,7 @@ void loadSavedConfig()
   return;
 }
 
-uint_t loadEepromConfigData(uint8_t offset, uint8_t fromBackup, uint8_t len)
+uint8_t loadEepromConfigData(uint8_t offset, uint8_t fromBackup, uint8_t len)
 {
   if(offset+len < sizeof(struct config_t)) {
     eeprom_read_block(&liveCopy + offset, (fromBackup?(&backupCopy):(&savedCopy)) + offset, len);

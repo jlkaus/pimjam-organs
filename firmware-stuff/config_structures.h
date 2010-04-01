@@ -2,7 +2,6 @@
 #define _CONFIG_STRUCTURES_H
 
 #include <inttypes.h>
-#include <stddefs.h>
 
 // Don't change this unless you really know what you're doing (all sorts of structures change size, address bits change, eeprom and sram layouts change...)
 #define BUFFERS_PER_HALF_BOARD 4
@@ -36,7 +35,7 @@ struct control_values_t {
 	uint8_t rsvd[3];
 };
 
-#defined CONFIG_LAYOUT_VERSION 0x01
+#define CONFIG_LAYOUT_VERSION 0x01
 struct config_t {
   // basic settings (grouped into reasonable 32bit chunks)
 	uint16_t config_copy_size;		// 00-01
@@ -83,10 +82,10 @@ struct config_t {
 	struct control_values_t control_values[8];		// A0-BF
 
   // reserved space for future expansion
-  	char rsvd7[0x100-0xC0];					// C0-FF
+  	char rsvd9[0x100-0xC0];					// C0-FF
 };
 
-#include config_defaults.h
+#include "config_defaults.h"
 
 // setbaud.h sets UBRRL_VALUE and UBRRH_VALUE based on F_CPU and BAUD
 #define BAUD CFG_BAUD_RATE
@@ -122,8 +121,42 @@ struct config_t {
 		{ CFG_ADMUX_C6, CFG_ADC_SHIFT_C6, CFG_CHAN_NUM_C6, CFG_CNTRL_NUM_C6 }, \
 		{ CFG_ADMUX_C7, CFG_ADC_SHIFT_C7, CFG_CHAN_NUM_C7, CFG_CNTRL_NUM_C7 } \
 	}, \
-	{UNSET_VAL}, {UNSET_VAL}, \
-	{UNSET_VAL} }
+	{ \
+          {{ UNSET_VAL,UNSET_VAL,UNSET_VAL,UNSET_VAL }}, \
+          {{ UNSET_VAL,UNSET_VAL,UNSET_VAL,UNSET_VAL }}, \
+          {{ UNSET_VAL,UNSET_VAL,UNSET_VAL,UNSET_VAL }}, \
+          {{ UNSET_VAL,UNSET_VAL,UNSET_VAL,UNSET_VAL }}, \
+          {{ UNSET_VAL,UNSET_VAL,UNSET_VAL,UNSET_VAL }}, \
+          {{ UNSET_VAL,UNSET_VAL,UNSET_VAL,UNSET_VAL }}, \
+          {{ UNSET_VAL,UNSET_VAL,UNSET_VAL,UNSET_VAL }}, \
+          {{ UNSET_VAL,UNSET_VAL,UNSET_VAL,UNSET_VAL }} \
+        }, { \
+          { UNSET_VAL,{UNSET_VAL,UNSET_VAL,UNSET_VAL} }, \
+          { UNSET_VAL,{UNSET_VAL,UNSET_VAL,UNSET_VAL} }, \
+          { UNSET_VAL,{UNSET_VAL,UNSET_VAL,UNSET_VAL} }, \
+          { UNSET_VAL,{UNSET_VAL,UNSET_VAL,UNSET_VAL} }, \
+          { UNSET_VAL,{UNSET_VAL,UNSET_VAL,UNSET_VAL} }, \
+          { UNSET_VAL,{UNSET_VAL,UNSET_VAL,UNSET_VAL} }, \
+          { UNSET_VAL,{UNSET_VAL,UNSET_VAL,UNSET_VAL} }, \
+          { UNSET_VAL,{UNSET_VAL,UNSET_VAL,UNSET_VAL} } \
+	}, { \
+	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
+	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
+	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
+	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
+	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
+	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
+	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
+	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
+	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
+	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
+	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
+	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
+	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
+	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
+	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
+	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL \
+	} }
 
 
 	
