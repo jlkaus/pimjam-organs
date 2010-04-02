@@ -13,8 +13,12 @@
 #error Need F_CPU to be defined!
 #endif
 
-/* firmware version information (gets put into the config data in EEPROM) */
-#define FW_DATE "2010-04-01"
+#if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 3)
+/#error Need gcc version 4.3.0 at minimum (for the 0bxxxxxxxx binary constants.)
+#endif
+
+
+/* firmware version information (gets put into the config data in EEPROM, along with the __TIMESTAMP__ value) */
 #define FW_BOOT "OrganBop BOOTED"
 #define FW_VERSION 0x11
 #include "config_structures.h"
@@ -98,9 +102,9 @@ struct config_t backupCopy EEMEM = CONFIG_DEFAULT_INITIALIZER;  // Lives in high
 
 
 /* function prototypes */
-void putch(char);
-char getch(void);
-char getch_async(void);
+void putch(uint8_t);
+uint8_t getch(void);
+uint8_t getch_async(void);
 
 void flash_led(uint8_t count);
 void src_hang(uint8_t count);
@@ -109,7 +113,7 @@ void soft_reset(void);
 
 void send_midi_msg(uint8_t opcode, uint8_t channel, uint8_t arg1, uint8_t arg2);
 void send_boot_msg();
-void send_response_msg(struct command_t* cmd, char* response_data, uint8_t response_data_len);
+void send_response_msg(struct command_t* cmd, void* response_data, uint8_t response_data_len);
 
 void send_msg_header(uint8_t type, uint16_t length);
 void send_submsg(uint8_t num, uint8_t length, void* data);
@@ -145,20 +149,20 @@ int main(void)
 }
 
 
-void putch(char ch)
+void putch(uint8_t ch)
 {
     while (!(UCSR0A & _BV(UDRE0)));
     UDR0 = ch;
 }
 
 
-char getch(void)
+uint8_t getch(void)
 {
     while(!(UCSR0A & _BV(RXC0)));
     return UDR0;
 }
 
-char getch_async(void)
+uint8_t getch_async(void)
 {
   if(UCSR0A & _BV(RXC0)) {
     return UDR0;
@@ -226,7 +230,7 @@ void send_boot_msg()
     return;
 }
 
-void send_response_msg(struct command_t* cmd, char* response_data, uint8_t response_data_len )
+void send_response_msg(struct command_t* cmd, void* response_data, uint8_t response_data_len )
 {
   send_msg_header(MSG_TYPE_CMD_RSP, SUBMSG_MIN_SIZE+sizeof(struct command_t) + SUBMSG_MIN_SIZE+response_data_len);
   send_submsg(1, sizeof(struct command_t), cmd);

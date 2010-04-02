@@ -70,19 +70,19 @@ struct config_t {
 	uint8_t rsvd8[4];			// 1C-1F
 
   // string area
-	char date_string[16];			// 20-2F
-	char boot_string[16];			// 30-3F
+	char date_string[32];			// 20-3F
+	char boot_string[16];			// 40-4F
 	
   // half-board and control settings arrays
-  	struct half_board_settings_t half_board_settings[8];	// 40-5F
-	struct control_settings_t control_settings[8];		// 60-7F
+  	struct half_board_settings_t half_board_settings[8];	// 50-6F
+	struct control_settings_t control_settings[8];		// 70-8F
 
   // half-board and control last value arrays
-  	struct half_board_values_t half_board_values[8];	// 80-9F
-	struct control_values_t control_values[8];		// A0-BF
+  	struct half_board_values_t half_board_values[8];	// 90-AF
+	struct control_values_t control_values[8];		// B0-CF
 
   // reserved space for future expansion
-  	char rsvd9[0x100-0xC0];					// C0-FF
+  	char rsvd9[0x100-0xD0];					// D0-FF
 };
 
 #include "config_defaults.h"
@@ -94,14 +94,14 @@ struct config_t {
 
 #define CONFIG_DEFAULT_INITIALIZER { \
 	sizeof(struct config_t), CONFIG_LAYOUT_VERSION, RSVD_VAL, \
-	RSVD_VAL, sizeof(FW_DATE), offsetof(struct config_t, date_string), \
+	RSVD_VAL, sizeof(__TIMESTAMP__), offsetof(struct config_t, date_string), \
 	RSVD_VAL, sizeof(FW_BOOT), offsetof(struct config_t, boot_string), \
 	FW_VERSION, RSVD_VAL, CFG_SLEEP_TIME, \
 	UBRRL_VALUE, UBRRH_VALUE, RSVD_VAL, RSVD_VAL, \
 	RSVD_VAL, CFG_NUM_HALF_BOARDS, CFG_BUFFER_WAIT_TIME, \
 	RSVD_VAL, CFG_NUM_CONTROLS, CFG_ADC_WAIT_TIME, \
 	{RSVD_VAL}, \
-	FW_DATE, FW_BOOT, \
+	__TIMESTAMP__, FW_BOOT, \
 	{ \
 		{ CFG_ADDR_MASK_H0, CFG_BUF_SHIFT_H0, CFG_CHAN_NUM_H0, CFG_KEY_OFFS_H0 }, \
 		{ CFG_ADDR_MASK_H1, CFG_BUF_SHIFT_H1, CFG_CHAN_NUM_H1, CFG_KEY_OFFS_H1 }, \
@@ -144,14 +144,12 @@ struct config_t {
 	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
 	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
 	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
+\
 	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
 	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
 	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
 	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
-	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
-	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
-	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
-	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
+\
 	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
 	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \
 	  UNSET_VAL, UNSET_VAL,UNSET_VAL,UNSET_VAL, \

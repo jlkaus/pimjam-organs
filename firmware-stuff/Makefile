@@ -1,7 +1,7 @@
 
 SYSTEMS=bootloader corelib
 
-LIBS = -lcore
+LIBS = #-lcore
 
 EXTRA_DEFS =
 
