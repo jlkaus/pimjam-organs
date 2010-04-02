@@ -57,7 +57,7 @@
 #define CFG_NUM_CONTROLS 1
 
 //                   		0brrdddaaa
-#define CFG_ADMUX_C0 		0b11000111
+#define CFG_ADMUX_C0 		0b01000111
 #define CFG_ADC_SHIFT_C0 	3
 #define CFG_CHAN_NUM_C0 	0x1
 #define CFG_CNTRL_NUM_C0 	0x0B
