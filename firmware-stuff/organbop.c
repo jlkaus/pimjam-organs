@@ -14,7 +14,7 @@
 #endif
 
 #if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 3)
-/#error Need gcc version 4.3.0 at minimum (for the 0bxxxxxxxx binary constants.)
+#error Need gcc version 4.3.0 at minimum (for the 0bxxxxxxxx binary constants.)
 #endif
 
 
