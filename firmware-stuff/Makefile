@@ -36,6 +36,7 @@ firmware: organbop.hex
 eeprom: organbop_eeprom.hex
 
 # source prereqs
+organbop.elf: organbop.o
 
 organbop.o: config_structures.h config_defaults.h
 
