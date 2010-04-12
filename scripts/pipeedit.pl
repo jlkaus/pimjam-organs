@@ -482,6 +482,15 @@ if($Command eq "genimgpipe" || $Command eq "test") {
 # generate fis
 ###################
 if($Command eq "genfis") {
+  my $nfactor = findNormalization(@imp_height);
+
+  open(OUTPF, "> saved-fis/${Name}.fis");
+
+  for(my $i = 0; $i < scalar @k_vals; ++$i) {
+    print OUTPF pack("fff", $k_vals[$i], $nfactor*$imp_height[$i],0);
+  }
+
+  close(OUTPF);
 
 }
 
@@ -494,6 +503,30 @@ if($Command eq "genrsf") {
 
 }
 
+###################
+# test pipe
+###################
+if($Command eq "testpipe") {
+
+  my $nfactor = findNormalization(@imp_height);
+
+  open(OUTPF, "> tmp-test/${Name}.fis");
+
+  for(my $i = 0; $i < scalar @k_vals; ++$i) {
+    print OUTPF pack("fff", $k_vals[$i], $nfactor*$imp_height[$i],0);
+  }
+
+  close(OUTPF);
+
+# now, from the .fis we just made, create a .raw
+my $rfreq = findFrequency(1, $TestNote);
+my $rvol = 8000;  # findVolume($TestNote);
+#  system("dftwav tmp-test/${Name}.fis -o tmp-test/${Name}_${rfreq}.raw -f ${rfreq} -n ${rvol}");
+
+# given our raw, play the pipe
+#  system("aplay -r44100 -c1 -traw -fS16_LE tmp-test/${Name}_${rfreq}.raw");
+
+}
 
 exit;
 

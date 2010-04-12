@@ -42,8 +42,24 @@ function regenerate(imgid, command) {
 function othercmd(command) {
   var qs = generateQueryString(command);
 
+  // disable button for command
+  document.getElementById(command).disabled="disabled";
+  
   // Use ajax to send request and process response (if needed)
+  // create the ajax request (Save the command in there)
+  // initiate the request
+  var req = new XMLHttpRequest();
+  req.PE_command = command;
+  req.onreadystatechange = ajaxcallback;
+  req.open("GET",qs);
+  req.send();
+}
 
+function ajaxcallback() {
+  // if we're done with the request, re-enable the button for the command
+  if(this.readyState == 4) {
+    document.getElementById(this.PE_command).disabled="";
+  }
 }
 
 </script>
@@ -53,10 +69,10 @@ function othercmd(command) {
 <form onsubmit="return false;">
 <p>
 <label>Name <input type="text" id="pe_Name" value="" /></label>
-<input type="button" onclick="othercmd('loadcfg');" value="Load CFG" />
-<input type="button" onclick="othercmd('savecfg');" value="Save CFG" />
-<input type="button" onclick="othercmd('genfis');" value="Generate FIS" />
-<input type="button" onclick="othercmd('genrsf');" value="Generate RSF" />
+<input id="loadcfg" type="button" onclick="othercmd('loadcfg');" value="Load CFG" />
+<input id="savecfg" type="button" onclick="othercmd('savecfg');" value="Save CFG" />
+<input id="genfis" type="button" onclick="othercmd('genfis');" value="Generate FIS" />
+<input id="genrsf" type="button" onclick="othercmd('genrsf');" value="Generate RSF" />
 </p>
 <p style="width: 33%; float: left;">
 <label>FundamentalStrength <input type="text" id="pe_FundamentalStrength" value="1.0" /></label><br />
@@ -95,7 +111,7 @@ function othercmd(command) {
 <input type="button" onclick="regenerate('img_basic','genimgbasic');" value="Regenerate Basic Image" /><label>MaxK <input type="text" id="pe_MaxK" value="100" /></label><br />
 <input type="button" onclick="regenerate('img_noise','genimgnoise');" value="Regenerate Noise Image" /><br />
 <input type="button" onclick="regenerate('img_pipe','genimgpipe');" value="Regenerate Pipe Spectra" /><br />
-<input type="button" onclick="othercmd('testpipe');" value="Test Pipe" />
+<input id="testpipe" type="button" onclick="othercmd('testpipe');" value="Test Pipe" />
 </p>
 </form>
 <p style="width: 70%; clear: both; float: left;">
