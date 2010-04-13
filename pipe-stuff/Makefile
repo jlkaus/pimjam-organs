@@ -1,6 +1,6 @@
 .PHONY: all clean cleanall
 
-ACT_TARGETS = dftwav dftgen pipegen rankgen playpipe playset playrank playbar # wavdft
+ACT_TARGETS = dftwav dftgen pipegen rankgen # wavdft playpipe playset playrank playbar
 LIB_SRC =
 LIBS = -lorgan -lxml -lmidi
 
