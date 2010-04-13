@@ -1,6 +1,10 @@
 #ifndef _EVENT_H
 #define _EVENT_H
 
+#include "Input.H"
+#include "Env.H"
+
+
 class Event {
 public:
   Event(const Input& input, int newValue): mInput(input), mNewValue(newValue) { 
