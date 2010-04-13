@@ -521,7 +521,7 @@ if($Command eq "testpipe") {
 # now, from the .fis we just made, create a .raw
 my $rfreq = findFrequency(1, $TestNote);
 my $rvol = 8000;  # findVolume($TestNote);
-#  system("dftwav tmp-test/${Name}.fis -o tmp-test/${Name}_${rfreq}.raw -f ${rfreq} -n ${rvol}");
+system("./dftwav tmp-test/${Name}.fis -o tmp-test/${Name}_${rfreq}.raw -f ${rfreq} -n ${rvol}");
 
 # given our raw, play the pipe
 #  system("aplay -r44100 -c1 -traw -fS16_LE tmp-test/${Name}_${rfreq}.raw");
