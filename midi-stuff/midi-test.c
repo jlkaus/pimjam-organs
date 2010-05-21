@@ -317,15 +317,16 @@ void recvEvent() {
   int i = 0;
 
   struct {
-	char cur_state;
-	char buffer_addr;
-	char pin_num;
-	char hex_zero;
+	unsigned char cur_state;
+	unsigned char buffer_addr;
+	unsigned char pin_num;
+	unsigned char hex_zero;
+	unsigned char arg2;
   } event;
 
   ioctl(outpfd, FIONREAD, &count);
 
-  if(count >= 7) {
+  if(count >= 8) {
     
     unsigned char sync_byte;
     read(outpfd, &sync_byte, 1);
@@ -354,7 +355,7 @@ void recvEvent() {
     }
 
     fprintf(stdout,"EVENT:");
-    fprintf(stdout,"%02X %02X %02X %02X\n", event.cur_state, event.buffer_addr, event.pin_num, event.hex_zero);
+    fprintf(stdout,"%02X %02X %02X %02X %02X\n", event.cur_state, event.buffer_addr, event.pin_num, event.hex_zero, event.arg2);
   }
 }
 

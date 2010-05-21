@@ -38,8 +38,8 @@ midi-test: midi-test.o
 -include $(LIB_SRC:%=../deps/%.d)
 
 # implicit rules
-%.o: %.C
-	$(CXX) -c $(CXXFLAGS) -o $@ $<
+#%.o: %.C
+#	$(CXX) -c $(CXXFLAGS) -o $@ $<
 %.o: %.c
 	$(CC) -c $(CFLAGS) -o $@ $<
 ../deps/%.d: %.C

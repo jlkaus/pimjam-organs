@@ -223,8 +223,8 @@ void send_msg_header(uint8_t type, uint16_t length)
 void send_boot_msg()
 {
     send_msg_header(MSG_TYPE_BOOTUP, SUBMSG_MIN_SIZE+liveCopy.firmware_date_string_length + SUBMSG_MIN_SIZE+liveCopy.firmware_boot_string_length + SUBMSG_MIN_SIZE+1);
-    send_submsg(1, liveCopy.firmware_boot_string_length, &liveCopy + liveCopy.firmware_boot_string_offset);
-    send_submsg(2, liveCopy.firmware_date_string_length, &liveCopy + liveCopy.firmware_date_string_offset);
+    send_submsg(1, liveCopy.firmware_boot_string_length, ((char*)&liveCopy) + liveCopy.firmware_boot_string_offset);
+    send_submsg(2, liveCopy.firmware_date_string_length, ((char*)&liveCopy) + liveCopy.firmware_date_string_offset);
     send_submsg(3, 1, &liveCopy.firmware_version);
     send_msg_footer();
     return;
@@ -471,7 +471,7 @@ void loadSavedConfig()
 uint8_t loadEepromConfigData(uint8_t offset, uint8_t fromBackup, uint8_t len)
 {
   if(offset+len < sizeof(struct config_t)) {
-    eeprom_read_block(&liveCopy + offset, (fromBackup?(&backupCopy):(&savedCopy)) + offset, len);
+    eeprom_read_block(((uint8_t*)&liveCopy) + offset, (fromBackup?(&backupCopy):(&savedCopy)) + offset, len);
   } else {
     return 0;
   }
