@@ -31,6 +31,7 @@
 #define SRC_ENTERING_NORMAL_MODE	3
 #define SRC_INVALID_CONFIG_HANG		5
 #define SRC_INVALID_COMMAND		7
+#define SRC_INVALID_SUBMSG              9
 
 /* Commands (all are 3 bytes long)	opcode	   arg1			arg2	results */
 #define CMD_ENTER_COMMAND_MODE		0xB0	// 00			00	no data. in command mode.
@@ -251,16 +252,19 @@ void send_midi_msg(uint8_t opcode, uint8_t channel, uint8_t arg1, uint8_t arg2)
 
 void send_submsg(uint8_t num, uint8_t length, void* data)
 {
-  if(length && data) {
-    putch(num);
-    putch(length);
+  putch(num);
+  putch(length);
 
-    for(int i=0; i < length; ++i) {
+  for(int i=0; i < length; ++i) {
+    if(data) {
       putch(((char*)data)[i]);
+    } else {
+      putch(((char*)0));  // Not good, but trying to maintain protocol sanity.  We have to make the submsg the length that the caller thought it would be.  Better to have bad data than throw off the stream.
     }
-
-    putch(SUBMSG_END);
   }
+
+  putch(SUBMSG_END);
+
   return;
 }
 
