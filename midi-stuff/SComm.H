@@ -49,7 +49,7 @@ private:
 	int portSetup(struct port_arguments_t* args);
         void sendAndProcessCommandModeCommand(const cmd_mode_command_t& cmd, CommandResponseHandler* response_handler = NULL);
 
-	inline void softReset();
+	void softReset();
 	inline void initPort() { struct port_arguments_t port_args = {"/dev/ttyUSB0", 38400, 8, 'N', 1}; portSetup(&port_args); }
 	
 	void streamWaitForBytes(size_t count);
@@ -62,26 +62,5 @@ private:
 
 	int xCommFd;
 };
-
-void SComm::softReset()
-{
-	// Command mode will screw with the event handling.
-	//   Exit out of event processing if events were running
-	if(xProcessEvents) {
-		stopEvents();
-	}
-
-	// Issue the commands to the organ firmware to soft reset
-	//   this is done by entering "Command ode" and immediately exiting
-	
-	// Enter command mode command 0xB00000
-	struct cmd_mode_command_t enter_command_mode = { 0xB0, 0x00, 0x00 };
-
-	// Exit command mode commmand 0xBF0000
-	struct cmd_mode_command_t exit_command_mode = { 0xBF, 0x00, 0x00 };
-
-        sendAndProcessCommandModeCommand(enter_command_mode);
-        sendAndProcessCommandModeCommand(exit_command_mode);
-}
 
 #endif

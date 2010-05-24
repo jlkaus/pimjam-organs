@@ -111,17 +111,78 @@ void SComm::processEvent()
   printf("%02X %02X %02X\n", midi_event.op_channel, midi_event.arg1, midi_event.arg2);
 }
 
+void SComm::softReset()
+{
+	// Command mode will screw with the event handling.
+	//   Exit out of event processing if events were running
+	bool events_were_processing = false;
+	if(xProcessEvents) {
+		events_were_processing = true;
+		stopEvents();
+	}
+
+	// Issue the commands to the organ firmware to soft reset
+	//   this is done by entering "Command ode" and immediately exiting
+	
+	// Enter command mode command 0xB00000
+	struct cmd_mode_command_t enter_command_mode = { 0xB0, 0x00, 0x00 };
+
+	// Exit command mode commmand 0xBF0000
+	struct cmd_mode_command_t exit_command_mode = { 0xBF, 0x00, 0x00 };
+
+        sendAndProcessCommandModeCommand(enter_command_mode);
+        sendAndProcessCommandModeCommand(exit_command_mode);
+
+	// Once command mode has been exited, the organ will reset.  Process the boot message
+	streamReadExpectedByte(0xFF);
+	streamReadExpectedByte(0xF0);	
+
+	// Retrieve the message response data
+	uint16_t msg_size;
+	streamRead(&msg_size, sizeof(uint16_t));
+	msg_size = ntohs(msg_size);
+	msg_size -= 3; // Subtract off the subtype and message length from the message size
+	printf("MESSAGE SIZE: %d\n", msg_size);
+  
+	unsigned char* response_buffer = new unsigned char[msg_size];
+	streamRead(response_buffer, msg_size);
+
+	printf("RESPONSE\n");
+	for(int i = 0; i < msg_size; ++i) {
+		printf("%02X", response_buffer[i]);
+	}
+	printf("\n");
+
+	// Retrieve the message footer
+	streamReadExpectedByte(0xFD);
+	streamReadExpectedByte(0xFC);
+
+	if(events_were_processing) {
+		startEvents();
+	}
+}
+
 void SComm::sendAndProcessCommandModeCommand(const cmd_mode_command_t& cmd, CommandResponseHandler* response_handler)
 {
-
-  printf("%02X %02X %02X\n", cmd.opcode, cmd.arg1, cmd.arg2);
+  // If events are currently being processed, the command mode command will screw that up
+  //   So stop processing events prior to running the command
+  if(xProcessEvents) {
+    stopEvents();
+  }
 
   // Send the command
   streamWrite(&cmd, sizeof(cmd_mode_command_t));
 
   // Wait for the command response
+  // Message response format FFF3SSSSMM...MMFDFC
+  //   Where 
+  //     FF is the message header
+  //     F3 is the message subtype (Command response in this case)
+  //     SSSS is the message size (includes everything from the subtype to the end of the message data)
+  //     MM...MM is the message data
+  //     FDFC is the message footer
   //   There is no guarentee that the stream is synced.  So there might be other data in stream that is not
-  //     the command response.  Throw that data away and wait for a command respons (message header 0xFFF3)
+  //     the command response.  Throw that data away and wait for a command response (message header 0xFFF3)
   char command_response_header[2] = {0xFF, 0xF3};
   streamWaitForByteSequence(command_response_header, 2);
 
@@ -129,16 +190,6 @@ void SComm::sendAndProcessCommandModeCommand(const cmd_mode_command_t& cmd, Comm
   uint16_t msg_size;
   streamRead(&msg_size, sizeof(uint16_t));
   msg_size = ntohs(msg_size);
-
-  // Message format FFF3SSSSMM...MMFDFC
-  //   Where 
-  //     FF is the message header
-  //     F3 is the message subtype (Command response in this case)
-  //     SSSS is the message size (includes everything from the subtype to the end of the message data)
-  //     MM...MM is the message data
-  //     FDFC is the message footer
-
-  printf("MSGSIZE: %04X\n", msg_size);
   msg_size -= 3; // Subtract off the subtype and message length from the message size
   
   unsigned char* response_buffer = new unsigned char[msg_size];
@@ -164,8 +215,6 @@ void SComm::sendAndProcessCommandModeCommand(const cmd_mode_command_t& cmd, Comm
 
 void SComm::streamRead(void* buffer, size_t read_size)
 {
-  printf("STREAM READ: %04X\n", read_size);
-
   streamWaitForBytes(read_size);
 
   ssize_t size_read = read(xCommFd, buffer, read_size);
