@@ -1,4 +1,5 @@
 #include "SComm.H"
+#include "OrganSupport.H"
 
 #include <stdio.h>   /* Standard input/output definitions */
 #include <sys/types.h> /* system types */
@@ -121,6 +122,8 @@ void SComm::softReset()
 		stopEvents();
 	}
 
+	OrganSupport::logMsg(OrganSupport::Info, "SComm::softReset initiating soft reset\n");
+
 	// Issue the commands to the organ firmware to soft reset
 	//   this is done by entering "Command ode" and immediately exiting
 	
@@ -133,18 +136,69 @@ void SComm::softReset()
         sendAndProcessCommandModeCommand(enter_command_mode);
         sendAndProcessCommandModeCommand(exit_command_mode);
 
-	// Once command mode has been exited, the organ will reset.  Process the boot message
-	streamReadExpectedByte(0xFF);
-	streamReadExpectedByte(0xF0);	
+	// Process the boot message
+	receiveMessage(0xF0, &handleBootMsg);
+}
 
+void SComm::handleBootMsg(SComm* this_scom, void* reponse_data, size_t reponse_data_size)
+{
+	struct sub_msg_header_t* msg_header = (sub_msg_header_t*)reponse_data;
+
+	for(int i = 0; i < 2; ++i) {
+		char boot_msg_format[30];
+		snprintf(boot_msg_format, sizeof(boot_msg_format), "Boot Msg: %%.%ds\n", msg_header->msg_size);
+
+		OrganSupport::logMsg(OrganSupport::Info, boot_msg_format, (char*)(msg_header) + sizeof(sub_msg_header_t));
+
+		msg_header = (sub_msg_header_t*)(((char*)msg_header) + sizeof(sub_msg_header_t) + msg_header->msg_size + 1);
+	}
+	exit(1);
+}
+
+void SComm::sendAndProcessCommandModeCommand(const cmd_mode_command_t& cmd, MsgResponseHandler* response_handler)
+{
+  // If events are currently being processed, the command mode command will screw that up
+  //   So stop processing events prior to running the command
+  if(xProcessEvents) {
+    stopEvents();
+  }
+
+  // Send the command
+  streamWrite(&cmd, sizeof(cmd_mode_command_t));
+
+  // Process the reponse
+  receiveMessage(0xF3, response_handler);
+}
+
+void SComm::receiveMessage(uint8_t msg_type, MsgResponseHandler* response_handler)
+{
+	OrganSupport::logMsg(OrganSupport::Debug, "SComm::receiveMessage - type 0x%02X\n", msg_type);
+
+	// Wait for the message response
+	// Message response format FFTTSSSSMM...MMFDFC
+	//   Where 
+	//     FF is the message header
+	//     TT is the message subtype
+	//     SSSS is the message size (includes everything from the subtype to the end of the message data)
+	//     MM...MM is the message data
+	//     FDFC is the message footer
+	//   There is no guarentee that the stream is synced.  So there might be other data in stream that is not
+	//     the response.  Throw that data away and wait for the reponse of the specified type.
+
+	uint8_t response_header[2] = {0xFF, msg_type};
+	streamWaitForByteSequence(response_header, 2);
+  
 	// Retrieve the message response data
 	uint16_t msg_size;
 	streamRead(&msg_size, sizeof(uint16_t));
 	msg_size = ntohs(msg_size);
-	msg_size -= 3; // Subtract off the subtype and message length from the message size
-	printf("MESSAGE SIZE: %d\n", msg_size);
+	if(msg_type == 0xF3) {
+		msg_size -= 3; // Subtract off the subtype and message length from the message size
+	}
+
+	printf("MSGSIZE: %04X\n", msg_size);
   
-	unsigned char* response_buffer = new unsigned char[msg_size];
+	uint8_t* response_buffer = new uint8_t[msg_size];
 	streamRead(response_buffer, msg_size);
 
 	printf("RESPONSE\n");
@@ -157,249 +211,221 @@ void SComm::softReset()
 	streamReadExpectedByte(0xFD);
 	streamReadExpectedByte(0xFC);
 
-	if(events_were_processing) {
-		startEvents();
+	// If a reponse handler is defined, call it
+	if(response_handler) {
+		response_handler(this, response_buffer, msg_size);
 	}
+
+	delete [] response_buffer;
 }
 
-void SComm::sendAndProcessCommandModeCommand(const cmd_mode_command_t& cmd, CommandResponseHandler* response_handler)
-{
-  // If events are currently being processed, the command mode command will screw that up
-  //   So stop processing events prior to running the command
-  if(xProcessEvents) {
-    stopEvents();
-  }
-
-  // Send the command
-  streamWrite(&cmd, sizeof(cmd_mode_command_t));
-
-  // Wait for the command response
-  // Message response format FFF3SSSSMM...MMFDFC
-  //   Where 
-  //     FF is the message header
-  //     F3 is the message subtype (Command response in this case)
-  //     SSSS is the message size (includes everything from the subtype to the end of the message data)
-  //     MM...MM is the message data
-  //     FDFC is the message footer
-  //   There is no guarentee that the stream is synced.  So there might be other data in stream that is not
-  //     the command response.  Throw that data away and wait for a command response (message header 0xFFF3)
-  char command_response_header[2] = {0xFF, 0xF3};
-  streamWaitForByteSequence(command_response_header, 2);
-
-  // Retrieve the message response data
-  uint16_t msg_size;
-  streamRead(&msg_size, sizeof(uint16_t));
-  msg_size = ntohs(msg_size);
-  msg_size -= 3; // Subtract off the subtype and message length from the message size
-  
-  unsigned char* response_buffer = new unsigned char[msg_size];
-  streamRead(response_buffer, msg_size);
-
-  printf("RESPONSE\n");
-  for(int i = 0; i < msg_size; ++i) {
-    printf("%02X", response_buffer[i]);
-  }
-  printf("\n");
-
-  // Retrieve the message footer
-  streamReadExpectedByte(0xFD);
-  streamReadExpectedByte(0xFC);
-
-  // If a reponse handler is defined, call it
-  if(response_handler) {
-    response_handler(this, response_buffer, msg_size);
-  }
-
-  delete [] response_buffer;
-}
 
 void SComm::streamRead(void* buffer, size_t read_size)
 {
-  streamWaitForBytes(read_size);
+	OrganSupport::logMsg(OrganSupport::Debug, "SComm::streamRead: 0x%02X bytes\n", read_size);
+	streamWaitForBytes(read_size);
 
-  ssize_t size_read = read(xCommFd, buffer, read_size);
+	ssize_t size_read = read(xCommFd, buffer, read_size);
 
-  if(size_read == -1) {
-    fprintf(stderr, "Unable to read from stream: %s\n", strerror(errno));
-    exit(1);
-  } else  if(read_size != size_read) {
-    fprintf(stderr, "Bytes read from stream: %d do not match what was requested: %d\n", size_read, read_size);
-    exit(1);
-  }
+	if(size_read == -1) {
+		OrganSupport::errorMsg("Unable to read from stream: %s\n", strerror(errno));
+	} else  if(read_size != size_read) {
+		OrganSupport::errorMsg("Bytes read from stream: %d do not match what was requested: %d\n", size_read, read_size);
+	}
 }
 
 void SComm::streamReadExpectedByte(unsigned char expected_byte)
 {
-  unsigned char byte_read = 0;
-  streamRead(&byte_read, 1);
+	OrganSupport::logMsg(OrganSupport::Debug, "SComm::streamReadExpectedByte: 0x%02X\n", expected_byte);
+	
+	unsigned char byte_read = 0;
+	streamRead(&byte_read, 1);
 
-  if(byte_read != expected_byte) {
-    fprintf(stderr, "Fatal error receiving data from stream.  Expected byte: %02X - Recieved byte: %02X\n", expected_byte, byte_read);
-    exit(1);
-  }
+	if(byte_read != expected_byte) {
+		OrganSupport::errorMsg("Fatal error receiving data from stream.  Expected byte: %02X - Recieved byte: %02X\n", expected_byte, byte_read);
+	}
 }
 
-void SComm::streamWaitForByteSequence(const char* byte_sequence, size_t byte_sequence_count)
+void SComm::streamWaitForByteSequence(const uint8_t* byte_sequence, size_t byte_sequence_count)
 {
-  char* bytes_read = new char[byte_sequence_count];
-  bool sequence_found = false;
-  
-  while(!sequence_found) {
-    streamRead(bytes_read, byte_sequence_count);
+	if(OrganSupport::getVerbosityLevel() >= OrganSupport::Debug) {
+		OrganSupport::logMsg(OrganSupport::Debug, "SComm::streamWaitForByteSequence 0x%02X bytes - ", byte_sequence_count);
+		for(int i = 0; i < byte_sequence_count; i++) {
+			OrganSupport::logMsg(OrganSupport::Debug, "|%02X|", byte_sequence[i]);
+		}
+		OrganSupport::logMsg(OrganSupport::Debug, "\n");
+	}
 
-    sequence_found = true;
-    for(int i = 0; i < byte_sequence_count; ++i) {
-      if(byte_sequence[i] != bytes_read[i]) {
-        sequence_found = false;
-        break;
-      }
-    }
-  }
+	uint8_t* bytes_read = new uint8_t[byte_sequence_count];
+	bool sequence_found = false;
+  
+	while(!sequence_found) {
+		streamRead(bytes_read, byte_sequence_count);
+
+		sequence_found = true;
+		OrganSupport::logMsg(OrganSupport::Debug, "SComm::streamWaitForByteSequence Bytes Read: ");
+		for(int i = 0; i < byte_sequence_count; ++i) {
+			OrganSupport::logMsg(OrganSupport::Debug, "%02X", bytes_read[i]);
+			if(byte_sequence[i] != bytes_read[i]) {
+				sequence_found = false;
+				break;
+			}
+		}
+		OrganSupport::logMsg(OrganSupport::Debug, "\n");
+	}
+
+	delete [] bytes_read;
 }
 
 void SComm::streamWrite(const void* buffer, size_t write_size)
 {
-  if(xCommFd == -1) {
-    initPort();
-  }
+	if(OrganSupport::getVerbosityLevel() >= OrganSupport::Debug) {
+		OrganSupport::logMsg(OrganSupport::Debug, "SComm::streamWrite 0x%02X bytes - ", write_size);
+		for(int i = 0; i < write_size; i++) {	
+			OrganSupport::logMsg(OrganSupport::Debug, "|%02X|", ((uint8_t*)buffer)[i]);
+		}
+		OrganSupport::logMsg(OrganSupport::Debug, "\n");
+	}
 
-  printf("Write data %02X\n", write_size);
-  for(int i = 0; i < write_size; i++) {
-    printf("|%02X|", ((unsigned char*)buffer)[i]);
-  }
-  printf("\n");
+	if(xCommFd == -1) {
+		initPort();
+	}
 
-  size_t bytes_written = write(xCommFd, buffer, write_size);
-  if(bytes_written == -1) {
-    fprintf(stderr, "Unable to write to stream: %s\n", strerror(errno));
-    exit(1);
-  } else if(write_size != bytes_written) {
-    fprintf(stderr, "Bytes written to stream: %d do not match what was requested: %d\n", bytes_written, write_size);
-    exit(1);
-  }
+	size_t bytes_written = write(xCommFd, buffer, write_size);
+	if(bytes_written == -1) {
+		OrganSupport::errorMsg("Unable to write to stream: %s\n", strerror(errno));
+	} else if(write_size != bytes_written) {
+		OrganSupport::errorMsg("Bytes written to stream: %d do not match what was requested: %d\n", bytes_written, write_size);
+	}
 }
 
 void SComm::streamWaitForBytes(size_t count)
 {
-  if(xCommFd == -1) {
-    initPort();
-  }
+	OrganSupport::logMsg(OrganSupport::Debug, "SComm::streamWaitForBytes: 0x%02X\n", count);
 
-  size_t size_available = 0;
-  do {
-    ioctl(xCommFd, FIONREAD, &size_available); 
-  } while(size_available < count);
+	if(xCommFd == -1) {
+		initPort();
+	}
+
+	size_t size_available = 0;
+	do {
+		ioctl(xCommFd, FIONREAD, &size_available); 
+	} while(size_available < count);
 }
 
 
 // Setup the device into the right mode and open the file device and return it if it worked.  Needs to be closed later.
 int SComm::portSetup(struct port_arguments_t *args) 
 {
-  if(xCommFd != -1) {
-    close(xCommFd);
-    xCommFd = -1;
-  }
+	OrganSupport::logMsg(OrganSupport::Info, "SComm::portSetup device:%s baud:%d bits:%d parity:0x%02X stops:%d\n", 
+			args->device, 
+			args->baud,
+			args->bits,
+			args->parity,
+			args->stops);
+	
+	if(xCommFd != -1) {
+		close(xCommFd);
+		xCommFd = -1;
+	}
 
-  xCommFd = open(args->device,O_RDWR | O_NOCTTY | O_NDELAY);
+	xCommFd = open(args->device,O_RDWR | O_NOCTTY | O_NDELAY);
 
-  if(xCommFd != -1) {
-    fcntl(xCommFd, F_SETFL, FNDELAY);
+	if(xCommFd != -1) {
+		fcntl(xCommFd, F_SETFL, FNDELAY);
 
-    struct termios options;
-    tcgetattr(xCommFd, &options);
+		struct termios options;
+		tcgetattr(xCommFd, &options);
 
-    switch(args->baud) {
-    case 38400:
-      cfsetispeed(&options, B38400);
-      cfsetospeed(&options, B38400);
-      break;
-    case 19200:
-      cfsetispeed(&options, B19200);
-      cfsetospeed(&options, B19200);
-      break;
-    case 9600:
-      cfsetispeed(&options, B9600);
-      cfsetospeed(&options, B9600);
-      break;
-    case 4800:
-      cfsetispeed(&options, B4800);
-      cfsetospeed(&options, B4800);
-      break;
-    case 2400:
-      cfsetispeed(&options, B2400);
-      cfsetospeed(&options, B2400);
-      break;
-    default:
-      fprintf(stderr, "ERROR: Unsupported baud rate specified. Sorry.  You can add it if you like.\n");
-      close(xCommFd);
-      exit(-1);
-    }
+		switch(args->baud) {
+		case 38400:
+			cfsetispeed(&options, B38400);
+			cfsetospeed(&options, B38400);
+			break;
+		case 19200:
+			cfsetispeed(&options, B19200);
+			cfsetospeed(&options, B19200);
+			break;
+		case 9600:
+			cfsetispeed(&options, B9600);
+			cfsetospeed(&options, B9600);
+			break;
+		case 4800:
+			cfsetispeed(&options, B4800);
+			cfsetospeed(&options, B4800);
+			break;
+		case 2400:
+			cfsetispeed(&options, B2400);
+			cfsetospeed(&options, B2400);
+			break;
+		default:
+			close(xCommFd);
+			OrganSupport::errorMsg("ERROR: Unsupported baud rate specified. Sorry.  You can add it if you like.\n");
+		}
 
-    options.c_cflag |= (CLOCAL | CREAD);
-    options.c_cflag &= ~CSIZE;
+		options.c_cflag |= (CLOCAL | CREAD);
+		options.c_cflag &= ~CSIZE;
 
-    switch(args->bits) {
-    case 8:
-      options.c_cflag |= CS8;
-      break;
-    case 7:
-      options.c_cflag |= CS7;
-      break;
-    case 5:
-      options.c_cflag |= CS5;
-      break;
-    default:
-      fprintf(stderr, "ERROR: Unsupported number of bits specified. Sorry.  You can add it if you like.\n");
-      close(xCommFd);
-      exit(-1);
-    }
+		switch(args->bits) {
+		case 8:
+			options.c_cflag |= CS8;
+			break;
+		case 7:
+			options.c_cflag |= CS7;
+			break;
+		case 5:
+			options.c_cflag |= CS5;
+			break;
+		default:
+			close(xCommFd);
+			OrganSupport::errorMsg("ERROR: Unsupported number of bits specified. Sorry.  You can add it if you like.\n");
+ 		}
 
-    switch(args->parity) {
-    case 'N':
-      options.c_cflag &= ~PARENB;
-      options.c_iflag &= ~(INPCK | ISTRIP);
-      break;
-    case 'E':
-      options.c_cflag |= PARENB;
-      options.c_cflag &= ~PARODD;
-      options.c_iflag |= (INPCK | ISTRIP);
-      break;
-    case 'O':
-      options.c_cflag |= PARENB;
-      options.c_cflag |= PARODD;
-      options.c_iflag |= (INPCK | ISTRIP);
-      break;
-    default:
-      fprintf(stderr, "ERROR: Unsupported parity specified. Sorry.  You can add it if you like.\n");
-      close(xCommFd);
-      exit(-1);
-    }
+		switch(args->parity) {
+		case 'N':
+			options.c_cflag &= ~PARENB;
+			options.c_iflag &= ~(INPCK | ISTRIP);
+			break;
+		case 'E':
+			options.c_cflag |= PARENB;
+			options.c_cflag &= ~PARODD;
+			options.c_iflag |= (INPCK | ISTRIP);
+			break;
+		case 'O':
+			options.c_cflag |= PARENB;
+			options.c_cflag |= PARODD;
+			options.c_iflag |= (INPCK | ISTRIP);
+			break;
+		default:
+			close(xCommFd);
+			OrganSupport::errorMsg("ERROR: Unsupported parity specified. Sorry.  You can add it if you like.\n");
+		}
 
-    switch(args->stops) {
-    case 1:
-      options.c_cflag &= ~CSTOPB;
-      break;
-    case 2:
-      options.c_cflag |= CSTOPB;
-      break;
-    default:
-      fprintf(stderr, "ERROR: Unsupported stops specified. Sorry.  You can add it if you like.\n");
-      close(xCommFd);
-      exit(-1);
-    }
+		switch(args->stops) {
+		case 1:
+			options.c_cflag &= ~CSTOPB;
+			break;
+		case 2:
+			options.c_cflag |= CSTOPB;
+			break;
+		default:
+			close(xCommFd);
+			OrganSupport::errorMsg("ERROR: Unsupported stops specified. Sorry.  You can add it if you like.\n");
+		}
 
-    options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
-    options.c_iflag &= ~(IXON | IXOFF | IXANY);
-    options.c_oflag &= ~OPOST;
+		options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
+		options.c_iflag &= ~(IXON | IXOFF | IXANY);
+		options.c_oflag &= ~OPOST;
 
-    tcsetattr(xCommFd, TCSANOW, &options);
-  }
+		tcsetattr(xCommFd, TCSANOW, &options);
+	}
 
-  return xCommFd;
+	return xCommFd;
 }
 
 int main(int argc, char* argv[]) {
 
+	printf("!!!%d!!!\n", OrganSupport::create(OrganSupport::Info));
   SComm test_comm(NULL);
 
   test_comm.startEvents();

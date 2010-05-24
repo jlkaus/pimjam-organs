@@ -42,21 +42,29 @@ private:
 		uint8_t arg2;
 	};
 
-	typedef void (CommandResponseHandler)(SComm*, void*, size_t);
+	struct sub_msg_header_t {
+		uint8_t msg_number;
+		uint8_t msg_size;
+	};
+
+	typedef void (MsgResponseHandler)(SComm*, void*, size_t);
 
 	void syncStream();
 	void processEvent();
 	int portSetup(struct port_arguments_t* args);
-        void sendAndProcessCommandModeCommand(const cmd_mode_command_t& cmd, CommandResponseHandler* response_handler = NULL);
+        void sendAndProcessCommandModeCommand(const cmd_mode_command_t& cmd, MsgResponseHandler* response_handler = NULL);
+	void receiveMessage(uint8_t msg_type, MsgResponseHandler* response_handler = NULL);
 
 	void softReset();
+        static void handleBootMsg(SComm* this_scom, void* reponse_data, size_t reponse_data_size);
+
 	inline void initPort() { struct port_arguments_t port_args = {"/dev/ttyUSB0", 38400, 8, 'N', 1}; portSetup(&port_args); }
 	
 	void streamWaitForBytes(size_t count);
 	void streamRead(void* buffer, size_t read_size);
 	void streamWrite(const void* buffer, size_t write_size);
 	void streamReadExpectedByte(unsigned char expected_byte);
-	void streamWaitForByteSequence(const char* byte_sequence, size_t byte_sequence_size);
+	void streamWaitForByteSequence(const uint8_t* byte_sequence, size_t byte_sequence_size);
 
 	static void* eventLoop(void *arg);
 
