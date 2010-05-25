@@ -25,21 +25,35 @@ void OrganSupport::logMsg(LogVerbosity msg_verbosity, const char* fmt, ...)
 		
 		time(&rawtime);
 		timeinfo = localtime(&rawtime);
-		//printf("[ %s ] ", asctime(timeinfo));
+		char timebuffer[30];
+		strftime(timebuffer, sizeof(timebuffer), "%c", timeinfo);
+		printf("[ %s ] ", timebuffer);
 
 		va_list argList;
 		va_start(argList, fmt);
 		vprintf(fmt, argList);
+		printf("\n");
 		va_end(argList);
 	}
 }
 
 void OrganSupport::errorMsg(const char* fmt, ...)
 {
+	time_t rawtime;
+	struct tm* timeinfo;
+		
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+	char timebuffer[30];
+	strftime(timebuffer, sizeof(timebuffer), "%c", timeinfo);
+	
+	fprintf(stderr, "[ %s ] ", timebuffer);
+	
 	va_list argList;
 	
 	va_start(argList, fmt);
 	vfprintf(stderr, fmt, argList);
+	fprintf(stderr, "\n");
 	va_end(argList);
 	
 	exit(1);

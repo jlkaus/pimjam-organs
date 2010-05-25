@@ -26,14 +26,9 @@ private:
 	};
 
 	struct midi_event_t {
-		unsigned char message_header;
-		unsigned char message_type;
-		unsigned char message_size;
 		unsigned char op_channel;
 		unsigned char arg1;
 		unsigned char arg2;
-		unsigned char footer1;
-		unsigned char footer2;
 	};
 
 	struct cmd_mode_command_t {
@@ -49,14 +44,15 @@ private:
 
 	typedef void (MsgResponseHandler)(SComm*, void*, size_t);
 
-	void syncStream();
+	inline void syncStream() { softReset(); xProcessEvents = true;}
 	void processEvent();
 	int portSetup(struct port_arguments_t* args);
         void sendAndProcessCommandModeCommand(const cmd_mode_command_t& cmd, MsgResponseHandler* response_handler = NULL);
 	void receiveMessage(uint8_t msg_type, MsgResponseHandler* response_handler = NULL);
 
 	void softReset();
-        static void handleBootMsg(SComm* this_scom, void* reponse_data, size_t reponse_data_size);
+        static void handleBootMsg(SComm* this_scom, void* response_data, size_t response_data_size);
+	static void handleMidiEventMsg(SComm* this_scom, void* response_data, size_t response_data_size);
 
 	inline void initPort() { struct port_arguments_t port_args = {"/dev/ttyUSB0", 38400, 8, 'N', 1}; portSetup(&port_args); }
 	
