@@ -8,7 +8,7 @@
 class Event {
 public:
   Event(const Input& input, int newValue): mInput(input), mNewValue(newValue) { 
-    Env::msg(Env::CreationMsg,11,4) << "Creating Event at Input " << mInput.getType() << "("<<mInput.getChannel() << ":"<<mInput.getLine() << ") with value " << mNewValue << std::endl; 
+    Env::msg(Env::CreationMsg,Env::Debug,Env::EventIndent) << "Creating Event at Input " << mInput.getType() << "("<<mInput.getChannel() << ":"<<mInput.getLine() << ") with value " << mNewValue << std::endl; 
   }
   ~Event() {}
 

@@ -3,12 +3,34 @@
 
 #include <iostream>
 #include <string>
+#include <execinfo.h>
 
 class Env {
 	public:
 	enum MsgClass {
 		CreationMsg,
 		OperationMsg
+	};
+
+	enum EnvLoudness {
+		Debug = 30,
+		Info = 20,
+		Error = 10,
+		None = 0
+	};
+
+	enum EnvIndentValue {
+		OrganIndent = 0,
+		DivisionIndent = 2,
+		CouplerIndent = 4,
+		EventIndent = 4,
+		InputIndent = 4,
+		KeyboardIndent = 4,
+		EffectIndent = 4,
+		StopIndent = 4,
+		EventGeneratorIndent = 4,
+		RankIndent = 6,
+		PipeIndent = 10
 	};
 
 	Env(int cl, int ol): mDisplayCurrently(true),mCreationLoudness(cl), mOperationLoudness(ol) {}
@@ -18,6 +40,9 @@ class Env {
 	       gEnv.mCreationLoudness = cl;
 	       gEnv.mOperationLoudness = ol;
 	}
+
+	static int getCreationLoudness() { return gEnv.mCreationLoudness; }
+	static int getOperationLoudness() { return gEnv.mOperationLoudness; }
 	
   static Env& msg(MsgClass mc, int ml = 0, int indent=0) {
 		if((mc == CreationMsg && ml <= gEnv.mCreationLoudness) ||
@@ -55,7 +80,7 @@ class Env {
 		std::cout << "***: ";
 		return gEnv;
 	}
-	
+
 	template<class T> Env& operator<<(T msg) {
 		if(mDisplayCurrently) {
 			std::cout << msg;

@@ -6,14 +6,14 @@
 #include "rankfile.H"
 
 Pipe::Pipe(FILE* file, long int offset) {
-  Env::msg(Env::CreationMsg,10,10)<<"Creating pipe from already open file" << std::endl;
+  Env::msg(Env::CreationMsg,Env::Debug,Env::PipeIndent)<<"Creating pipe from already open file" << std::endl;
 
-  Env::msg(Env::OperationMsg,1,10)<<"Loading pipe:"<<std::endl;
+  Env::msg(Env::OperationMsg,Env::Info,Env::PipeIndent)<<"Loading pipe:"<<std::endl;
   readPipeData(file,offset);
 }
 
 Pipe::Pipe(std::string pipeFile) {
-  Env::msg(Env::CreationMsg,10,10)<<"Creating pipe from a file " <<pipeFile<< std::endl;
+  Env::msg(Env::CreationMsg,Env::Debug,Env::PipeIndent)<<"Creating pipe from a file " <<pipeFile<< std::endl;
 
   FILE* fh = fopen(pipeFile.c_str(), "r");
   if(!fh) {
@@ -75,5 +75,5 @@ void Pipe::readPipeData(FILE* fh, long int offs) {
   
 Pipe::~Pipe() {
   delete [] mSustainData;
-  Env::msg(Env::CreationMsg,10,10)<<"Destroying pipe"<<std::endl;
+  Env::msg(Env::CreationMsg,Env::Debug,Env::PipeIndent)<<"Destroying pipe"<<std::endl;
 }

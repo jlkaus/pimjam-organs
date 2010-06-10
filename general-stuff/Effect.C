@@ -2,7 +2,7 @@
 #include "Env.H"
 
 Effect::Effect(std::string name, std::string type, float arg): mName(name), mType(NoEffect), mArg(arg) {
-  Env::msg(Env::CreationMsg,11,4) << "Creating an Effect of name "<<mName<< ", with type "<<type<<" and an argument of " << mArg << std::endl;
+  Env::msg(Env::CreationMsg,Env::Debug,Env::EffectIndent) << "Creating an Effect of name "<<mName<< ", with type "<<type<<" and an argument of " << mArg << std::endl;
   if(type == "sustain") { 
     mType = SustainEffect; 
   } else if(type == "vibrato") {
@@ -15,7 +15,7 @@ Effect::Effect(std::string name, std::string type, float arg): mName(name), mTyp
 }
 
 Effect::Effect(std::string name, EffectType type, float arg): mName(name), mType(type), mArg(arg) {
-  Env::msg(Env::CreationMsg,11,4) << "Creating an Effect of name "<<mName<< ", with type "<<(int)mType<<" and an argument of " << mArg << std::endl;
+  Env::msg(Env::CreationMsg,Env::Debug,Env::EffectIndent) << "Creating an Effect of name "<<mName<< ", with type "<<(int)mType<<" and an argument of " << mArg << std::endl;
 }
 
 

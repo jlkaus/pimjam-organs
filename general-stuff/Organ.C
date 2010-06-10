@@ -17,9 +17,9 @@ Organ::Organ(std::string organFile) {
 
     mName = organElement->GetAttribute("name");
 
-    Env::msg(Env::CreationMsg,11,0) << "Creating organ named " << mName << std::endl;
+    Env::msg(Env::CreationMsg,Env::Debug,Env::OrganIndent) << "Creating organ named " << mName << std::endl;
 
-    Env::msg(Env::OperationMsg,1,0) << "Loading organ: " <<mName<<std::endl;
+    Env::msg(Env::OperationMsg,Env::Info,Env::OrganIndent) << "Loading organ: " <<mName<<std::endl;
 
     ticpp::Iterator<ticpp::Element> child("division");
     for(child = child.begin(organElement); child!=child.end(); ++child) {
@@ -38,7 +38,7 @@ Organ::~Organ() {
     delete (*curDiv).second;
     mDivisions.erase(curDiv++);
   }
-  Env::msg(Env::CreationMsg,11,0) << "Destroying organ "<<mName<<std::endl;
+  Env::msg(Env::CreationMsg,Env::Debug,Env::OrganIndent) << "Destroying organ "<<mName<<std::endl;
 }
 
 int Organ::sendInput(const Input& in, PlayControlBlock& pcb, int newValue) {

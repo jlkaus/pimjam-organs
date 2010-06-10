@@ -13,9 +13,9 @@ Division::Division(ticpp::Element* divisionDescription) {
   try {
     mName = divisionDescription->GetAttribute("name");
 
-    Env::msg(Env::CreationMsg,11,2) << "Creating division named " << mName << std::endl;
+    Env::msg(Env::CreationMsg,Env::Debug,Env::DivisionIndent) << "Creating division named " << mName << std::endl;
 
-    Env::msg(Env::OperationMsg,1,2) << "Loading division: " << mName <<std::endl;
+    Env::msg(Env::OperationMsg,Env::Info,Env::DivisionIndent) << "Loading division: " << mName <<std::endl;
 
     ticpp::Iterator<ticpp::Element> childK("keyboard");
     for(childK = childK.begin(divisionDescription); childK!= childK.end(); ++childK) {
@@ -86,7 +86,7 @@ Division::~Division() {
     delete (*curRank).second;
     mRanks.erase(curRank++);
   }
-  Env::msg(Env::CreationMsg, 11,2) << "Destroying Division named " << mName <<std::endl;
+  Env::msg(Env::CreationMsg,Env::Debug,Env::DivisionIndent) << "Destroying Division named " << mName <<std::endl;
 }
 
 

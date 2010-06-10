@@ -259,7 +259,7 @@ void send_submsg(uint8_t num, uint8_t length, void* data)
     if(data) {
       putch(((char*)data)[i]);
     } else {
-      putch(((char*)0));  // Not good, but trying to maintain protocol sanity.  We have to make the submsg the length that the caller thought it would be.  Better to have bad data than throw off the stream.
+      putch(0);  // Not good, but trying to maintain protocol sanity.  We have to make the submsg the length that the caller thought it would be.  Better to have bad data than throw off the stream.
     }
   }
 

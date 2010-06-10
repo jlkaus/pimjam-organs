@@ -4,14 +4,14 @@
 
 ACT_TARGETS = midi-test
 LIB_SRC = SComm Midi
-LIBS = -lorgan -lxml -lmidi
+LIBS = -lorgan -lxml -lmidi -lpthread
 
 VPATH = ../lib
 CC = gcc
 CXX = g++
 CXXFLAGS = -D__STDC_LIMIT_MACROS -I../organ-stuff -I../general-stuff -I../midi-stuff
 CFLAGS = 
-LDFLAGS = -L../lib
+LDFLAGS = -L../lib 
 
 all: libmidi $(ACT_TARGETS) scom
 

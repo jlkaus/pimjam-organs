@@ -19,7 +19,7 @@ public:
   Effect(): mName(), mType(NoEffect), mArg(0.0) {}
   Effect(std::string name, std::string type, float arg);
   Effect(std::string name, EffectType type, float arg);
-  ~Effect() {if(mName.length()) {Env::msg(Env::CreationMsg,11,4) << "Destroying effect named "<<mName<<std::endl;}}
+  ~Effect() {if(mName.length()) {Env::msg(Env::CreationMsg,Env::Debug,Env::EffectIndent) << "Destroying effect named "<<mName<<std::endl;}}
 
   inline const Effect& operator=(const Effect& rhs) { mName = rhs.mName; mType = rhs.mType; mArg = rhs.mArg; }
   bool matches(const Effect& rhs) const;

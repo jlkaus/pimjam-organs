@@ -1,6 +1,7 @@
 #ifndef _SCOMM_H
 #define _SCOMM_H
 
+#include "Env.H"
 #include "EventGenerator.H"
 
 #include <unistd.h>
@@ -12,7 +13,9 @@ class SComm;
 class SComm : public EventGenerator {
 
 public:
-	SComm(EventHandler* event_handler) : EventGenerator(event_handler, &eventLoop),  xCommFd(-1) { }
+	SComm(EventHandler* event_handler) : EventGenerator(event_handler, &eventLoop),  xCommFd(-1) { 
+		Env::msg(Env::CreationMsg,Env::Debug,Env::EventGeneratorIndent) << "Creating SComm event generator" << std::endl;
+	}
 	~SComm();
 
 private:
@@ -44,8 +47,6 @@ private:
 
 	typedef void (MsgResponseHandler)(SComm*, void*, size_t);
 
-	inline void syncStream() { softReset(); xProcessEvents = true;}
-	void processEvent();
 	int portSetup(struct port_arguments_t* args);
         void sendAndProcessCommandModeCommand(const cmd_mode_command_t& cmd, MsgResponseHandler* response_handler = NULL);
 	void receiveMessage(uint8_t msg_type, MsgResponseHandler* response_handler = NULL);
