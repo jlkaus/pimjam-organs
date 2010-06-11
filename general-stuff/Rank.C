@@ -5,9 +5,9 @@
 #include "Env.H"
 
 Rank::Rank(std::string rankFile) {
-  Env::msg(Env::CreationMsg,Env::Debug,Env::RankIndent)<<"Creating rank from file "<<rankFile<<std::endl;
+  Env::logMsg(Env::CreationMsg, Env::Debug, "Creating rank from file %s", rankFile.c_str());
 
-  Env::msg(Env::OperationMsg,Env::Info,Env::RankIndent) << "Loading rank: "<<rankFile<<std::endl;
+  Env::logMsg(Env::OperationMsg, Env::Info, "Loading rank: %s", rankFile.c_str());
 }
 
 Rank::~Rank() {
@@ -16,5 +16,5 @@ Rank::~Rank() {
     delete (*curPipe).second;
     mPipes.erase(curPipe++);
   }
-  Env::msg(Env::CreationMsg,Env::Debug,Env::RankIndent)<<"Destroying rank from file "<<std::endl;
+  Env::logMsg(Env::CreationMsg, Env::Debug, "Destroying rank");
 }

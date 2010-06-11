@@ -7,8 +7,8 @@
 class Keyboard {
 public:
   Keyboard():mName(),mOffsetLength(0) {}
-  Keyboard(std::string name, int offset): mName(name), mOffsetLength(offset) {Env::msg(Env::CreationMsg,Env::Debug,Env::KeyboardIndent) << "Creating a Keyboard of name " << mName << " with offset "<<mOffsetLength << std::endl;}
-  ~Keyboard() {if(mName.length()) {Env::msg(Env::CreationMsg,Env::Debug,Env::KeyboardIndent)<<"Destroying keyboard named "<<mName<<std::endl;}}
+  Keyboard(std::string name, int offset): mName(name), mOffsetLength(offset) {Env::logMsg(Env::CreationMsg, Env::Debug, "Creating a Keyboard of name %s with offset %d", mName.c_str(), mOffsetLength);}
+  ~Keyboard() {if(mName.length()) {Env::logMsg(Env::CreationMsg, Env::Debug, "Destroying keyboard named %s", mName.c_str());}}
 
 protected:
   std::string mName;

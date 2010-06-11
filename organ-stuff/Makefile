@@ -2,7 +2,7 @@
 
 ACT_TARGETS = organ-emu organ-midi organ-create
 LIB_SRC =
-LIBS = -lmidi -lorgan -lxml
+LIBS = -lmidi -lorgan -lxml -lpthread
 
 VPATH = ../lib
 CC = gcc

@@ -7,8 +7,8 @@
 class Coupler {
 public:
   Coupler():mName(),mTarget(), mOffsetLength(0) {}
-  Coupler(std::string name, std::string target, int offset):mName(name), mTarget(target), mOffsetLength(offset) {Env::msg(Env::CreationMsg,Env::Debug,Env::CouplerIndent) << "Creating a Coupler of name " << mName << " targeting " << mTarget << " with offset "<<mOffsetLength << std::endl;}
-  ~Coupler() {Env::msg(Env::CreationMsg,Env::Debug,Env::CouplerIndent)<<"Destroying coupler named "<<mName<<std::endl;}
+  Coupler(std::string name, std::string target, int offset):mName(name), mTarget(target), mOffsetLength(offset) {Env::logMsg(Env::CreationMsg, Env::Debug, "Creating a Coupler of name %s targeting %s with offset %d", mName.c_str(), mTarget.c_str(), mOffsetLength);}
+  ~Coupler() {Env::logMsg(Env::CreationMsg, Env::Debug, "Destroying coupler named %s", mName.c_str());}
 
   inline std::string getTarget() const {return mTarget;}
   inline int getOffset() const {return mOffsetLength;}

@@ -1,7 +1,7 @@
 #include "Env.H"
 #include "SComm.H"
-#include "EventHandler.H"
-#include "Event.H"
+//#include "EventHandler.H"
+//#include "Event.H"
 
 #include <stdio.h>   /* Standard input/output definitions */
 #include <sys/types.h> /* system types */
@@ -46,7 +46,7 @@ void* SComm::eventLoop(void* args)
 
 void SComm::softReset()
 {
-	Env::msg(Env::OperationMsg,Env::Info,Env::EventGeneratorIndent) << "SComm - Initiating soft reset" << std::endl;
+	Env::logMsg(Env::OperationMsg, Env::Info, "SComm - Initiating soft reset");
 
 	// Issue the commands to the organ firmware to soft reset
 	//   this is done by entering "Command mode" and immediately exiting
@@ -72,7 +72,9 @@ void SComm::handleBootMsg(SComm* this_scom, void* response_data, size_t response
 	//   String Messages: Boot welcome and current date
 	//   Log the boot welcome and current date
 	for(int i = 0; i < 2; ++i) {
-		Env::msg(Env::OperationMsg,Env::Info,Env::EventGeneratorIndent) << "Boot Msg: " << std::setprecision(msg_header->msg_size) << (char*)(msg_header) + sizeof(sub_msg_header_t) << std::endl;
+		char boot_msg_format[20];
+		snprintf(boot_msg_format, sizeof(boot_msg_format), "Boot Msg: %%.%ds", msg_header->msg_size);
+		Env::logMsg(Env::OperationMsg, Env::Info, boot_msg_format, (char*)(msg_header) + sizeof(sub_msg_header_t));
 		msg_header = (sub_msg_header_t*)(((char*)msg_header) + sizeof(sub_msg_header_t) + msg_header->msg_size + 1);
 	}
 
@@ -80,17 +82,17 @@ void SComm::handleBootMsg(SComm* this_scom, void* response_data, size_t response
 	uint8_t firmware_version_size = 1;
 
 	if(msg_header->msg_size != firmware_version_size) {
-		Env::err() << std::setiosflags(std::ios_base::hex | std::ios_base::showbase) << "Boot message format error, firmware version length mismatch.  Expected: " << (int)firmware_version_size << "Recieved: " << (int)msg_header->msg_size << std::endl;
+		Env::errorMsg("Boot message format error, firmware version length mismatch.  Expected: 0x%02X Received: 0x%02X", firmware_version_size, msg_header->msg_size);
 		throw 9;
 	}
 
-	Env::msg(Env::OperationMsg,Env::Info,Env::EventGeneratorIndent) << "Firmware Version: " << std::hex << std::showbase << (int)*((uint8_t*)(msg_header) + sizeof(sub_msg_header_t)) << std::endl;
+	Env::logMsg(Env::OperationMsg, Env::Info, "Firmware Version: 0x%02X", *((uint8_t*)(msg_header) + sizeof(sub_msg_header_t)));
 }
 
 void SComm::handleMidiEventMsg(SComm* this_scom, void* response_data, size_t response_data_size)
 {
 	struct midi_event_t* midi_event = (midi_event_t*)response_data;
-	Env::msg(Env::OperationMsg,Env::Info,Env::EventGeneratorIndent) << std::setiosflags(std::ios_base::hex | std::ios_base::showbase) << "MIDI Event: " <<  (int)midi_event->op_channel << " " << (int)midi_event->arg1 << " " << (int)midi_event->arg2 << std::endl;
+	Env::logMsg(Env::OperationMsg, Env::Info, "MIDI Event: 0x%02X 0x%02X 0x%02X", midi_event->op_channel, midi_event->arg1, midi_event->arg2);
 }
 
 void SComm::sendAndProcessCommandModeCommand(const cmd_mode_command_t& cmd, MsgResponseHandler* response_handler)
@@ -104,7 +106,7 @@ void SComm::sendAndProcessCommandModeCommand(const cmd_mode_command_t& cmd, MsgR
 
 void SComm::receiveMessage(uint8_t msg_type, MsgResponseHandler* response_handler)
 {
-	Env::msg(Env::OperationMsg,Env::Debug,Env::EventGeneratorIndent) << std::setiosflags(std::ios_base::hex | std::ios_base::showbase) << "SComm::receiveMessage - type " << (int)msg_type << std::endl;
+	Env::logMsg(Env::OperationMsg, Env::Debug, "SComm::receiveMessage - type: 0x%02X", msg_type);
 
 	// Wait for the message response
 	// Message response format FFTTSSSSMM...MMFDFC
@@ -127,14 +129,14 @@ void SComm::receiveMessage(uint8_t msg_type, MsgResponseHandler* response_handle
 	/*if(msg_type == 0xF3) {
 		msg_size -= 3; // Subtract off the subtype and message length from the message size
 	}*/
-	Env::msg(Env::OperationMsg,Env::Debug,Env::EventGeneratorIndent) << std::setiosflags(std::ios_base::hex | std::ios_base::showbase) << "SComm::recieveMessage - message size: " << (int)msg_size << std::endl;
+	Env::logMsg(Env::OperationMsg, Env::Debug, "SComm::recieveMessage - message size: 0x%02X", msg_size);
   
 	uint8_t* response_buffer = new uint8_t[msg_size];
 	streamRead(response_buffer, msg_size);
 
 	if(Env::getOperationLoudness() >= Env::Debug) {
 		for(int i = 0; i < msg_size; ++i) {
-			Env::msg(Env::OperationMsg,Env::Debug,Env::EventGeneratorIndent) << std::setiosflags(std::ios_base::dec | std::ios_base::showbase) << "SComm::receiveMessage - response_buffer[" << i << "] = " << std::hex << (int)response_buffer[i] << std::endl;
+			Env::logMsg(Env::OperationMsg, Env::Debug, "SComm::receiveMessage - response_buffer[%d] = 0x%02X", i, response_buffer[i]);
 		}
 	}
 
@@ -153,29 +155,29 @@ void SComm::receiveMessage(uint8_t msg_type, MsgResponseHandler* response_handle
 
 void SComm::streamRead(void* buffer, size_t read_size)
 {
-	Env::msg(Env::OperationMsg,Env::Debug,Env::EventGeneratorIndent) << std::setiosflags(std::ios_base::hex | std::ios_base::showbase) << "SComm::streamRead: " << (int)read_size << " bytes" << std::endl;
+	Env::logMsg(Env::OperationMsg, Env::Debug, "SComm::streamRead: 0x%02X bytes", read_size);
 	streamWaitForBytes(read_size);
 
 	ssize_t size_read = read(xCommFd, buffer, read_size);
 
 	if(size_read == -1) {
-		Env::err() << "Unable to read from stream: " << strerror(errno) << std::endl;
+		Env::errorMsg("Unable to read from stream: %s", strerror(errno));
 		throw 9;
 	} else  if(read_size != size_read) {
-		Env::err() << std::setiosflags(std::ios_base::hex | std::ios_base::showbase) << "Bytes read from stream: " << (int)size_read << " do not match what was requested: " << (int)read_size << std::endl;
+		Env::errorMsg("Bytes read from stream: 0x%02X do not match what was requested: 0x%02X", size_read, read_size);
 		throw 9;
 	}
 }
 
 void SComm::streamReadExpectedByte(unsigned char expected_byte)
 {
-	Env::msg(Env::OperationMsg,Env::Debug,Env::EventGeneratorIndent) << std::setiosflags(std::ios_base::hex | std::ios_base::showbase) << "SComm::streamReadExpectedByte: " << (int)expected_byte << std::endl;
+	Env::logMsg(Env::OperationMsg, Env::Debug, "SComm::streamReadExpectedByte: 0x%02X", expected_byte);
 	
 	unsigned char byte_read = 0;
 	streamRead(&byte_read, 1);
 
 	if(byte_read != expected_byte) {
-		Env::err() << std::setiosflags(std::ios_base::hex | std::ios_base::showbase) << "Fatal error receiving data from stream.  Expected byte: " << (int)expected_byte << " - Recieved byte: " << (int)byte_read << std::endl;
+		Env::errorMsg("Fatal error receiving data from stream.  Expected byte: 0x%02X - Received byte: 0x%02X",expected_byte, byte_read);
 		throw 9;
 	}
 }
@@ -183,9 +185,9 @@ void SComm::streamReadExpectedByte(unsigned char expected_byte)
 void SComm::streamWaitForByteSequence(const uint8_t* byte_sequence, size_t byte_sequence_count)
 {
 	if(Env::getOperationLoudness() >= Env::Debug) {
-		Env::msg(Env::OperationMsg,Env::Debug,Env::EventGeneratorIndent) << std::setiosflags(std::ios_base::hex | std::ios_base::showbase) << "SComm::streamWaitForByteSequence " << (int)byte_sequence_count << " bytes - " << std::endl;
+		Env::logMsg(Env::OperationMsg, Env::Debug, "SComm::streamWaitForByteSequence 0x%02X bytes -", byte_sequence_count);
 		for(int i = 0; i < byte_sequence_count; i++) {
-			Env::msg(Env::OperationMsg,Env::Debug,Env::EventGeneratorIndent) << std::setiosflags(std::ios_base::dec | std::ios_base::showbase) << "SComm::streamWaitForByteSquence - byte_sequence[" << i << "] = " << std::hex << (int)byte_sequence[i] << std::endl;
+			Env::logMsg(Env::OperationMsg, Env::Debug, "SComm::streamWaitForByteSquence - byte_sequence[%d] = 0x%02X", i, byte_sequence[i]);
 		}
 	}
 
@@ -197,7 +199,7 @@ void SComm::streamWaitForByteSequence(const uint8_t* byte_sequence, size_t byte_
 
 		sequence_found = true;
 		for(int i = 0; i < byte_sequence_count; ++i) {
-			Env::msg(Env::OperationMsg,Env::Debug,Env::EventGeneratorIndent) << std::setiosflags(std::ios_base::hex | std::ios_base::showbase) << "SComm::streamWaitForByteSequence - Read Byte: " << (int)bytes_read[i] << std::endl;
+			Env::logMsg(Env::OperationMsg, Env::Debug, "SComm::streamWaitForByteSequence - Read Byte: 0x%02X", bytes_read[i]);
 			if(byte_sequence[i] != bytes_read[i]) {
 				sequence_found = false;
 				break;
@@ -211,9 +213,9 @@ void SComm::streamWaitForByteSequence(const uint8_t* byte_sequence, size_t byte_
 void SComm::streamWrite(const void* buffer, size_t write_size)
 {
 	if(Env::getOperationLoudness() >= Env::Debug) {
-		Env::msg(Env::OperationMsg,Env::Debug,Env::EventGeneratorIndent) << std::setiosflags(std::ios_base::hex | std::ios_base::showbase) << "SComm::streamWrite " << (int)write_size << " bytes - " << std::endl;
+		Env::logMsg(Env::OperationMsg, Env::Debug, "SComm::streamWrite 0x%02X bytes -", write_size);
 		for(int i = 0; i < write_size; i++) {	
-			Env::msg(Env::OperationMsg,Env::Debug,Env::EventGeneratorIndent) << std::setiosflags(std::ios_base::hex | std::ios_base::showbase) << "SComm::streamWrite - buffer[" << i << "] = " << (int)((uint8_t*)buffer)[i] << std::endl;
+			Env::logMsg(Env::OperationMsg, Env::Debug, "SComm::streamWrite - buffer[%d] = 0x%02X", i, ((uint8_t*)buffer)[i]);
 		}
 	}
 
@@ -223,17 +225,17 @@ void SComm::streamWrite(const void* buffer, size_t write_size)
 
 	size_t bytes_written = write(xCommFd, buffer, write_size);
 	if(bytes_written == -1) {
-		Env::err() << "Unable to write to stream: " << strerror(errno) << std::endl;
+		Env::errorMsg("Unable to write to stream: %s", strerror(errno));
 		throw 9;
 	} else if(write_size != bytes_written) {
-		Env::err() << std::setiosflags(std::ios_base::hex | std::ios_base::showbase) << "Bytes written to stream: " << (int)bytes_written << " do not match what was requested: " << (int)write_size << std::endl;
+		Env::errorMsg("Bytes written to stream: 0x%02X do not match what was requested: 0x%02X", bytes_written, write_size);
 		throw 9;
 	}
 }
 
 void SComm::streamWaitForBytes(size_t count)
 {
-	Env::msg(Env::OperationMsg,Env::Debug,Env::EventGeneratorIndent) << std::setiosflags(std::ios_base::hex | std::ios_base::showbase) << "SComm::streamWaitForBytes: " << (int)count << std::endl;
+	Env::logMsg(Env::OperationMsg, Env::Debug, "SComm::streamWaitForBytes: 0x%02X", count);
 
 	if(xCommFd == -1) {
 		initPort();
@@ -245,7 +247,7 @@ void SComm::streamWaitForBytes(size_t count)
 		FD_ZERO(&rfds);
 		FD_SET(xCommFd, &rfds);
 		if(-1 == select(xCommFd + 1, &rfds, NULL, NULL, NULL)) {
-			Env::err() << "Error waiting for stream input: " << strerror(errno) << std::endl;
+			Env::errorMsg("Error waiting for stream input: %s", strerror(errno));
 		}
 		ioctl(xCommFd, FIONREAD, &size_available); 
 	} while(size_available < count);
@@ -255,13 +257,12 @@ void SComm::streamWaitForBytes(size_t count)
 // Setup the device into the right mode and open the file device and return it if it worked.  Needs to be closed later.
 int SComm::portSetup(struct port_arguments_t *args) 
 {
-	Env::msg(Env::OperationMsg,Env::Debug,Env::EventGeneratorIndent) 
-		<< "SComm::portSetup device:" << args->device
-		<< " baud:" << args->baud
-	      	<< " bits:" << args->bits
-	       	<< " parity:" << std::hex << std::showbase << args->parity
-	       	<< " stops:" << std::dec << args->stops
-	       	<< std::endl;	
+	Env::logMsg(Env::OperationMsg, Env::Debug, "SComm::portSetup device:%s baud:%d bits:%d parity:0x%02X stops:%d",
+		args->device,
+		args->baud,
+	      	args->bits,
+	       	args->parity,
+	       	args->stops);	
 	
 	if(xCommFd != -1) {
 		close(xCommFd);
@@ -299,7 +300,7 @@ int SComm::portSetup(struct port_arguments_t *args)
 			break;
 		default:
 			close(xCommFd);
-			Env::err() << "ERROR: Unsupported baud rate specified. Sorry.  You can add it if you like." << std::endl;
+			Env::errorMsg("Unsupported baud rate specified. Sorry.  You can add it if you like.");
 			throw 9;
 		}
 
@@ -318,7 +319,7 @@ int SComm::portSetup(struct port_arguments_t *args)
 			break;
 		default:
 			close(xCommFd);
-			Env::err() << "ERROR: Unsupported number of bits specified. Sorry.  You can add it if you like." << std::endl;
+			Env::errorMsg("Unsupported number of bits specified. Sorry.  You can add it if you like.");
 			throw 9;
  		}
 
@@ -339,7 +340,7 @@ int SComm::portSetup(struct port_arguments_t *args)
 			break;
 		default:
 			close(xCommFd);
-			Env::err() << "ERROR: Unsupported parity specified. Sorry.  You can add it if you like." << std::endl;
+			Env::errorMsg("Unsupported parity specified. Sorry.  You can add it if you like.");
 			throw 9;
 		}
 
@@ -352,7 +353,7 @@ int SComm::portSetup(struct port_arguments_t *args)
 			break;
 		default:
 			close(xCommFd);
-			Env::err() << "ERROR: Unsupported stops specified. Sorry.  You can add it if you like." << std::endl;
+			Env::errorMsg("Unsupported stops specified. Sorry.  You can add it if you like.");
 			throw 9;
 		}
 

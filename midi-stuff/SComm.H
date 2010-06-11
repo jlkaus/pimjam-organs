@@ -14,7 +14,7 @@ class SComm : public EventGenerator {
 
 public:
 	SComm(EventHandler* event_handler) : EventGenerator(event_handler, &eventLoop),  xCommFd(-1) { 
-		Env::msg(Env::CreationMsg,Env::Debug,Env::EventGeneratorIndent) << "Creating SComm event generator" << std::endl;
+		Env::logMsg(Env::CreationMsg, Env::Debug, "Creating SComm event generator");
 	}
 	~SComm();
 

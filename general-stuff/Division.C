@@ -13,9 +13,9 @@ Division::Division(ticpp::Element* divisionDescription) {
   try {
     mName = divisionDescription->GetAttribute("name");
 
-    Env::msg(Env::CreationMsg,Env::Debug,Env::DivisionIndent) << "Creating division named " << mName << std::endl;
+    Env::logMsg(Env::CreationMsg, Env::Debug, "Creating division named %s", mName.c_str());
 
-    Env::msg(Env::OperationMsg,Env::Info,Env::DivisionIndent) << "Loading division: " << mName <<std::endl;
+    Env::logMsg(Env::OperationMsg, Env::Info, "Loading division: %s", mName.c_str());
 
     ticpp::Iterator<ticpp::Element> childK("keyboard");
     for(childK = childK.begin(divisionDescription); childK!= childK.end(); ++childK) {
@@ -74,9 +74,9 @@ Division::Division(ticpp::Element* divisionDescription) {
 
 
   } catch(ticpp::Exception & ex) {
-    Env::err() << "Caught a ticpp exception in Division ctor " << ex.what() << std::endl;
+    Env::errorMsg("Caught a ticpp exception in Division ctor %d", ex.what());
   } catch(...) {
-    Env::err() << "Caught some other exception in Division ctor" <<std::endl;
+    Env::errorMsg("Caught some other exception in Division ctor");
   }
 }
 
@@ -86,7 +86,7 @@ Division::~Division() {
     delete (*curRank).second;
     mRanks.erase(curRank++);
   }
-  Env::msg(Env::CreationMsg,Env::Debug,Env::DivisionIndent) << "Destroying Division named " << mName <<std::endl;
+  Env::logMsg(Env::CreationMsg, Env::Debug, "Destroying Division named %s", mName.c_str());
 }
 
 

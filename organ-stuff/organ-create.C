@@ -4,11 +4,11 @@
 
 int main(int argc, char* argv[]) {
 
-  Env::setLoudness(1,1);
-  Env::msg() << "Starting the organ creation." <<std::endl;
+  Env::setLoudness(99,99);
+  Env::msg("Starting the organ creation.");
   
   Organ pimjam("../pimjam.organ");
   
-  Env::msg() << "Exiting main now.  Dtors to follow I suppose." << std::endl;
+  Env::msg("Exiting main now.  Dtors to follow I suppose.");
 
 }

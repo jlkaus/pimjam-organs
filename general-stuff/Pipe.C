@@ -6,14 +6,14 @@
 #include "rankfile.H"
 
 Pipe::Pipe(FILE* file, long int offset) {
-  Env::msg(Env::CreationMsg,Env::Debug,Env::PipeIndent)<<"Creating pipe from already open file" << std::endl;
+  Env::logMsg(Env::CreationMsg, Env::Debug, "Creating pipe from already open file");
 
-  Env::msg(Env::OperationMsg,Env::Info,Env::PipeIndent)<<"Loading pipe:"<<std::endl;
+  Env::logMsg(Env::OperationMsg, Env::Info, "Loading pipe:");
   readPipeData(file,offset);
 }
 
 Pipe::Pipe(std::string pipeFile) {
-  Env::msg(Env::CreationMsg,Env::Debug,Env::PipeIndent)<<"Creating pipe from a file " <<pipeFile<< std::endl;
+  Env::logMsg(Env::CreationMsg, Env::Debug, "Creating pipe from a file %s", pipeFile.c_str());
 
   FILE* fh = fopen(pipeFile.c_str(), "r");
   if(!fh) {
@@ -34,7 +34,7 @@ void Pipe::readPipeData(FILE* fh, long int offs) {
   fseek(fh, offs, SEEK_SET);
 
   if(fread(&pipeHeader, sizeof(pipe_hdr_t),1,fh) != 1) {
-    Env::err() << "Not enough data for pipe header" << std::endl;
+    Env::errorMsg("Not enough data for pipe header");
     throw 7;
   }
 
@@ -55,7 +55,7 @@ void Pipe::readPipeData(FILE* fh, long int offs) {
 
   if(noGood) {
     delete [] mSustainData;
-    Env::err() << "Couldn't get enough memory for all the samples" <<std::endl;
+    Env::errorMsg("Couldn't get enough memory for all the samples");
     throw 8;
   }
 
@@ -67,7 +67,7 @@ void Pipe::readPipeData(FILE* fh, long int offs) {
 
   if(noGood) {
     delete [] mSustainData;
-    Env::err() << "Couldn't read all the samples for the pipe" << std::endl;
+    Env::errorMsg("Couldn't read all the samples for the pipe");
     throw 9;
   }
    
@@ -75,5 +75,5 @@ void Pipe::readPipeData(FILE* fh, long int offs) {
   
 Pipe::~Pipe() {
   delete [] mSustainData;
-  Env::msg(Env::CreationMsg,Env::Debug,Env::PipeIndent)<<"Destroying pipe"<<std::endl;
+  Env::logMsg(Env::CreationMsg, Env::Debug, "Destroying pipe");
 }

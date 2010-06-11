@@ -17,9 +17,9 @@ Organ::Organ(std::string organFile) {
 
     mName = organElement->GetAttribute("name");
 
-    Env::msg(Env::CreationMsg,Env::Debug,Env::OrganIndent) << "Creating organ named " << mName << std::endl;
+    Env::logMsg(Env::CreationMsg, Env::Debug, "Creating organ named %s", mName.c_str());
 
-    Env::msg(Env::OperationMsg,Env::Info,Env::OrganIndent) << "Loading organ: " <<mName<<std::endl;
+    Env::logMsg(Env::OperationMsg,Env::Info, "Loading organ: %s", mName.c_str());
 
     ticpp::Iterator<ticpp::Element> child("division");
     for(child = child.begin(organElement); child!=child.end(); ++child) {
@@ -28,7 +28,7 @@ Organ::Organ(std::string organFile) {
       mDivisions[divName] = new Division(&(*child));
     }
   } catch(ticpp::Exception& ex) {
-    Env::err() << "Got a ticpp exception in Organ ctor " << ex.what() <<std::endl;
+    Env::errorMsg("Got a ticpp exception in Organ ctor %d", ex.what());
   }
 }
 
@@ -38,7 +38,7 @@ Organ::~Organ() {
     delete (*curDiv).second;
     mDivisions.erase(curDiv++);
   }
-  Env::msg(Env::CreationMsg,Env::Debug,Env::OrganIndent) << "Destroying organ "<<mName<<std::endl;
+  Env::logMsg(Env::CreationMsg, Env::Debug, "Destroying organ %s", mName.c_str());
 }
 
 int Organ::sendInput(const Input& in, PlayControlBlock& pcb, int newValue) {

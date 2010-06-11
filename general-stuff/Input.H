@@ -14,12 +14,12 @@ public:
   };
 
 public:
-  Input(int channel, int control_number, bool control): mType(ControlInput), mChannel(channel), mLine(control_number), mRangeLow(-1), mRangeHigh(-1) { Env::msg(Env::CreationMsg,Env::Debug,Env::InputIndent) << "Creating ControlInput on channnel " << channel << std::endl; }
-  Input(int channel): mType(ChannelInput), mChannel(channel), mLine(-1), mRangeLow(-1), mRangeHigh(-1) { Env::msg(Env::CreationMsg,Env::Debug,Env::InputIndent) << "Creating ChannelInput on channel " << channel << std::endl;}
-  Input(int channel, int line): mType(SpecificInput), mChannel(channel), mLine(line), mRangeLow(-1), mRangeHigh(-1) {Env::msg(Env::CreationMsg,Env::Debug,Env::InputIndent) << "Creating SpecificInput on channel " << channel << ", line " << line<<std::endl;}
-  Input(int channel, int rangeLow, int rangeHigh): mType(RangeInput), mChannel(channel), mLine(-1), mRangeLow(rangeLow), mRangeHigh(rangeHigh) {Env::msg(Env::CreationMsg,Env::Debug,Env::InputIndent) << "Creating RangeInput on channel " << channel << ", from "<<rangeHigh<<" to "<<rangeLow<<std::endl;}
+  Input(int channel, int control_number, bool control): mType(ControlInput), mChannel(channel), mLine(control_number), mRangeLow(-1), mRangeHigh(-1) { Env::logMsg(Env::CreationMsg, Env::Debug, "Creating ControlInput on channnel %d", channel); }
+  Input(int channel): mType(ChannelInput), mChannel(channel), mLine(-1), mRangeLow(-1), mRangeHigh(-1) { Env::logMsg(Env::CreationMsg, Env::Debug, "Creating ChannelInput on channel %d", channel);}
+  Input(int channel, int line): mType(SpecificInput), mChannel(channel), mLine(line), mRangeLow(-1), mRangeHigh(-1) {Env::logMsg(Env::CreationMsg, Env::Debug, "Creating Specific Input on channel %d, line %d", channel, line);}
+  Input(int channel, int rangeLow, int rangeHigh): mType(RangeInput), mChannel(channel), mLine(-1), mRangeLow(rangeLow), mRangeHigh(rangeHigh) {Env::logMsg(Env::CreationMsg, Env::Debug, "Creating RangeInput on channel %d, from %d to %d", channel, rangeHigh, rangeLow);}
   Input(const Input& rhs): mType(rhs.mType), mChannel(rhs.mChannel), mLine(rhs.mLine), mRangeLow(rhs.mRangeLow), mRangeHigh(rhs.mRangeHigh) {}
-  ~Input() {Env::msg(Env::CreationMsg,Env::Debug,Env::InputIndent)<<"Destroying Input"<<std::endl;}
+  ~Input() {Env::logMsg(Env::CreationMsg, Env::Debug, "Destroying Input");}
 
   inline const Input& operator=(const Input& rhs) { mType=rhs.mType; mChannel=rhs.mChannel; mLine=rhs.mLine; mRangeLow=rhs.mRangeLow; mRangeHigh=rhs.mRangeHigh; }
   bool matches(const Input& rhs) const;
