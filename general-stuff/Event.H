@@ -4,11 +4,12 @@
 #include "Input.H"
 #include "Env.H"
 
+#include <string>
 
 class Event {
 public:
   Event(const Input& input, int newValue): mInput(input), mNewValue(newValue) { 
-    Env::logMsg(Env::CreationMsg, Env::Debug, "Creating Event at Input %d(%d:%d) with value %d", mInput.getType(), mInput.getChannel(), mInput.getLine(), mNewValue); 
+    Env::logMsg(Env::CreationMsg, Env::Debug, "Creating Event at Input %s with value %d", mInput.toString().c_str(), mNewValue); 
   }
   ~Event() {}
 

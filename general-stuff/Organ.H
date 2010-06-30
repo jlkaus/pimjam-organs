@@ -13,11 +13,12 @@ public:
   Organ(std::string organFile);
   ~Organ();
 
-  int sendInput(const Input& in, PlayControlBlock& pcb, int newValue);
+  int sendEvent(const Input& in, int newValue);
  inline	Division* getDivision(std::string name) { return mDivisions[name]; } 
   
 protected:
   std::string mName;
+  PlayControlBlock mPlayControlBlock;
   std::map<std::string, Division*> mDivisions;
 
 

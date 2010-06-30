@@ -1,4 +1,7 @@
 #include "Input.H"
+#include "Env.H"
+
+#include <string>
 
 bool Input::matches(const Input& rhs) const{
   // channel has to match regardless of what type we are
@@ -69,4 +72,22 @@ bool Input::operator==(const Input& rhs) const{
   return matches(rhs);
 }
 
-
+std::string Input::toString() const 
+{
+	char stringbuffer[100];
+	int string_size = 0;
+	switch(mType) {
+		case ControlInput:
+		case SpecificInput:
+			string_size = snprintf(stringbuffer, sizeof(stringbuffer), "%d(%d:%d)", mType, mChannel, mLine);
+			break;
+		case ChannelInput:
+			string_size = snprintf(stringbuffer, sizeof(stringbuffer), "%d(%d)", mType, mChannel);
+			break;
+		case RangeInput:
+			string_size = snprintf(stringbuffer, sizeof(stringbuffer), "%d(%d:%d-%d)", mType, mChannel, mRangeLow, mRangeHigh);
+			break;
+	}
+	std::string retString(stringbuffer, string_size);
+	return retString;
+}

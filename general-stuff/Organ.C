@@ -41,7 +41,7 @@ Organ::~Organ() {
   Env::logMsg(Env::CreationMsg, Env::Debug, "Destroying organ %s", mName.c_str());
 }
 
-int Organ::sendInput(const Input& in, PlayControlBlock& pcb, int newValue) {
+int Organ::sendEvent(const Input& in, int newValue) {
   // go through all the Divisions until one of them handles the Input
 }
 

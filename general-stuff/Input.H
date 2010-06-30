@@ -2,6 +2,8 @@
 #define _INPUT_H
 
 #include <assert.h>
+#include <string>
+
 #include "Env.H"
 
 class Input {
@@ -26,10 +28,14 @@ public:
   bool operator<(const Input& rhs) const;
   bool operator==(const Input& rhs) const;
 
+  std::string toString() const;
+
   InputType getType() const {return mType;}
   int getChannel() const {return mChannel;}
   int getLine() const {assert(mType==SpecificInput); return mLine;}
   int getControlNumber() const {assert(mType==ControlInput); return mLine;}
+  int getRangeLow() const {assert(mType==RangeInput); return mRangeLow;}
+  int getRangeHigh() const {assert(mType==RangeInput); return mRangeHigh;}
 
 protected:
   InputType mType;
