@@ -1,7 +1,8 @@
 #include "Env.H"
 #include "SComm.H"
-//#include "EventHandler.H"
-//#include "Event.H"
+#include "Event.H"
+#include "EventHandler.H"
+#include "organbop_common.h"
 
 #include <stdio.h>   /* Standard input/output definitions */
 #include <sys/types.h> /* system types */
@@ -15,11 +16,10 @@
 #include <stdint.h>
 #include <errno.h>
 #include <netinet/in.h>
-#include <sys/select.h>
-#include <iomanip>
 
 SComm::~SComm() 
 {
+	Env::logMsg(Env::CreationMsg, Env::Debug, "Destroying SComm event generator");
 	if(xProcessEvents) {
 		stopEvents();
 	}
@@ -37,7 +37,7 @@ void* SComm::eventLoop(void* args)
 	this_scom->softReset();
 
 	while(this_scom->xProcessEvents) {
-		this_scom->receiveMessage(0xFE, &handleMidiEventMsg);
+		this_scom->receiveMessage(MSG_TYPE_MIDI_EVENT, &handleMidiEventMsg);
 	}
 
 	close(this_scom->xCommFd);
@@ -46,22 +46,22 @@ void* SComm::eventLoop(void* args)
 
 void SComm::softReset()
 {
-	Env::logMsg(Env::OperationMsg, Env::Info, "SComm - Initiating soft reset");
+	Env::logMsg(Env::OperationMsg, Env::Debug, "SComm - Initiating soft reset");
 
 	// Issue the commands to the organ firmware to soft reset
 	//   this is done by entering "Command mode" and immediately exiting
 	
 	// Enter command mode command 0xB00000
-	struct cmd_mode_command_t enter_command_mode = { 0xB0, 0x00, 0x00 };
+	struct cmd_mode_command_t enter_command_mode = { CMD_ENTER_COMMAND_MODE, 0x00, 0x00 };
 
 	// Exit command mode commmand 0xBF0000
-	struct cmd_mode_command_t exit_command_mode = { 0xBF, 0x00, 0x00 };
+	struct cmd_mode_command_t exit_command_mode = { CMD_EXIT_COMMAND_MODE, 0x00, 0x00 };
 
         sendAndProcessCommandModeCommand(enter_command_mode);
         sendAndProcessCommandModeCommand(exit_command_mode);
 
 	// Process the boot message
-	receiveMessage(0xF0, &handleBootMsg);
+	receiveMessage(MSG_TYPE_BOOTUP, &handleBootMsg);
 }
 
 void SComm::handleBootMsg(SComm* this_scom, void* response_data, size_t response_data_size)
@@ -74,7 +74,7 @@ void SComm::handleBootMsg(SComm* this_scom, void* response_data, size_t response
 	for(int i = 0; i < 2; ++i) {
 		char boot_msg_format[20];
 		snprintf(boot_msg_format, sizeof(boot_msg_format), "Boot Msg: %%.%ds", msg_header->msg_size);
-		Env::logMsg(Env::OperationMsg, Env::Info, boot_msg_format, (char*)(msg_header) + sizeof(sub_msg_header_t));
+		Env::logMsg(Env::OperationMsg, Env::Debug, boot_msg_format, (char*)(msg_header) + sizeof(sub_msg_header_t));
 		msg_header = (sub_msg_header_t*)(((char*)msg_header) + sizeof(sub_msg_header_t) + msg_header->msg_size + 1);
 	}
 
@@ -86,13 +86,45 @@ void SComm::handleBootMsg(SComm* this_scom, void* response_data, size_t response
 		throw 9;
 	}
 
-	Env::logMsg(Env::OperationMsg, Env::Info, "Firmware Version: 0x%02X", *((uint8_t*)(msg_header) + sizeof(sub_msg_header_t)));
+	Env::logMsg(Env::OperationMsg, Env::Debug, "Firmware Version: 0x%02X", *((uint8_t*)(msg_header) + sizeof(sub_msg_header_t)));
 }
 
 void SComm::handleMidiEventMsg(SComm* this_scom, void* response_data, size_t response_data_size)
 {
 	struct midi_event_t* midi_event = (midi_event_t*)response_data;
-	Env::logMsg(Env::OperationMsg, Env::Info, "MIDI Event: 0x%02X 0x%02X 0x%02X", midi_event->op_channel, midi_event->arg1, midi_event->arg2);
+	Env::logMsg(Env::OperationMsg, Env::Debug, "MIDI Event: 0x%02X 0x%02X 0x%02X", midi_event->op_channel, midi_event->arg1, midi_event->arg2);
+	
+	uint8_t op = (midi_event->op_channel & 0xF0);
+	uint8_t channel = (midi_event->op_channel & 0x0F);
+	switch(op) {
+		case MIDI_KEY_OFF:
+		{
+			Input key_input(channel, midi_event->arg1);
+			Event key_event(key_input, 0);  // Key off
+			this_scom->xEventHandler->enqueueEvent(key_event);
+			break;
+		}
+		case MIDI_KEY_ON:
+		{
+			Input key_input(channel, midi_event->arg1);
+			Event key_event(key_input, 1);  // Key on
+			this_scom->xEventHandler->enqueueEvent(key_event);
+			break;
+		}
+		case MIDI_CONTROL_CHANGE:
+		{
+			Input control_input(channel, midi_event->arg1, true);
+			Event control_event(control_input, midi_event->arg2);
+			this_scom->xEventHandler->enqueueEvent(control_event);
+			break;
+		}
+		default:
+		{
+			Env::errorMsg("Unknown midi opcode: %02X", midi_event->op_channel);
+			throw 9;
+			break;
+		}
+	}
 }
 
 void SComm::sendAndProcessCommandModeCommand(const cmd_mode_command_t& cmd, MsgResponseHandler* response_handler)
@@ -101,12 +133,12 @@ void SComm::sendAndProcessCommandModeCommand(const cmd_mode_command_t& cmd, MsgR
 	streamWrite(&cmd, sizeof(cmd_mode_command_t));
 
 	// Process the response
-	receiveMessage(0xF3, response_handler);
+	receiveMessage(MSG_TYPE_CMD_RSP, response_handler);
 }
 
 void SComm::receiveMessage(uint8_t msg_type, MsgResponseHandler* response_handler)
 {
-	Env::logMsg(Env::OperationMsg, Env::Debug, "SComm::receiveMessage - type: 0x%02X", msg_type);
+	Env::logMsg(Env::OperationMsg, Env::Debug, "Receive message of type: 0x%02X", msg_type);
 
 	// Wait for the message response
 	// Message response format FFTTSSSSMM...MMFDFC
@@ -119,30 +151,27 @@ void SComm::receiveMessage(uint8_t msg_type, MsgResponseHandler* response_handle
 	//   There is no guarentee that the stream is synced.  So there might be other data in stream that is not
 	//     the response.  Throw that data away and wait for the response of the specified type.
 
-	uint8_t response_header[2] = {0xFF, msg_type};
+	uint8_t response_header[2] = {MSG_HEAD, msg_type};
 	streamWaitForByteSequence(response_header, 2);
   
 	// Retrieve the message response data
 	uint16_t msg_size;
 	streamRead(&msg_size, sizeof(uint16_t));
 	msg_size = ntohs(msg_size);
-	/*if(msg_type == 0xF3) {
-		msg_size -= 3; // Subtract off the subtype and message length from the message size
-	}*/
-	Env::logMsg(Env::OperationMsg, Env::Debug, "SComm::recieveMessage - message size: 0x%02X", msg_size);
+	Env::logMsg(Env::OperationMsg, Env::Debug, "Received message size: 0x%02X", msg_size);
   
 	uint8_t* response_buffer = new uint8_t[msg_size];
 	streamRead(response_buffer, msg_size);
 
 	if(Env::getOperationLoudness() >= Env::Debug) {
 		for(int i = 0; i < msg_size; ++i) {
-			Env::logMsg(Env::OperationMsg, Env::Debug, "SComm::receiveMessage - response_buffer[%d] = 0x%02X", i, response_buffer[i]);
+			Env::logMsg(Env::OperationMsg, Env::Debug, "Response_buffer[%d] = 0x%02X", i, response_buffer[i]);
 		}
 	}
 
 	// Retrieve the message footer
-	streamReadExpectedByte(0xFD);
-	streamReadExpectedByte(0xFC);
+	streamReadExpectedByte(MSG_TRAIL);
+	streamReadExpectedByte(MSG_END);
 
 	// If a response handler is defined, call it
 	if(response_handler) {
@@ -155,23 +184,25 @@ void SComm::receiveMessage(uint8_t msg_type, MsgResponseHandler* response_handle
 
 void SComm::streamRead(void* buffer, size_t read_size)
 {
-	Env::logMsg(Env::OperationMsg, Env::Debug, "SComm::streamRead: 0x%02X bytes", read_size);
-	streamWaitForBytes(read_size);
+	uint8_t* buffer_position = (uint8_t*)buffer;
+	size_t total_bytes_read = 0;
 
-	ssize_t size_read = read(xCommFd, buffer, read_size);
-
-	if(size_read == -1) {
-		Env::errorMsg("Unable to read from stream: %s", strerror(errno));
-		throw 9;
-	} else  if(read_size != size_read) {
-		Env::errorMsg("Bytes read from stream: 0x%02X do not match what was requested: 0x%02X", size_read, read_size);
-		throw 9;
+	while(total_bytes_read < read_size) {
+		Env::logMsg(Env::OperationMsg, Env::Debug, "Read 0x%02X bytes", read_size - total_bytes_read);
+		ssize_t size_read = read(xCommFd, buffer_position, read_size - total_bytes_read);
+		if(size_read == -1) {
+			Env::errorMsg("Unable to read from stream: %s", strerror(errno));
+			throw 9;
+		}
+	       
+		total_bytes_read += size_read;
+		buffer_position += size_read;
 	}
 }
 
 void SComm::streamReadExpectedByte(unsigned char expected_byte)
 {
-	Env::logMsg(Env::OperationMsg, Env::Debug, "SComm::streamReadExpectedByte: 0x%02X", expected_byte);
+	Env::logMsg(Env::OperationMsg, Env::Debug, "Read expected byte: 0x%02X", expected_byte);
 	
 	unsigned char byte_read = 0;
 	streamRead(&byte_read, 1);
@@ -185,37 +216,33 @@ void SComm::streamReadExpectedByte(unsigned char expected_byte)
 void SComm::streamWaitForByteSequence(const uint8_t* byte_sequence, size_t byte_sequence_count)
 {
 	if(Env::getOperationLoudness() >= Env::Debug) {
-		Env::logMsg(Env::OperationMsg, Env::Debug, "SComm::streamWaitForByteSequence 0x%02X bytes -", byte_sequence_count);
+		Env::logMsg(Env::OperationMsg, Env::Debug, "Waiting for 0x%02X bytes -", byte_sequence_count);
 		for(int i = 0; i < byte_sequence_count; i++) {
-			Env::logMsg(Env::OperationMsg, Env::Debug, "SComm::streamWaitForByteSquence - byte_sequence[%d] = 0x%02X", i, byte_sequence[i]);
+			Env::logMsg(Env::OperationMsg, Env::Debug, "byte_sequence[%d] = 0x%02X", i, byte_sequence[i]);
 		}
 	}
 
-	uint8_t* bytes_read = new uint8_t[byte_sequence_count];
-	bool sequence_found = false;
+	uint8_t byte_read;
+	size_t current_sequence_position = 0;
   
-	while(!sequence_found) {
-		streamRead(bytes_read, byte_sequence_count);
+	while(current_sequence_position < byte_sequence_count) {
+		streamRead(&byte_read, 1);
+		Env::logMsg(Env::OperationMsg, Env::Debug, "Read Byte: 0x%02X", byte_read);
 
-		sequence_found = true;
-		for(int i = 0; i < byte_sequence_count; ++i) {
-			Env::logMsg(Env::OperationMsg, Env::Debug, "SComm::streamWaitForByteSequence - Read Byte: 0x%02X", bytes_read[i]);
-			if(byte_sequence[i] != bytes_read[i]) {
-				sequence_found = false;
-				break;
-			}
+		if(byte_read == byte_sequence[current_sequence_position]) {
+			current_sequence_position++;
+		} else {
+			current_sequence_position = 0;
 		}
 	}
-
-	delete [] bytes_read;
 }
 
 void SComm::streamWrite(const void* buffer, size_t write_size)
 {
 	if(Env::getOperationLoudness() >= Env::Debug) {
-		Env::logMsg(Env::OperationMsg, Env::Debug, "SComm::streamWrite 0x%02X bytes -", write_size);
+		Env::logMsg(Env::OperationMsg, Env::Debug, "Writing 0x%02X bytes -", write_size);
 		for(int i = 0; i < write_size; i++) {	
-			Env::logMsg(Env::OperationMsg, Env::Debug, "SComm::streamWrite - buffer[%d] = 0x%02X", i, ((uint8_t*)buffer)[i]);
+			Env::logMsg(Env::OperationMsg, Env::Debug, "buffer[%d] = 0x%02X", i, ((uint8_t*)buffer)[i]);
 		}
 	}
 
@@ -233,31 +260,10 @@ void SComm::streamWrite(const void* buffer, size_t write_size)
 	}
 }
 
-void SComm::streamWaitForBytes(size_t count)
-{
-	Env::logMsg(Env::OperationMsg, Env::Debug, "SComm::streamWaitForBytes: 0x%02X", count);
-
-	if(xCommFd == -1) {
-		initPort();
-	}
-
-	size_t size_available = 0;
-	do {
-		fd_set rfds;
-		FD_ZERO(&rfds);
-		FD_SET(xCommFd, &rfds);
-		if(-1 == select(xCommFd + 1, &rfds, NULL, NULL, NULL)) {
-			Env::errorMsg("Error waiting for stream input: %s", strerror(errno));
-		}
-		ioctl(xCommFd, FIONREAD, &size_available); 
-	} while(size_available < count);
-}
-
-
 // Setup the device into the right mode and open the file device and return it if it worked.  Needs to be closed later.
 int SComm::portSetup(struct port_arguments_t *args) 
 {
-	Env::logMsg(Env::OperationMsg, Env::Debug, "SComm::portSetup device:%s baud:%d bits:%d parity:0x%02X stops:%d",
+	Env::logMsg(Env::OperationMsg, Env::Debug, "Port setup device:%s baud:%d bits:%d parity:0x%02X stops:%d",
 		args->device,
 		args->baud,
 	      	args->bits,
@@ -269,10 +275,11 @@ int SComm::portSetup(struct port_arguments_t *args)
 		xCommFd = -1;
 	}
 
-	xCommFd = open(args->device,O_RDWR | O_NOCTTY | O_NDELAY);
+	//xCommFd = open(args->device,O_RDWR | O_NOCTTY | O_NDELAY);
+	xCommFd = open(args->device,O_RDWR | O_NOCTTY);
 
 	if(xCommFd != -1) {
-		fcntl(xCommFd, F_SETFL, FNDELAY);
+		//fcntl(xCommFd, F_SETFL, FNDELAY);
 
 		struct termios options;
 		tcgetattr(xCommFd, &options);
@@ -361,21 +368,11 @@ int SComm::portSetup(struct port_arguments_t *args)
 		options.c_iflag &= ~(IXON | IXOFF | IXANY);
 		options.c_oflag &= ~OPOST;
 
-		tcsetattr(xCommFd, TCSANOW, &options);
+		if(-1 == tcsetattr(xCommFd, TCSANOW, &options)) {
+			Env::errorMsg("Unable to run tcsetattr: %s", strerror(errno));
+			throw 9;
+		}
 	}
 
 	return xCommFd;
-}
-
-int main(int argc, char* argv[]) {
-
-  SComm test_comm(NULL);
-
-  test_comm.startEvents();
-
-  while(1) {
-	sleep(1);	  
-  };
-
-  return 0;
 }

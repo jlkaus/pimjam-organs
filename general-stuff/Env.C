@@ -6,7 +6,7 @@
 #include <time.h>
 #include <execinfo.h>
 
-Env Env::gEnv(99,99);
+Env Env::gEnv(0,0);
 
 void Env::logMsg(MsgClass mc, int ml, const char* fmt, ...) {
 
@@ -68,22 +68,20 @@ void Env::printCommon(FILE* stream, const char* msg_title, bool print_symbol, co
 
         fprintf(stream, "[ %s ] ", timebuffer);
 
-	fprintf(stream, "%s: ", msg_title);
-
 	// Indent based on call stack size
 	//   subtract 2 for the logMsg/errorMsg call and the printCommon call
 	for(int i = 0; i < backtrace_stack_size - 2; ++i) {
 		fprintf(stream, " ");
 	}
 	
-	/*
+	fprintf(stream, "%s: ", msg_title);
+	
 	if(print_symbol) {	
 		// Use symbol in 2nd entry since logMsg/errorMsg and printCommon are on the callstack
 		char** symbols = backtrace_symbols(backtrace_stack, backtrace_stack_size);
 		fprintf(stream, "%s ", symbols[2]);
 		free(symbols);
 	}
-	*/
 
         vfprintf(stream, fmt, ap);
         fprintf(stream, "\n");

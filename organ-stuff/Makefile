@@ -8,7 +8,7 @@ VPATH = ../lib
 CC = gcc
 CXX = g++
 CXXFLAGS = -D__STDC_LIMIT_MACROS -DTIXML_USE_TICPP -I../general-stuff -I../midi-stuff -I../xml-stuff
-LDFLAGS = -L../lib
+LDFLAGS = -L../lib -rdynamic
 
 
 all: $(ACT_TARGETS)

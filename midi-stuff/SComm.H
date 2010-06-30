@@ -57,7 +57,7 @@ private:
 
 	inline void initPort() { struct port_arguments_t port_args = {"/dev/ttyUSB0", 38400, 8, 'N', 1}; portSetup(&port_args); }
 	
-	void streamWaitForBytes(size_t count);
+	//void streamWaitForBytes(size_t count);
 	void streamRead(void* buffer, size_t read_size);
 	void streamWrite(const void* buffer, size_t write_size);
 	void streamReadExpectedByte(unsigned char expected_byte);

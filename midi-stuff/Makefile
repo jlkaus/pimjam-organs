@@ -9,9 +9,9 @@ LIBS = -lorgan -lxml -lmidi -lpthread
 VPATH = ../lib
 CC = gcc
 CXX = g++
-CXXFLAGS = -D__STDC_LIMIT_MACROS -I../organ-stuff -I../general-stuff -I../midi-stuff
+CXXFLAGS = -D__STDC_LIMIT_MACROS -I../organ-stuff -I../general-stuff -I../midi-stuff -I../firmware-stuff
 CFLAGS = 
-LDFLAGS = -L../lib 
+LDFLAGS = -L../lib -rdynamic
 
 all: libmidi $(ACT_TARGETS) scom
 
