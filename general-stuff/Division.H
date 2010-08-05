@@ -23,7 +23,6 @@ public:
 
 protected:
   std::string mName;
-  std::map<Input, Keyboard> mKeyboards;
   std::map<Input, Coupler> mCouplers;
   std::map<Input, Effect> mEffects;
   std::map<Input, Stop> mStops;

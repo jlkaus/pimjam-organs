@@ -17,6 +17,7 @@ Division::Division(ticpp::Element* divisionDescription) {
 
     Env::logMsg(Env::OperationMsg, Env::Info, "Loading division: %s", mName.c_str());
 
+    /*
     ticpp::Iterator<ticpp::Element> childK("keyboard");
     for(childK = childK.begin(divisionDescription); childK!= childK.end(); ++childK) {
       std::string childName = childK->GetAttribute("name");
@@ -27,6 +28,7 @@ Division::Division(ticpp::Element* divisionDescription) {
 			
       mKeyboards[Input(childChannel)] = Keyboard(childName, childOffset);
     }
+    */
 
     ticpp::Iterator<ticpp::Element> childC("coupler");
     for(childC = childC.begin(divisionDescription); childC!= childC.end(); ++childC) {

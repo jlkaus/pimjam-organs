@@ -4,9 +4,9 @@
 #include "Organ.H"
 #include "ticpp.h"
 #include "Input.H"
-#include "PlayControlBlock.H"
 #include "Env.H"
-
+#include "Division.H"
+#include "Keyboard.H"
 
 Organ::Organ(std::string organFile) {
   try {
@@ -21,12 +21,23 @@ Organ::Organ(std::string organFile) {
 
     Env::logMsg(Env::OperationMsg,Env::Info, "Loading organ: %s", mName.c_str());
 
-    ticpp::Iterator<ticpp::Element> child("division");
-    for(child = child.begin(organElement); child!=child.end(); ++child) {
-      std::string divName = child->GetAttribute("name");
-
-      mDivisions[divName] = new Division(&(*child));
+    ticpp::Iterator<ticpp::Element> dchild("division");
+    for(dchild = dchild.begin(organElement); dchild!=dchild.end(); ++dchild) {
+      std::string divName = dchild->GetAttribute("name");
+      mDivisions[divName] = new Division(&(*dchild));
     }
+
+    ticpp::Iterator<ticpp::Element> childK("keyboard");
+    for(childK = childK.begin(organElement); childK!= childK.end(); ++childK) {
+      std::string childName = childK->GetAttribute("name");
+      int childChannel = -1;
+      childK->GetAttributeOrDefault("channel", &childChannel,-1);
+      int childOffset = 0;
+      childK->GetAttributeOrDefault("length",&childOffset,0);
+			
+      mKeyboards[Input(childChannel)] = Keyboard(childName, childOffset, this);
+    }
+    
   } catch(ticpp::Exception& ex) {
     Env::errorMsg("Got a ticpp exception in Organ ctor %d", ex.what());
   }

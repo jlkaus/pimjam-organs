@@ -3,10 +3,10 @@
 
 #include <string>
 #include <map>
-#include "Division.H"
 #include "Input.H"
-#include "PlayControlBlock.H"
+#include "Keyboard.H"
 
+class Division;
 
 class Organ {
 public:
@@ -14,13 +14,12 @@ public:
   ~Organ();
 
   int sendEvent(const Input& in, int newValue);
- inline	Division* getDivision(std::string name) { return mDivisions[name]; } 
+  inline Division* getDivision(std::string name) { return mDivisions[name]; } 
   
 protected:
   std::string mName;
-  PlayControlBlock mPlayControlBlock;
   std::map<std::string, Division*> mDivisions;
-
+  std::map<Input, Keyboard> mKeyboards;
 
 };
 
