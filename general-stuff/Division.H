@@ -8,30 +8,33 @@
 #include "ticpp.h"
 #include "Stop.H"
 #include "Input.H"
-#include "Keyboard.H"
-#include "Coupler.H"
 #include "Effect.H"
 #include "Rank.H"
 #include "PlayControlBlock.H"
+
+class Keyboard;
 
 class Division {
 public:
   Division(ticpp::Element* divisionDescription);
   ~Division();
-
-  int sendEvent(const Input& in, PlayControlBlock& pcb, int newValue);
+	
+  inline std::string getName() const {return mName;}
+  inline int coupleToKeyboard(Keyboard* keyboard, int offset) {mCoupled[keyboard] = offset; return 1;}
+  inline int decoupleFromKeyboard(Keyboard* keyboard) {return mCoupled.erase(keyboard);}
+  int keyboardStateChange(Keyboard* keyboard);
+  int sendEvent(const Input& in, int newValue);
 
 protected:
   std::string mName;
-  std::map<Input, Coupler> mCouplers;
   std::map<Input, Effect> mEffects;
   std::map<Input, Stop> mStops;
 
   std::map<Stop, Rank*> mRanks;
 
-  std::set<Coupler> mCoupled;
   std::set<Effect> mEffected;
   std::set<Stop> mUnstopped;
+  std::map<Keyboard*, int> mCoupled;
 };
 
 #endif

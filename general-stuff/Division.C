@@ -5,6 +5,7 @@
 
 #include "Division.H"
 #include "Rank.H"
+#include "Keyboard.H"
 #include "Input.H"
 #include "PlayControlBlock.H"
 #include "Env.H"
@@ -16,33 +17,6 @@ Division::Division(ticpp::Element* divisionDescription) {
     Env::logMsg(Env::CreationMsg, Env::Debug, "Creating division named %s", mName.c_str());
 
     Env::logMsg(Env::OperationMsg, Env::Info, "Loading division: %s", mName.c_str());
-
-    /*
-    ticpp::Iterator<ticpp::Element> childK("keyboard");
-    for(childK = childK.begin(divisionDescription); childK!= childK.end(); ++childK) {
-      std::string childName = childK->GetAttribute("name");
-      int childChannel = -1;
-      childK->GetAttributeOrDefault("channel", &childChannel,-1);
-      int childOffset = 0;
-      childK->GetAttributeOrDefault("length",&childOffset,0);
-			
-      mKeyboards[Input(childChannel)] = Keyboard(childName, childOffset);
-    }
-    */
-
-    ticpp::Iterator<ticpp::Element> childC("coupler");
-    for(childC = childC.begin(divisionDescription); childC!= childC.end(); ++childC) {
-      std::string childName = childC->GetAttribute("name");
-      std::string childTarget = childC->GetAttribute("target");
-      int childChannel = -1;
-      childC->GetAttributeOrDefault("channel",&childChannel, -1);
-      int childInput = -1;
-      childC->GetAttributeOrDefault("input",&childInput,-1);
-      int childOffset = 0;
-      childC->GetAttributeOrDefault("length",&childOffset,0);
-			
-      mCouplers[Input(childChannel,childInput)] = Coupler(childName, childTarget, childOffset);
-    }
 
     ticpp::Iterator<ticpp::Element> childE("effect");
     for(childE = childE.begin(divisionDescription); childE!= childE.end(); ++childE) {
@@ -72,6 +46,9 @@ Division::Division(ticpp::Element* divisionDescription) {
       mStops[Input(childChannel,childInput)] = Stop(childName, childLength);
       
       mRanks[Stop(childName, childLength)] = new Rank(childRank);
+
+      // Initially assume all stops are off
+      mUnstopped.insert(Stop(childName, childLength));
     }
 
 
@@ -92,6 +69,38 @@ Division::~Division() {
 }
 
 
-int Division::sendEvent(const Input& in, PlayControlBlock& pcb, int newValue) {
+int Division::sendEvent(const Input& in, int newValue) {
+	if(mStops.find(in) != mStops.end()) {
+		if(newValue == 1) {
+			mUnstopped.erase(mStops[in]);
+			return 1;
+		} else if(newValue == 0) {
+			mUnstopped.insert(mStops[in]);
+			return 1;
+		}
+		return 0;
+	}
+	if(mEffects.find(in) != mEffects.end()) {
+		if(newValue == 1) {
+			mEffected.insert(mEffects[in]);
+			return 1;
+		} else if(newValue == 0) {
+			mEffected.erase(mEffects[in]);
+			return 1;
+		}
+		return 0;
+	}
+	return 0;
+}
 
+int Division::keyboardStateChange(Keyboard* keyboard) {
+	std::map<Keyboard*, int>::iterator iter = mCoupled.find(keyboard);
+	if(iter == mCoupled.end()) {
+		Env::logMsg(Env::OperationMsg, Env::Debug, "State change on keyboard: %s, but it is not coupled to division: %s", keyboard->getName().c_str(), mName.c_str());
+		return 0;
+	}
+
+	Env::logMsg(Env::OperationMsg, Env::Debug, "State change on keyboard: %s coupled to division: %s", keyboard->getName().c_str(), mName.c_str());
+
+	return 0;	
 }
