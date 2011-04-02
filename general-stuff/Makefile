@@ -1,7 +1,7 @@
 .PHONY: all clean cleanall liborgan
 
 ACT_TARGETS =
-LIB_SRC = AlsaHelp Church Rank Pipe Organ Division PlayControlBlock Coupler Effect Input Keyboard Stop Env Event EventGenerator EventHandler
+LIB_SRC = AlsaHelp Church Rank Pipe Organ Division DivisionThread PlayControlBlock Coupler Effect Input Keyboard Stop Env Event EventGenerator EventHandler
 LIBS = -lorgan -lxml -lmidi
 
 VPATH = ../lib

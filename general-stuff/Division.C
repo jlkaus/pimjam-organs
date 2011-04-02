@@ -10,9 +10,15 @@
 #include "PlayControlBlock.H"
 #include "Env.H"
 
-Division::Division(ticpp::Element* divisionDescription) {
+Division::Division(ticpp::Element* divisionDescription) :
+  mControlChannel(-1),
+  mExpressionMax(-1),
+  mExpressionValue(0.0)
+{
   try {
     mName = divisionDescription->GetAttribute("name");
+    divisionDescription->GetAttributeOrDefault("control_channel", &mControlChannel, -1);
+    divisionDescription->GetAttributeOrDefault("expression_max", &mExpressionMax, -1);
 
     Env::logMsg(Env::CreationMsg, Env::Debug, "Creating division named %s", mName.c_str());
 
@@ -70,25 +76,39 @@ Division::~Division() {
 
 
 int Division::sendEvent(const Input& in, int newValue) {
-	if(mStops.find(in) != mStops.end()) {
-		if(newValue == 1) {
-			mUnstopped.erase(mStops[in]);
-			return 1;
-		} else if(newValue == 0) {
-			mUnstopped.insert(mStops[in]);
-			return 1;
-		}
-		return 0;
-	}
-	if(mEffects.find(in) != mEffects.end()) {
-		if(newValue == 1) {
-			mEffected.insert(mEffects[in]);
-			return 1;
-		} else if(newValue == 0) {
-			mEffected.erase(mEffects[in]);
-			return 1;
-		}
-		return 0;
+	
+	switch(in.getType()) {
+
+		case Input::ControlInput:
+			if(in.getChannel() == mControlChannel) {
+				if(in.getControlNumber() == MidiControlTypes_ExpressionPedal) {
+					mExpressionValue = ((float)newValue) / ((float)mExpressionMax);
+				}
+				return 0;
+			}
+			break;
+
+		case Input::SpecificInput:
+			if(mStops.find(in) != mStops.end()) {
+				if(newValue == 1) {
+					mUnstopped.erase(mStops[in]);
+					return 1;
+				} else if(newValue == 0) {
+					mUnstopped.insert(mStops[in]);
+					return 1;
+				}
+				return 0;
+			}
+			if(mEffects.find(in) != mEffects.end()) {
+				if(newValue == 1) {
+					mEffected.insert(mEffects[in]);
+					return 1;
+				} else if(newValue == 0) {
+					mEffected.erase(mEffects[in]);
+					return 1;
+				}
+			}
+			break;
 	}
 	return 0;
 }
