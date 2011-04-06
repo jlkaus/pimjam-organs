@@ -1,25 +1,26 @@
 #include "Keyboard.H"
 #include "Division.H"
+#include "Event.H"
 
-int Keyboard::sendEvent(const Input& in, int newValue) {
+Event::EventStatus Keyboard::sendEvent(const Input& in, int newValue) {
 
 	if(in.getChannel() != mChannel) {
-		return 0;
+		return Event::EventUnhandled;
 	}
 
 	if(newValue == 0) {
 		mPressedKeys.erase(in.getLine());
 		notifyDivisionsOfStateChange();
-		return 1;
+		return Event::EventConsumed;
 	}
 
 	if(newValue = 1) {
 		mPressedKeys.insert(in.getLine());
 		notifyDivisionsOfStateChange();
-		return 1;
+		return Event::EventConsumed;
 	}
 
-	return 0;
+	return Event::EventUnhandled;
 }
 
 

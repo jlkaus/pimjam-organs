@@ -75,16 +75,17 @@ Division::~Division() {
 }
 
 
-int Division::sendEvent(const Input& in, int newValue) {
+Event::EventStatus Division::sendEvent(const Input& in, int newValue) {
 	
 	switch(in.getType()) {
 
 		case Input::ControlInput:
 			if(in.getChannel() == mControlChannel) {
+				Env::logMsg(Env::OperationMsg, Env::Debug, "Control input: %s with value %d handled by division %s", in.toString().c_str(), newValue, mName.c_str());
 				if(in.getControlNumber() == MidiControlTypes_ExpressionPedal) {
 					mExpressionValue = ((float)newValue) / ((float)mExpressionMax);
 				}
-				return 0;
+				return Event::EventHandled;
 			}
 			break;
 
@@ -92,25 +93,25 @@ int Division::sendEvent(const Input& in, int newValue) {
 			if(mStops.find(in) != mStops.end()) {
 				if(newValue == 1) {
 					mUnstopped.erase(mStops[in]);
-					return 1;
+					return Event::EventConsumed;
 				} else if(newValue == 0) {
 					mUnstopped.insert(mStops[in]);
-					return 1;
+					return Event::EventConsumed;
 				}
-				return 0;
+				return Event::EventUnhandled;
 			}
 			if(mEffects.find(in) != mEffects.end()) {
 				if(newValue == 1) {
 					mEffected.insert(mEffects[in]);
-					return 1;
+					return Event::EventConsumed;
 				} else if(newValue == 0) {
 					mEffected.erase(mEffects[in]);
-					return 1;
+					return Event::EventConsumed;
 				}
 			}
 			break;
 	}
-	return 0;
+	return Event::EventUnhandled;
 }
 
 int Division::keyboardStateChange(Keyboard* keyboard) {

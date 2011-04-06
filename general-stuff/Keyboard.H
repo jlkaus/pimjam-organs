@@ -5,6 +5,7 @@
 #include <set>
 #include "Env.H"
 #include "Input.H"
+#include "Event.H"
 
 class Organ;
 class Division;
@@ -17,9 +18,9 @@ public:
 
   inline std::string getName() const {return mName;}
   inline int getChannel() const {return mChannel;}
-  inline int coupleToDivision(Division* division) {mCoupledDivisions.insert(division); return 1;}
-  inline int decoupleFromDivision(Division* division) {return mCoupledDivisions.erase(division);}
-  int sendEvent(const Input& in, int newValue);
+  inline void coupleToDivision(Division* division) {mCoupledDivisions.insert(division);}
+  inline void decoupleFromDivision(Division* division) {mCoupledDivisions.erase(division);}
+  Event::EventStatus sendEvent(const Input& in, int newValue);
 
 protected:
 

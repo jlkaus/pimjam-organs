@@ -8,6 +8,13 @@
 
 class Event {
 public:
+
+  enum EventStatus {
+	EventUnhandled = 0,
+	EventHandled = 1,
+	EventConsumed = 2
+  };
+
   Event(const Input& input, int newValue): mInput(input), mNewValue(newValue) { 
     Env::logMsg(Env::CreationMsg, Env::Debug, "Creating Event at Input %s with value %d", mInput.toString().c_str(), mNewValue); 
   }

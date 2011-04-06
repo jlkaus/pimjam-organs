@@ -6,6 +6,7 @@
 #include "Input.H"
 #include "Keyboard.H"
 #include "Coupler.H"
+#include "Event.H"
 
 class Division;
 
@@ -14,12 +15,12 @@ public:
   Organ(std::string organFile);
   ~Organ();
 
-  int sendEvent(const Input& in, int newValue);
+  Event::EventStatus sendEvent(const Input& in, int newValue);
   inline Division* getDivision(std::string name) { return mDivisions[name]; }
   inline Keyboard* getKeyboard(int in) { return mKeyboards[in]; }
 
-  int couple(Coupler& coupler);
-  int decouple(Coupler& coupler);
+  Event::EventStatus couple(Coupler& coupler);
+  Event::EventStatus decouple(Coupler& coupler);
   
 protected:
   std::string mName;

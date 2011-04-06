@@ -52,7 +52,7 @@
     </stop>
 
   </division>
-  <division name="Swell" expression="A0" lp="256" ro="0.3" rp="0.3" tp="0.7" zeta="0.125">
+  <division name="Swell" control_channel="1" expression_max="128" lp="256" ro="0.3" rp="0.3" tp="0.7" zeta="0.125">
   
     <effect name="Volume"		type="volume"	channel="6"	input="22" />
 

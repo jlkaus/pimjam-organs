@@ -4,6 +4,7 @@
 #include "Organ.H"
 #include "ticpp.h"
 #include "Input.H"
+#include "Event.H"
 #include "Env.H"
 #include "Division.H"
 #include "Keyboard.H"
@@ -85,19 +86,20 @@ Organ::~Organ() {
   Env::logMsg(Env::CreationMsg, Env::Debug, "Destroying organ %s", mName.c_str());
 }
 
-int Organ::sendEvent(const Input& in, int newValue) {
+Event::EventStatus Organ::sendEvent(const Input& in, int newValue) {
 	
-	int handled = 0;
-
+	Event::EventStatus handled = Event::EventUnhandled;
+	
+	// Keyboards and couplers can only handle specific inputs
 	if(in.getType() == Input::SpecificInput) {
 		
-		if(handled == 0) {
+		if(handled != Event::EventConsumed) {
 			if(mKeyboards.find(in.getChannel()) != mKeyboards.end()) {
 				handled = mKeyboards[in.getChannel()]->sendEvent(in, newValue);
 			}
 		}
 
-		if(handled == 0) {
+		if(handled != Event::EventConsumed) {
 			if(mCouplers.find(in) != mCouplers.end()) {
 				if(newValue == 1) {
 					handled = couple(mCouplers[in]);
@@ -106,38 +108,42 @@ int Organ::sendEvent(const Input& in, int newValue) {
 				}
 			}
 		}
+	}
 
-		if(handled == 0) {
-			for(std::map<std::string, Division*>::iterator iter = mDivisions.begin(); iter != mDivisions.end(); iter++) {
-				if(iter->second->sendEvent(in, newValue)) {
-					handled = 1;
-					break;
-				}
+	// Divisions can handle specific or control inputs
+	if(handled != Event::EventConsumed) {
+		for(std::map<std::string, Division*>::iterator iter = mDivisions.begin(); iter != mDivisions.end(); iter++) {
+			Event::EventStatus division_handled = iter->second->sendEvent(in, newValue);
+			if(division_handled == Event::EventConsumed) {
+				handled = Event::EventConsumed;
+				break;
+			} else if(division_handled == Event::EventHandled) {
+				handled = Event::EventHandled;
 			}
 		}
 	}
 		
-	if(handled == 0) {
+	if(handled == Event::EventUnhandled) {
 		Env::logMsg(Env::OperationMsg, Env::Info, "Event on input: %s with new value 0x%X not handled by organ", in.toString().c_str(), newValue);
 	}
 
 	return handled;
 }
 
-int Organ::couple(Coupler& coupler) {
+Event::EventStatus Organ::couple(Coupler& coupler) {
 	Division* division = coupler.getTarget();
 	Keyboard* keyboard = coupler.getKeyboard();
 	Env::logMsg(Env::OperationMsg, Env::Info, "Coupling keyboard %s to division %s at length %d", keyboard->getName().c_str(), division->getName().c_str(), coupler.getOffset());
 	keyboard->coupleToDivision(division);
 	division->coupleToKeyboard(keyboard, coupler.getOffset());
-	return 1;
+	return Event::EventConsumed;
 }
 
-int Organ::decouple(Coupler& coupler) {
+Event::EventStatus Organ::decouple(Coupler& coupler) {
 	Division* division = coupler.getTarget();
 	Keyboard* keyboard = coupler.getKeyboard();
 	Env::logMsg(Env::OperationMsg, Env::Info, "Decoupling keyboard %s from division %s", keyboard->getName().c_str(), division->getName().c_str(), coupler.getOffset());
 	keyboard->decoupleFromDivision(division);
 	division->decoupleFromKeyboard(keyboard);
-	return 1;
+	return Event::EventConsumed;
 }

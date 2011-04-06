@@ -8,6 +8,7 @@
 #include "ticpp.h"
 #include "Stop.H"
 #include "Input.H"
+#include "Event.H"
 #include "Effect.H"
 #include "Rank.H"
 #include "PlayControlBlock.H"
@@ -26,10 +27,10 @@ public:
 	
   inline std::string getName() const {return mName;}
   inline float getExpressionValue() const {return mExpressionValue;}
-  inline int coupleToKeyboard(Keyboard* keyboard, int offset) {mCoupled[keyboard] = offset; return 1;}
-  inline int decoupleFromKeyboard(Keyboard* keyboard) {return mCoupled.erase(keyboard);}
+  inline void coupleToKeyboard(Keyboard* keyboard, int offset) {mCoupled[keyboard] = offset;}
+  inline void decoupleFromKeyboard(Keyboard* keyboard) {mCoupled.erase(keyboard);}
   int keyboardStateChange(Keyboard* keyboard);
-  int sendEvent(const Input& in, int newValue);
+  Event::EventStatus sendEvent(const Input& in, int newValue);
 
 protected:
   std::string mName;
