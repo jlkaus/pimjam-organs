@@ -10,10 +10,10 @@ AVR_FREQ   = 20000000L
 AVR_TARGET = atmega164p
 STD_AVR_DEFS = -mmcu=$(AVR_TARGET) -DF_CPU=$(AVR_FREQ)
 
-CC = /usr/local/avr/bin/avr-gcc
-CXX = /usr/local/avr/bin/avr-g++
-OBJCOPY = /usr/local/avr/bin/avr-objcopy
-OBJDUMP = /usr/local/avr/bin/avr-objdump
+CC = /usr/bin/avr-gcc
+CXX = /usr/bin/avr-g++
+OBJCOPY = /usr/bin/avr-objcopy
+OBJDUMP = /usr/bin/avr-objdump
 CFLAGS = -Wall -Os $(STD_AVR_DEFS) $(EXTRA_DEFS) -Icorelib -std=gnu99 
 CXXFLAGS = -D__STDC_LIMIT_MACROS -Wall -Os $(STD_AVR_DEFS) $(EXTRA_DEFS) -Icorelib
 LDFLAGS = $(STD_AVR_DEFS) -L.

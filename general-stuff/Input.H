@@ -33,7 +33,7 @@ public:
   InputType getType() const {return mType;}
   int getChannel() const {return mChannel;}
   int getLine() const {assert(mType==SpecificInput); return mLine;}
-  int getControlNumber() const {assert(mType==ControlInput); return mLine;}
+  int getControlNumber() const { assert(mType==ControlInput); return mLine;}
   int getRangeLow() const {assert(mType==RangeInput); return mRangeLow;}
   int getRangeHigh() const {assert(mType==RangeInput); return mRangeHigh;}
 

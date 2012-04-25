@@ -5,8 +5,8 @@
 
 int main(int argc, char* argv[])
 {
-	Env::setLoudness(99,99);
-	//Env::setLoudness(Env::Info, Env::Info);
+	//Env::setLoudness(99,99);
+	Env::setLoudness(Env::Info, Env::Info);
 
 	Organ pimjam("../pimjam.organ");
 

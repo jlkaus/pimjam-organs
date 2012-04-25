@@ -8,7 +8,7 @@
 #include <avr/eeprom.h>
 #include <avr/wdt.h>
 
-#include "orbanbop_common.h"
+#include "organbop_common.h"
 
 #ifndef F_CPU
 #error Need F_CPU to be defined!
