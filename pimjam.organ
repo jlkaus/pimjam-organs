@@ -17,37 +17,37 @@
     <effect name="Light Vibrato"	type="vibrato"	channel="6"	input="12"	arg="0.5" />
     <effect name="Full Vibrato"		type="vibrato"	channel="6"	input="13"	arg="1.0" />
 
-    <stop name="Tibia 16'"		length="16"	channel="6"	input="3">
+    <stop name="Tibia 16'"		length="16"	channel="6"	input="3"	rank="tibia_16.rank">
 	<rank name="tibia_16.rank" 	length="8" />
     </stop>
-    <stop name="Tibia 8'"		length="8"	channel="6"	input="4">
+    <stop name="Tibia 8'"		length="8"	channel="6"	input="4"	rank="tibia_8.rank">
 	<rank name="tibia_8.rank" 	length="8" />
     </stop>
-    <stop name="Salicional 8'"		length="8"	channel="6"	input="5">
+    <stop name="Salicional 8'"		length="8"	channel="6"	input="5"	rank="salicional_8.rank">
 	<rank name="salicional_8.rank" 	length="8" />
     </stop>
-    <stop name="Saxaphone 8'"		length="8"	channel="6"	input="6">
+    <stop name="Saxaphone 8'"		length="8"	channel="6"	input="6"	rank="saxaphone_8.rank">
 	<rank name="saxaphone_8.rank" 	length="8" />
     </stop>
-    <stop name="Clarinet 8'"		length="8"	channel="6"	input="7">
+    <stop name="Clarinet 8'"		length="8"	channel="6"	input="7"	rank="clarinet_8.rank">
 	<rank name="clarinet_8.rank" 	length="8" />
     </stop>
-    <stop name="Oboe Horn 8'"		length="8"	channel="6"	input="8">
+    <stop name="Oboe Horn 8'"		length="8"	channel="6"	input="8"	rank="oboe_horn_8.rank">
 	<rank name="oboe_horn_8.rank" 	length="8" />
     </stop>
-    <stop name="Tibia 4'"		length="4"	channel="6"	input="9">
+    <stop name="Tibia 4'"		length="4"	channel="6"	input="9"	rank="tibia_4.rank">
 	<rank name="tibia_4.rank" 	length="8" />
     </stop>
-    <stop name="Salicet 4'"		length="4"	channel="6"	input="10">
+    <stop name="Salicet 4'"		length="4"	channel="6"	input="10"	rank="salicet_4.rank">
 	<rank name="salicet_4.rank" 	length="8" />
     </stop>
-    <stop name="Vibraharp 8'"		length="8"	channel="6"	input="14">
+    <stop name="Vibraharp 8'"		length="8"	channel="6"	input="14"	rank="vibraharp_8.rank">
 	<rank name="vibraharp_8.rank" 	length="8" />
     </stop>
-    <stop name="Organharp 8'"		length="8"	channel="6"	input="15">
+    <stop name="Organharp 8'"		length="8"	channel="6"	input="15"	rank="organharp_8.rank">
 	<rank name="organharp_8.rank" 	length="8" />
     </stop>
-    <stop name="String 8'"		length="8"	channel="6"	input="16">
+    <stop name="String 8'"		length="8"	channel="6"	input="16"	rank="string_8.rank">
 	<rank name="string_8.rank" 	length="8" />
     </stop>
 
@@ -56,29 +56,29 @@
   
     <effect name="Volume"		type="volume"	channel="6"	input="22" />
 
-    <stop name="Horn Diapason 8'"	length="8"	channel="6"	input="18">
+    <stop name="Horn Diapason 8'"	length="8"	channel="6"	input="18"	rank="horn_diapason_8.rank">
 	<rank name="horn_diapason_8.rank" length="8" />
     </stop>
-    <stop name="Flute 8'"		length="8"	channel="6"	input="19">
+    <stop name="Flute 8'"		length="8"	channel="6"	input="19"	rank="flute_8.rank">
 	<rank name="flute_8.rank" 	length="8" />
     </stop>
-    <stop name="Gemshorn 8'"		length="8"	channel="6"	input="20">
+    <stop name="Gemshorn 8'"		length="8"	channel="6"	input="20"	rank="gemshorn_8.rank">
 	<rank name="gemshorn_8.rank" 	length="8" />
     </stop>
-    <stop name="Trumpet 8'"		length="8"	channel="6"	input="21">
+    <stop name="Trumpet 8'"		length="8"	channel="6"	input="21"	rank="trumpet_8.rank">
 	<rank name="trumpet_8.rank" 	length="8" />
     </stop>
 
   </division>
   <division name="Pedal" lp="256" ro="0.3" rp="0.0" tp="1.0" zeta="0.0">
 
-    <stop name="Bourdon 16'"		length="16"	channel="6"	input="0">
+    <stop name="Bourdon 16'"		length="16"	channel="6"	input="0"	rank="bourdon_16.rank">
 	<rank name="bourdon_16.rank" 	length="8" />
     </stop>
-    <stop name="Dulciana 16'"		length="16"	channel="6"	input="1">
+    <stop name="Dulciana 16'"		length="16"	channel="6"	input="1"	rank="dulciana_16.rank">
 	<rank name="dulciana_16.rank" 	length="8" />
     </stop>
-    <stop name="Flute 8'"		length="8"	channel="6"	input="2">
+    <stop name="Flute 8'"		length="8"	channel="6"	input="2"	rank="flute_8.rank">
 	<rank name="flute_8.rank" 	length="8" />
     </stop>
   
