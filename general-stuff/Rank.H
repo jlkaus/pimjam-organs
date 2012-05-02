@@ -18,9 +18,11 @@ public:
 
   inline Pipe* getPipe(int mNote, int mOffset) {return mPipes[mNote];}
 
+protected:
+  void readRankData(FILE* fh, long int offset);
 
 protected:
-  std::string mName;
+  std::wstring mName;
   float mPitchLength;
   int mBaseWrittenNote;
   std::map<int,Pipe*> mPipes;

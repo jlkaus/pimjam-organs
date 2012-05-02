@@ -47,7 +47,7 @@ protected:
   int mRsvd6;
   int mRsvd7;
 
-  // array of samples for attack, normalized to a peak pipe volume of 1.
+  // array of samples for sustain, normalized to a peak pipe volume of 1.
   float* mSustainData;
   void* mRsvd8;
   void* mRsvd9;
