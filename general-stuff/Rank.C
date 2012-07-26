@@ -5,15 +5,16 @@
 #include "Pipe.H"
 #include "rankfile.H"
 #include "Env.H"
+#include "Exceptions.H"
 
 Rank::Rank(std::string rankFile) {
   Env::logMsg(Env::CreationMsg, Env::Debug, "Creating rank from file %s", rankFile.c_str());
 
   Env::logMsg(Env::OperationMsg, Env::Info, "Loading rank: %s", rankFile.c_str());
-
+  
   FILE* fh = fopen(rankFile.c_str(), "r");
   if(!fh) {
-    throw 60;
+    throw OrganIntException(60);
   }
 
   try {

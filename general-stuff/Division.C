@@ -9,6 +9,7 @@
 #include "Input.H"
 #include "PlayControlBlock.H"
 #include "Env.H"
+#include "Exceptions.H"
 
 Division::Division(ticpp::Element* divisionDescription) :
   mControlChannel(-1),
@@ -60,6 +61,8 @@ Division::Division(ticpp::Element* divisionDescription) :
 
   } catch(ticpp::Exception & ex) {
     Env::errorMsg("Caught a ticpp exception in Division ctor %d", ex.what());
+  } catch(OrganException & ex) {
+    Env::errorMsg("Caught organ exception in Division ctor: %s", ex.what());
   } catch(...) {
     Env::errorMsg("Caught some other exception in Division ctor");
   }

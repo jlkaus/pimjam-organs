@@ -15,7 +15,7 @@ EventHandler::EventHandler(Organ* thisOrgan) :
 	Env::logMsg(Env::CreationMsg, Env::Debug, "Creating event generator");
 	if(-1 == sem_init(&xEventSemaphore, 0, 0)) {
 		Env::errorMsg("Event handler unable to initialize event semaphore: %s", strerror(errno));
-		throw 10; 
+		throw 60; 
 	}
 }
 
@@ -28,7 +28,7 @@ EventHandler::~EventHandler()
 
 	if(-1 == sem_destroy(&xEventSemaphore)) {
 		Env::errorMsg("Event handler unable to destory event semaphore: %s", strerror(errno));
-		throw 10;
+		throw 60; 
 	}
 }
 
@@ -37,7 +37,7 @@ void EventHandler::enqueueEvent(const Event& event)
 	xEventQueue.push(event);
 	if(-1 == sem_post(&xEventSemaphore)) {
 		Env::errorMsg("Event handler unable to post to event semaphore: %s", strerror(errno));
-		throw 10;
+		throw 60; 
 	}
 }
 
@@ -48,7 +48,7 @@ void* EventHandler::eventLoop(void* args)
 	while(thisHandler->xHandleEvents) {
 		if(-1 == sem_wait(&thisHandler->xEventSemaphore)) {
 			Env::errorMsg("Event handler error waiting on semaphore: %s", strerror(errno));
-			throw 10;
+			throw 60; 
 		}
 
 		Event this_event = thisHandler->xEventQueue.front();
